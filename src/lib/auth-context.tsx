@@ -21,18 +21,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isDemoMode, setIsDemoMode] = useState(false);
-
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const isDemoMode = false;
 
   useEffect(() => {
-    if (!supabaseUrl || supabaseUrl === "your-supabase-url-here") {
-      // Demo mode — no Supabase configured
-      setIsDemoMode(true);
-      setLoading(false);
-      return;
-    }
-
     const supabase = createClient();
 
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -53,7 +44,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
 
     return () => subscription.unsubscribe();
-  }, [supabaseUrl]);
+  }, []);
 
   async function signIn(email: string, password: string) {
     if (isDemoMode) {
