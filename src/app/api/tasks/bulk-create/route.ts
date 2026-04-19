@@ -3,6 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 import { MIRO_BOARDS } from "@/lib/clients-config";
 import { moduloToCategory } from "@/lib/miro-progress";
 import type { ModuleCategory } from "@/lib/types";
+import { getSupabaseServerConfig } from "@/lib/supabase-env";
 
 export const dynamic = "force-dynamic";
 
@@ -88,14 +89,7 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!supabaseUrl || !supabaseKey) {
-    return NextResponse.json(
-      { ok: false, error: "Supabase no configurado" },
-      { status: 500 }
-    );
-  }
+  const { url: supabaseUrl, key: supabaseKey } = getSupabaseServerConfig();
   const supabase = createClient(supabaseUrl, supabaseKey);
 
   const { data, error } = await supabase.from("tasks").insert(rows).select("id");

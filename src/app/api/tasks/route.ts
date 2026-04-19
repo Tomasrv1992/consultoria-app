@@ -7,6 +7,7 @@ import {
   EMPTY_HISTORICAL,
   HistoricalCounts,
 } from "@/lib/miro-historico";
+import { getSupabaseServerConfig } from "@/lib/supabase-env";
 
 export const dynamic = "force-dynamic";
 
@@ -46,14 +47,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "clientId requerido" }, { status: 400 });
   }
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!supabaseUrl || !supabaseKey) {
-    return NextResponse.json(
-      { error: "Supabase no configurado" },
-      { status: 500 }
-    );
-  }
+  const { url: supabaseUrl, key: supabaseKey } = getSupabaseServerConfig();
   const supabase = createClient(supabaseUrl, supabaseKey);
 
   const token = process.env.MIRO_ACCESS_TOKEN;

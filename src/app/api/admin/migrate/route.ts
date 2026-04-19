@@ -4,6 +4,7 @@ import { getMiroTasks } from "@/lib/miro-data";
 import { moduloToCategory } from "@/lib/miro-progress";
 import { MIRO_BOARDS } from "@/lib/clients-config";
 import type { ModuleCategory } from "@/lib/types";
+import { getSupabaseServerConfig } from "@/lib/supabase-env";
 
 export const dynamic = "force-dynamic";
 
@@ -28,14 +29,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "forbidden" }, { status: 403 });
   }
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!supabaseUrl || !supabaseKey) {
-    return NextResponse.json(
-      { error: "supabase not configured" },
-      { status: 500 }
-    );
-  }
+  const { url: supabaseUrl, key: supabaseKey } = getSupabaseServerConfig();
   const supabase = createClient(supabaseUrl, supabaseKey);
 
   // Pull existing completions to apply during seed

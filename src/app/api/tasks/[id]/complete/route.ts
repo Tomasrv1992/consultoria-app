@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { getSupabaseServerConfig } from "@/lib/supabase-env";
 
 export const dynamic = "force-dynamic";
 
@@ -18,14 +19,7 @@ export async function POST(
     );
   }
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!supabaseUrl || !supabaseKey) {
-    return NextResponse.json(
-      { ok: false, error: "Supabase no configurado" },
-      { status: 500 }
-    );
-  }
+  const { url: supabaseUrl, key: supabaseKey } = getSupabaseServerConfig();
   const supabase = createClient(supabaseUrl, supabaseKey);
 
   const { data, error } = await supabase
