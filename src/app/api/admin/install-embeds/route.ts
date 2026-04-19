@@ -25,16 +25,26 @@ async function getDataTablePosition(
   boardId: string,
   widgetId: string,
   token: string
-): Promise<DataTableInfo | null> {
+): Promise<DataTableInfo | { error: string }> {
   const res = await fetch(
     `${MIRO_API}/boards/${encodeURIComponent(boardId)}/items/${widgetId}`,
     { headers: { Authorization: `Bearer ${token}`, Accept: "application/json" } }
   );
-  if (!res.ok) return null;
-  const data = await res.json();
-  const pos = data?.position;
-  const geo = data?.geometry;
-  if (!pos || typeof pos.x !== "number" || typeof pos.y !== "number") return null;
+  const text = await res.text();
+  if (!res.ok) {
+    return { error: `GET item ${res.status}: ${text.slice(0, 200)}` };
+  }
+  let data: Record<string, unknown>;
+  try {
+    data = JSON.parse(text);
+  } catch {
+    return { error: `invalid json: ${text.slice(0, 200)}` };
+  }
+  const pos = data?.position as { x?: number; y?: number } | undefined;
+  const geo = data?.geometry as { width?: number; height?: number } | undefined;
+  if (!pos || typeof pos.x !== "number" || typeof pos.y !== "number") {
+    return { error: `no position in response: ${JSON.stringify(data).slice(0, 200)}` };
+  }
   return {
     x: pos.x,
     y: pos.y,
@@ -118,8 +128,8 @@ export async function POST(request: NextRequest) {
     const result: InstallResult = { clientId };
     try {
       const dt = await getDataTablePosition(board.boardId, board.widgetId, token);
-      if (!dt) {
-        result.error = "no se pudo leer la posición del data_table";
+      if ("error" in dt) {
+        result.error = dt.error;
         results.push(result);
         continue;
       }
