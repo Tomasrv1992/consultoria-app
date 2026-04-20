@@ -26,7 +26,8 @@ export function ClientCard({
   return (
     <button
       onClick={onClick}
-      className="w-full text-left bg-surface border border-line shadow-card rounded-card p-5 relative overflow-hidden hover:border-ink/20 transition-colors"
+      aria-label={`${client.name} — ${loading ? "cargando avance" : `${pct}% de avance`}`}
+      className="w-full text-left bg-surface border border-line shadow-card rounded-card p-5 relative overflow-hidden hover:border-ink/30 hover:shadow-md transition-all group"
     >
       <div
         className="absolute inset-y-0 left-0 w-[3px]"
@@ -34,7 +35,7 @@ export function ClientCard({
       />
       <div className="flex items-start justify-between mb-4">
         <div className="min-w-0">
-          <h3 className="text-[15px] font-medium text-ink truncate">
+          <h3 className="text-[15px] font-medium text-ink truncate group-hover:text-ink">
             {client.name}
           </h3>
           <p className="text-[12px] text-muted mt-0.5">{client.industry}</p>
@@ -42,12 +43,28 @@ export function ClientCard({
         <HealthBadge status={health} />
       </div>
 
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-3 gap-3 mb-3">
         <Stat value={loading ? "—" : `${pct}%`} label="Avance" />
         <Stat value={loading ? "—" : `${completedTasks}`} label="Completadas" />
         <Stat
           value={loading ? "—" : `${totalTasks - completedTasks}`}
           label="Pendientes"
+        />
+      </div>
+
+      <div
+        className="h-1 bg-line rounded-full overflow-hidden"
+        role="progressbar"
+        aria-valuenow={loading ? 0 : pct}
+        aria-valuemin={0}
+        aria-valuemax={100}
+      >
+        <div
+          className="h-full transition-[width] duration-500 ease-out"
+          style={{
+            width: loading ? "0%" : `${pct}%`,
+            backgroundColor: accent,
+          }}
         />
       </div>
     </button>

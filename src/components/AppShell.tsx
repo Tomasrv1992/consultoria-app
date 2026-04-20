@@ -51,13 +51,14 @@ export function AppShell({
           </div>
         </div>
 
-        <nav className="flex-1 px-2">
+        <nav className="flex-1 px-2" aria-label="Navegación principal">
           {sidebarItems.map((item) => {
             const active = pathname === item.href;
             return (
               <button
                 key={item.key}
                 onClick={() => router.push(item.href)}
+                aria-current={active ? "page" : undefined}
                 className={`w-full text-left pl-4 pr-3 py-2 text-[13px] border-l-2 transition-colors ${
                   active
                     ? "text-white border-teal"
@@ -122,6 +123,7 @@ export function AppShell({
                 <button
                   key={t.key}
                   onClick={t.onClick}
+                  aria-current={t.active ? "page" : undefined}
                   className={`py-3 text-[13px] border-b-2 -mb-px whitespace-nowrap transition-colors ${
                     t.active
                       ? "border-teal text-ink font-medium"
@@ -143,12 +145,16 @@ export function AppShell({
 
       {/* Mobile bottom nav (only when tabs provided) */}
       {tabs && tabs.length > 0 && (
-        <nav className="md:hidden fixed bottom-0 inset-x-0 bg-surface border-t border-line z-30">
+        <nav
+          className="md:hidden fixed bottom-0 inset-x-0 bg-surface border-t border-line z-30"
+          aria-label="Navegación por secciones"
+        >
           <div className="grid" style={{ gridTemplateColumns: `repeat(${Math.min(tabs.length, 4)}, minmax(0, 1fr))` }}>
             {tabs.slice(0, 4).map((t) => (
               <button
                 key={t.key}
                 onClick={t.onClick}
+                aria-current={t.active ? "page" : undefined}
                 className={`min-h-[56px] py-2 px-1 text-[12px] transition-colors ${
                   t.active ? "text-teal font-medium" : "text-muted"
                 }`}

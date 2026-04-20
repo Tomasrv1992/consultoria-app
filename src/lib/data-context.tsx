@@ -60,6 +60,20 @@ function firstWordSlug(name: string): string {
     .replace(/[^a-z0-9]/g, "");
 }
 
+// Token aleatorio criptográfico, letras/dígitos sin ambiguos (0/O/1/l/I).
+function randomToken(len: number): string {
+  const alphabet = "23456789abcdefghjkmnpqrstuvwxyz";
+  const bytes = new Uint8Array(len);
+  if (typeof crypto !== "undefined" && crypto.getRandomValues) {
+    crypto.getRandomValues(bytes);
+  } else {
+    for (let i = 0; i < len; i++) bytes[i] = Math.floor(Math.random() * 256);
+  }
+  let out = "";
+  for (let i = 0; i < len; i++) out += alphabet[bytes[i] % alphabet.length];
+  return out;
+}
+
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
 export function DataProvider({ children }: { children: ReactNode }) {
@@ -96,7 +110,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
       const slug = slugify(input.name) || `cliente${Date.now()}`;
       const id = `client-${slug}`;
       const passwordSlug = firstWordSlug(input.name) || slug;
-      const password = `${passwordSlug}2026`;
+      const password = `${passwordSlug}-${randomToken(4)}-${randomToken(4)}`;
       const today = new Date().toISOString().split("T")[0];
 
       const client: Client = {

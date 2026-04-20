@@ -1,4 +1,20 @@
--- Estrategia en Acción Console - Database Schema
+-- ============================================================
+--  ESTE SCHEMA NO ESTÁ EN USO POR LA APP (abr 2026).
+--  Es el diseño objetivo para cuando se migren clients,
+--  profiles, work_modules y minutes a Supabase.
+--
+--  Hoy la app usa ÚNICAMENTE la tabla `public.tasks` definida
+--  en `tasks-schema.sql`. El resto de entidades vive como
+--  MOCK en `src/lib/mock-data.ts`.
+--
+--  Ojo: este archivo define también `public.tasks` con un
+--  esquema DISTINTO (columnas `title`, `completed`, etc.) al
+--  que usa la app. No lo ejecutes contra una BD que ya tenga
+--  la tabla creada desde `tasks-schema.sql` — entrarían en
+--  conflicto.
+-- ============================================================
+
+-- Estrategia en Acción Console - Database Schema (PLAN FUTURO)
 -- Run this in your Supabase SQL editor
 
 -- User profiles (extends Supabase auth.users)

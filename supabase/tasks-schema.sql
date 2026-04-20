@@ -1,3 +1,13 @@
+-- ============================================================
+--  SCHEMA EN USO POR LA APP (abr 2026).
+--  Esta es la tabla `public.tasks` que leen y escriben:
+--    - GET  /api/tasks
+--    - POST /api/tasks/[id]/complete
+--    - POST /api/tasks/bulk-create
+--  El archivo `schema.sql` (con profiles, clients, etc.) es
+--  PLAN FUTURO, no está en uso todavía.
+-- ============================================================
+
 -- Fase 2: tabla `tasks` como fuente única de verdad
 -- Ejecutar UNA sola vez en el SQL editor de Supabase.
 

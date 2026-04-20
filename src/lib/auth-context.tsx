@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { UserProfile } from "@/lib/types";
-import { MOCK_USERS, MOCK_PASSWORDS } from "@/lib/mock-data";
+import { MOCK_USERS } from "@/lib/mock-data";
 import type { User } from "@supabase/supabase-js";
 
 interface AuthContextType {
@@ -12,7 +12,6 @@ interface AuthContextType {
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
-  isDemoMode: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -21,7 +20,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
-  const isDemoMode = false;
 
   useEffect(() => {
     const supabase = createClient();
@@ -47,29 +45,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   async function signIn(email: string, password: string) {
-    if (isDemoMode) {
-      // Demo mode login
-      const mockProfile = MOCK_USERS[email];
-      const expected = MOCK_PASSWORDS[email] ?? "demo123";
-      if (mockProfile && password === expected) {
-        setUser({ id: mockProfile.id, email } as User);
-        setProfile(mockProfile);
-        return { error: null };
-      }
-      return { error: "Credenciales inválidas." };
-    }
-
     const supabase = createClient();
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     return { error: error?.message ?? null };
   }
 
   async function signOut() {
-    if (isDemoMode) {
-      setUser(null);
-      setProfile(null);
-      return;
-    }
     const supabase = createClient();
     await supabase.auth.signOut();
     setUser(null);
@@ -77,7 +58,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, profile, loading, signIn, signOut, isDemoMode }}>
+    <AuthContext.Provider value={{ user, profile, loading, signIn, signOut }}>
       {children}
     </AuthContext.Provider>
   );

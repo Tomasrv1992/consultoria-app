@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@supabase/supabase-js";
-import { getSupabaseServerConfig } from "@/lib/supabase-env";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
@@ -8,6 +7,17 @@ export async function POST(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  const supabase = createServerSupabaseClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return NextResponse.json(
+      { ok: false, error: "No autorizado" },
+      { status: 401 }
+    );
+  }
+
   const taskId = params.id;
   const body = await request.json().catch(() => null);
   const completedBy = (body?.completedBy as string | undefined) ?? null;
@@ -18,9 +28,6 @@ export async function POST(
       { status: 400 }
     );
   }
-
-  const { url: supabaseUrl, key: supabaseKey } = getSupabaseServerConfig();
-  const supabase = createClient(supabaseUrl, supabaseKey);
 
   const { data, error } = await supabase
     .from("tasks")

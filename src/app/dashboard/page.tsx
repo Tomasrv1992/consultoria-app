@@ -159,10 +159,39 @@ export default function DashboardPage() {
           />
         </div>
 
+        {/* Global progress */}
+        {visibleClients.length > 0 && (
+          <div className="bg-surface border border-line shadow-card rounded-card p-4 md:p-5">
+            <div className="flex items-center justify-between mb-2">
+              <div className="text-[11px] uppercase tracking-label text-muted font-medium">
+                Avance global
+              </div>
+              <div className="text-[12px] text-muted tabular-nums">
+                {allLoaded
+                  ? `${totals.completed}/${totals.total} · ${overallPct}%`
+                  : "cargando…"}
+              </div>
+            </div>
+            <div
+              className="h-1.5 bg-line rounded-full overflow-hidden"
+              role="progressbar"
+              aria-valuenow={allLoaded ? overallPct : 0}
+              aria-valuemin={0}
+              aria-valuemax={100}
+            >
+              <div
+                className="h-full bg-teal-600 transition-[width] duration-500 ease-out"
+                style={{ width: allLoaded ? `${overallPct}%` : "0%" }}
+              />
+            </div>
+          </div>
+        )}
+
         {/* Client grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
           {perClientTotals.map(({ id, totals: clientTotals }) => {
-            const client = visibleClients.find((c) => c.id === id)!;
+            const client = visibleClients.find((c) => c.id === id);
+            if (!client) return null;
             return (
               <ClientCard
                 key={client.id}

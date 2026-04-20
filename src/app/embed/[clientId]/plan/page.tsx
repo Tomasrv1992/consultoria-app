@@ -49,5 +49,7 @@ export default function EmbedPlanPage({
   if (searchParams.token !== expected) {
     notFound();
   }
-  return <EmbedPlanClient clientId={params.clientId} />;
+  return (
+    <EmbedPlanClient clientId={params.clientId} token={searchParams.token} />
+  );
 }

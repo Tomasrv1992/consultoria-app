@@ -10,7 +10,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { signIn, isDemoMode } = useAuth();
+  const { signIn } = useAuth();
   const router = useRouter();
 
   async function handleSubmit(e: React.FormEvent) {
@@ -41,21 +41,6 @@ export default function LoginPage() {
             Console de consultoría
           </p>
         </div>
-
-        {isDemoMode && (
-          <div className="bg-surface border border-line rounded-card p-4 mb-6">
-            <p className="text-[11px] uppercase tracking-label font-medium text-muted mb-2">
-              Modo demo
-            </p>
-            <p className="text-[13px] text-ink mb-2">
-              Supabase no configurado. Credenciales de prueba:
-            </p>
-            <ul className="text-[12px] text-muted space-y-0.5 font-mono">
-              <li>tomas@estrategiaenaccion.co / demo123</li>
-              <li>contacto@cygnuss.com / demo123</li>
-            </ul>
-          </div>
-        )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>

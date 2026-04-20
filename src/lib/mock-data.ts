@@ -171,29 +171,93 @@ export const MOCK_TASKS: Task[] = [
   { id: "t31", module_id: "mod-pau-4", client_id: "client-paulina", title: "Planificar contenido de Instagram", completed: false, order: 1 },
 ];
 
-export const MOCK_MINUTE_SECTIONS: MinuteSection[] = [
-  // CYGNUSS — 10 Abril 2026 — Estructura Legal Nueva Sede
-  { id: "ms1", minute_id: "min-cyg-2", title: "Resumen ejecutivo", content: "Reunión con Marcela Puerta (abogada) para definir la estructura legal de la inversión en la nueva sede. Se recomienda el Contrato de Cuentas en Participación (CdeP) como vehículo jurídico. CYGNUSS mantiene control operativo total, el inversionista aporta capital a cambio de participación en utilidades. Antes de avanzar, Juan Esteban debe confirmar que el contador puede manejar los requisitos contables y tributarios del CdeP.", order: 1 },
-  { id: "ms2", minute_id: "min-cyg-2", title: "Decisiones y estructura recomendada", content: "Estructura legal: Contrato de Cuentas en Participación (CdeP)\n- CYGNUSS mantiene el 100% del control operativo — el inversionista no puede interferir\n- El inversionista es \"socio oculto\" — aporta capital a cambio de % de utilidades\n- No es un préstamo — la inversión está sujeta al éxito del negocio\n- Puede convertirse a capital (acciones SAS) si la alianza es exitosa\n\nManagement Fee: variable, punto de partida sugerido 10% de ingresos\nDistribución: Utilidad neta = Ingresos − Costos directos − Costos compartidos − Management Fee\nPlazo inicial recomendado: 3 años", order: 2 },
-  { id: "ms3", minute_id: "min-cyg-2", title: "Tareas generadas", content: "- Marcela — Enviar plantilla de cálculo de utilidades + puntos clave para redacción del contrato\n- Marcela — Enviar propuesta de honorarios fijos para redacción CdeP + 1-2 revisiones\n- Juan Esteban — Confirmar con Carlos (contador) si puede manejar contabilidad y tributación del CdeP\n- Juan Esteban y Paulina — Definir términos centrales: plazo, porcentajes, frecuencia de auditoría\n- Juan Esteban y Paulina — Decidir % del Management Fee\n- Tomás — Consultar con Carlos sobre contabilidad/tributación del CdeP y confirmar con Marcela", order: 3 },
-  // CYGNUSS — 09 Abril 2026 — Estrategia de Contenido
-  { id: "ms4", minute_id: "min-cyg-1", title: "Resumen ejecutivo", content: "Reunión enfocada en analizar el rendimiento actual de redes sociales y definir una nueva estrategia de contenido para Instagram y TikTok. Se usó Claude AI para auditar el plan de contenido actual y generar la nueva estrategia. Se identificaron brechas críticas en el plan de abril/mayo y se definieron acciones inmediatas.", order: 1 },
-  { id: "ms5", minute_id: "min-cyg-1", title: "Decisiones tomadas", content: "- Instagram como canal principal — 3 publicaciones por semana\n- TikTok como canal de visibilidad — arranca a mediados de mayo de cara a apertura nueva sede junio/julio\n- Pauli tiene autonomía total sobre creación de contenido\n- Claude AI como herramienta de trabajo — planificación, guiones y análisis de rendimiento\n- CapCut para edición de video\n- Mezcla de contenido: Viernes nicho (embarazadas, lesionados), Jueves emocional (testimonios), Quincenal humor", order: 2 },
-  { id: "ms6", minute_id: "min-cyg-1", title: "Alertas", content: "- 4 publicaciones sin grabar con vencimiento en 20 días — riesgo operativo alto\n- Alineación del plan actual: 6/10 — cero testimonios, cero carruseles educativos\n- Validar con Rubén si la pauta Meta incluye Facebook o es solo Instagram\n- Alta dependencia de proveedor externo para cumplir estrategia — tener autonomía", order: 3 },
-  // Dentilandia — 08 Abril 2026 — Comité Trimestral
-  { id: "ms7", minute_id: "min-dent-1", title: "Resumen ejecutivo", content: "Comité trimestral de revisión estratégica y operativa. 3 sesiones — aprox. 3 horas. Participantes: Jorge, Clara Villa, Lina Ruiz, Tomás Ramírez. Se revisó desempeño financiero T1 (22% de meta vs 25% objetivo), se aprobó uso de IA para automatizar tareas, nueva política de frenectomías, incentivo por referidos con clínicas aliadas, y se detectaron problemas críticos en horas extra y agencia de marketing.", order: 1 },
-  { id: "ms8", minute_id: "min-dent-1", title: "Decisiones tomadas", content: "- Política de frenectomías — Odontopediatras solo realizan linguales. Labiales se remiten a periodoncista.\n- Incentivo por referidos — Bono no salarial pagado por clínica receptora al personal de Dentilandia\n- Suscripción Cloud premium — Aprobada a USD $17/mes\n- Estudio riesgo psicosocial y clima — Aprobado por 1.5 SMMLV (~2.6M COP)\n- Auditorías clínicas — Mensuales, 1 por sede, desde abril\n- Nueva agencia de marketing — Aprobada búsqueda nuevo proveedor\n- Rotación de auxiliares — Aprobada entre doctoras y sedes\n- Monitoreo cámaras con audio — Aprobado aleatoriamente", order: 2 },
-  { id: "ms9", minute_id: "min-dent-1", title: "Alertas", content: "- ALERTA ALTA — Ingresos T1 en 22% de meta (objetivo 25%). Enero fue el mes más bajo.\n- ALERTA ALTA — Horas extra insostenibles. Requiere solución antes de próximo comité.\n- ALERTA ALTA — Agencia UCAO con bajo desempeño desde enero. Reemplazo en curso.\n- ALERTA MEDIA — Doctoras Carolina Gómez y Estefanía Mesa cerraron agenda 6 meses. Probable competidor (Viena).\n- ALERTA MEDIA — Doctor en revisión por errores procedimentales. Auditoría sin aviso programada.", order: 3 },
-  { id: "ms10", minute_id: "min-dent-1", title: "Próxima reunión", content: "- 22 de abril — Revisión declaración de impuestos con Carlos\n- 15 de mayo — Comité\n- Temas a preparar: Propuesta incentivo referidos (Lina y Clara) / Análisis horas extra (Jorge) / Resultados encuesta satisfacción (Jorge) / Estrategia marketing completa (Jorge)", order: 4 },
+// Placeholders de estructura para la UI. El contenido real de las minutas
+// debe venir de Supabase (ver plan: Tier 1-C) — no poner aquí nombres de
+// terceros, cifras, decisiones legales/tributarias u otra información
+// confidencial de los clientes.
+const MOCK_MINUTE_SECTIONS: MinuteSection[] = [
+  {
+    id: "ms1",
+    minute_id: "min-cyg-2",
+    title: "Resumen ejecutivo",
+    content: "(Placeholder) Resumen de la reunión disponible en Supabase una vez migrado.",
+    order: 1,
+  },
+  {
+    id: "ms2",
+    minute_id: "min-cyg-2",
+    title: "Decisiones",
+    content: "(Placeholder) Decisiones clave disponibles en Supabase.",
+    order: 2,
+  },
+  {
+    id: "ms3",
+    minute_id: "min-cyg-2",
+    title: "Tareas generadas",
+    content: "(Placeholder) Ver tab Plan para las tareas activas del cliente.",
+    order: 3,
+  },
+  {
+    id: "ms4",
+    minute_id: "min-cyg-1",
+    title: "Resumen ejecutivo",
+    content: "(Placeholder) Resumen de la reunión disponible en Supabase una vez migrado.",
+    order: 1,
+  },
+  {
+    id: "ms5",
+    minute_id: "min-cyg-1",
+    title: "Decisiones",
+    content: "(Placeholder) Decisiones clave disponibles en Supabase.",
+    order: 2,
+  },
+  {
+    id: "ms6",
+    minute_id: "min-cyg-1",
+    title: "Alertas",
+    content: "(Placeholder) Alertas disponibles en Supabase.",
+    order: 3,
+  },
+  {
+    id: "ms7",
+    minute_id: "min-dent-1",
+    title: "Resumen ejecutivo",
+    content: "(Placeholder) Resumen de la reunión disponible en Supabase una vez migrado.",
+    order: 1,
+  },
+  {
+    id: "ms8",
+    minute_id: "min-dent-1",
+    title: "Decisiones",
+    content: "(Placeholder) Decisiones clave disponibles en Supabase.",
+    order: 2,
+  },
+  {
+    id: "ms9",
+    minute_id: "min-dent-1",
+    title: "Alertas",
+    content: "(Placeholder) Alertas disponibles en Supabase.",
+    order: 3,
+  },
+  {
+    id: "ms10",
+    minute_id: "min-dent-1",
+    title: "Próxima reunión",
+    content: "(Placeholder) Fecha y agenda disponibles en Supabase.",
+    order: 4,
+  },
 ];
 
+// Placeholders de minutas. El contenido real debe venir de Supabase.
+// No incluir aquí nombres de terceros (abogados, contadores, empleados del
+// cliente) ni detalles confidenciales de la reunión.
 export const MOCK_MINUTES: Minute[] = [
   {
     id: "min-cyg-2",
     client_id: "client-cygnuss",
     date: "2026-04-10",
-    title: "Estructura Legal Nueva Sede",
-    attendees: ["Juan Esteban", "Paulina", "Tomás", "Marcela Puerta"],
+    title: "Reunión de estrategia",
+    attendees: ["Equipo EA"],
     sections: MOCK_MINUTE_SECTIONS.filter((s) => s.minute_id === "min-cyg-2"),
     created_at: "2026-04-10",
   },
@@ -201,8 +265,8 @@ export const MOCK_MINUTES: Minute[] = [
     id: "min-cyg-1",
     client_id: "client-cygnuss",
     date: "2026-04-09",
-    title: "Estrategia de Contenido",
-    attendees: ["Paulina", "Tomás"],
+    title: "Reunión de contenido",
+    attendees: ["Equipo EA"],
     sections: MOCK_MINUTE_SECTIONS.filter((s) => s.minute_id === "min-cyg-1"),
     created_at: "2026-04-09",
   },
@@ -211,7 +275,7 @@ export const MOCK_MINUTES: Minute[] = [
     client_id: "client-dentilandia",
     date: "2026-04-08",
     title: "Comité Trimestral",
-    attendees: ["Jorge", "Clara Villa", "Lina Ruiz", "Tomás"],
+    attendees: ["Equipo EA"],
     sections: MOCK_MINUTE_SECTIONS.filter((s) => s.minute_id === "min-dent-1"),
     created_at: "2026-04-08",
   },

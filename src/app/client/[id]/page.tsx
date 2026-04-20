@@ -16,17 +16,13 @@ import {
   invalidateMiroCache,
 } from "@/lib/miro-cache";
 import { computeProgressFromMiro } from "@/lib/miro-progress";
-import { HistoricalCounts, EMPTY_HISTORICAL } from "@/lib/miro-historico";
+import {
+  HistoricalCounts,
+  EMPTY_HISTORICAL,
+  historicalTotal,
+} from "@/lib/miro-historico";
 
 type Tab = "plan" | "indicadores" | "minutas" | "avance";
-
-const ACCUMULATED_SALES_2026: Record<string, number | null> = {
-  "client-cygnuss": 172776990,
-  "client-dentilandia": 584920177,
-  "client-acautos": 174390000,
-  "client-paulina": null,
-  c5: null,
-};
 
 
 function formatMetric(value: number, unit: Metric["unit"]): string {
@@ -237,14 +233,24 @@ function AvanceTab({
   }
 
   const totalTasks = progress.reduce((s, p) => s + p.total, 0);
+  const totalCompleted = progress.reduce((s, p) => s + p.completed, 0);
+  const overallPct =
+    totalTasks > 0 ? Math.round((totalCompleted / totalTasks) * 100) : 0;
+  const histTotal = historicalTotal(historical);
+
   if (miroFetched && totalTasks === 0) {
     return <EmptyState text="Sin tareas registradas" />;
   }
 
   return (
     <div className="bg-surface border border-line shadow-card rounded-card p-5">
-      <SectionLabel>Avance por módulo</SectionLabel>
-      <div className="space-y-5 mt-4">
+      <div className="flex items-center justify-between gap-3 mb-4">
+        <SectionLabel>Avance por módulo</SectionLabel>
+        <div className="text-[12px] text-muted tabular-nums">
+          {totalCompleted}/{totalTasks} · {overallPct}%
+        </div>
+      </div>
+      <div className="space-y-5">
         {progress.map((p) => (
           <ProgressBar
             key={p.category}
@@ -255,6 +261,12 @@ function AvanceTab({
           />
         ))}
       </div>
+      {histTotal > 0 && (
+        <p className="text-[11px] text-muted mt-5 pt-4 border-t border-line">
+          Incluye {histTotal} tarea{histTotal === 1 ? "" : "s"} del histórico del
+          tablero.
+        </p>
+      )}
     </div>
   );
 }
@@ -354,7 +366,190 @@ function PlanTab({
     { kind: "success" | "warn"; text: string } | null
   >(null);
   const [confirmTask, setConfirmTask] = useState<MiroTask | null>(null);
+  const [editTask, setEditTask] = useState<MiroTask | null>(null);
+  const [deleteTask, setDeleteTask] = useState<MiroTask | null>(null);
+  const [createOpen, setCreateOpen] = useState(false);
   const [syncing, setSyncing] = useState<string | null>(null);
+
+  const knownModulos = useMemo(
+    () =>
+      Array.from(
+        new Set(miroTasks.map((t) => t.modulo).filter(Boolean))
+      ).sort(),
+    [miroTasks]
+  );
+
+  const handleSaveEdit = async (patch: {
+    id: string;
+    titulo: string;
+    modulo: string;
+    responsable: string;
+    prioridad: string;
+    fecha: string;
+    estado: string;
+  }) => {
+    const prev = miroTasks;
+    const next = miroTasks.map((t) =>
+      t.id === patch.id
+        ? {
+            ...t,
+            titulo: patch.titulo,
+            modulo: patch.modulo,
+            responsable: patch.responsable,
+            prioridad: patch.prioridad,
+            fecha: patch.fecha,
+            estado: patch.estado,
+          }
+        : t
+    );
+    setMiroTasks(next);
+    updateCachedMiroTasks(clientId, () => next);
+    setEditTask(null);
+    setSyncing(patch.id);
+    try {
+      const res = await fetch(`/api/tasks/${patch.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          titulo: patch.titulo,
+          modulo: patch.modulo,
+          responsable: patch.responsable,
+          prioridad: patch.prioridad,
+          fecha_limite: patch.fecha,
+          estado: patch.estado,
+        }),
+      });
+      const data = await res.json().catch(() => ({ ok: false }));
+      if (res.ok && data.ok) {
+        setBanner({ kind: "success", text: "✓ Guardado" });
+      } else {
+        setMiroTasks(prev);
+        updateCachedMiroTasks(clientId, () => prev);
+        setBanner({
+          kind: "warn",
+          text: data?.error || "No se pudo guardar. Se restauró el estado.",
+        });
+      }
+    } catch {
+      setMiroTasks(prev);
+      updateCachedMiroTasks(clientId, () => prev);
+      setBanner({
+        kind: "warn",
+        text: "Error de red al guardar. Se restauró el estado.",
+      });
+    } finally {
+      setSyncing(null);
+    }
+  };
+
+  const handleCreate = async (draft: {
+    titulo: string;
+    modulo: string;
+    responsable: string;
+    prioridad: string;
+    fecha: string;
+    estado: string;
+  }) => {
+    const tempId = `temp-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    const optimistic: MiroTask = {
+      id: tempId,
+      titulo: draft.titulo,
+      modulo: draft.modulo,
+      responsable: draft.responsable,
+      prioridad: draft.prioridad,
+      fecha: draft.fecha,
+      estado: draft.estado,
+      fechaIngreso: new Date().toISOString(),
+    };
+    const prev = miroTasks;
+    const next = [optimistic, ...miroTasks];
+    setMiroTasks(next);
+    updateCachedMiroTasks(clientId, () => next);
+    setCreateOpen(false);
+    setSyncing(tempId);
+    try {
+      const res = await fetch("/api/tasks/bulk-create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          clientId,
+          tasks: [
+            {
+              titulo: draft.titulo,
+              modulo: draft.modulo,
+              responsable: draft.responsable || null,
+              prioridad: draft.prioridad || null,
+              fecha_limite: draft.fecha || null,
+              estado: draft.estado,
+            },
+          ],
+        }),
+      });
+      const data = await res.json().catch(() => ({ ok: false }));
+      if (res.ok && data.ok && Array.isArray(data.ids) && data.ids[0]) {
+        const realId = data.ids[0] as string;
+        setMiroTasks((curr) => {
+          const replaced = curr.map((t) =>
+            t.id === tempId ? { ...t, id: realId } : t
+          );
+          updateCachedMiroTasks(clientId, () => replaced);
+          return replaced;
+        });
+        setBanner({ kind: "success", text: "✓ Tarea creada" });
+      } else {
+        setMiroTasks(prev);
+        updateCachedMiroTasks(clientId, () => prev);
+        const reason =
+          data?.errors?.[0]?.reason || data?.error || "No se pudo crear";
+        setBanner({
+          kind: "warn",
+          text: `${reason}. Se restauró el estado.`,
+        });
+      }
+    } catch {
+      setMiroTasks(prev);
+      updateCachedMiroTasks(clientId, () => prev);
+      setBanner({
+        kind: "warn",
+        text: "Error de red al crear. Se restauró el estado.",
+      });
+    } finally {
+      setSyncing(null);
+    }
+  };
+
+  const handleDeleteTask = async (task: MiroTask) => {
+    if (!task.id) return;
+    const prev = miroTasks;
+    const next = miroTasks.filter((t) => t.id !== task.id);
+    setMiroTasks(next);
+    updateCachedMiroTasks(clientId, () => next);
+    setDeleteTask(null);
+    setSyncing(task.id);
+    try {
+      const res = await fetch(`/api/tasks/${task.id}`, { method: "DELETE" });
+      const data = await res.json().catch(() => ({ ok: false }));
+      if (res.ok && data.ok) {
+        setBanner({ kind: "success", text: "Eliminada" });
+      } else {
+        setMiroTasks(prev);
+        updateCachedMiroTasks(clientId, () => prev);
+        setBanner({
+          kind: "warn",
+          text: data?.error || "No se pudo eliminar. Se restauró.",
+        });
+      }
+    } catch {
+      setMiroTasks(prev);
+      updateCachedMiroTasks(clientId, () => prev);
+      setBanner({
+        kind: "warn",
+        text: "Error de red al eliminar. Se restauró.",
+      });
+    } finally {
+      setSyncing(null);
+    }
+  };
 
   const handleComplete = async (task: MiroTask) => {
     if (!task.id) {
@@ -365,6 +560,8 @@ function PlanTab({
       return;
     }
 
+    const prevEstado = task.estado;
+
     setMiroTasks((prev) => {
       const next = prev.map((t) =>
         t.id === task.id ? { ...t, estado: "Completada" } : t
@@ -372,6 +569,16 @@ function PlanTab({
       updateCachedMiroTasks(clientId, () => next);
       return next;
     });
+
+    const rollback = () => {
+      setMiroTasks((prev) => {
+        const next = prev.map((t) =>
+          t.id === task.id ? { ...t, estado: prevEstado } : t
+        );
+        updateCachedMiroTasks(clientId, () => next);
+        return next;
+      });
+    };
 
     setSyncing(task.id);
     try {
@@ -389,15 +596,17 @@ function PlanTab({
       if (res.ok && data.ok) {
         setBanner({ kind: "success", text: "✓ Completada" });
       } else {
+        rollback();
         setBanner({
           kind: "warn",
-          text: "No se pudo guardar la completada",
+          text: "No se pudo guardar. Se restauró el estado.",
         });
       }
     } catch {
+      rollback();
       setBanner({
         kind: "warn",
-        text: "Error de red al guardar la completada",
+        text: "Error de red. Se restauró el estado.",
       });
     } finally {
       setSyncing(null);
@@ -480,12 +689,21 @@ function PlanTab({
         </h2>
         <div className="flex items-center gap-2">
           {isConsultant && (
-            <a
-              href={`/client/${clientId}/pegar-pendientes`}
-              className="h-8 px-3 rounded-btn border border-line text-[12px] font-medium text-ink hover:bg-bg transition-colors flex items-center"
-            >
-              Pegar pendientes
-            </a>
+            <>
+              <button
+                onClick={() => setCreateOpen(true)}
+                className="h-8 px-3 rounded-btn bg-ink text-white text-[12px] font-medium hover:bg-ink/90 transition-colors"
+              >
+                + Nueva tarea
+              </button>
+              <a
+                href={`/client/${clientId}/pegar-pendientes`}
+                className="h-8 px-3 rounded-btn border border-line text-[12px] font-medium text-ink hover:bg-bg transition-colors flex items-center"
+                title="Crear varias tareas desde JSON"
+              >
+                Pegar JSON
+              </a>
+            </>
           )}
           <RefreshButton loading={miroLoading} onClick={onRefresh} />
         </div>
@@ -619,14 +837,62 @@ function PlanTab({
                           )}
                         </div>
                       </div>
-                      {isConsultant && !done && (
-                        <button
-                          onClick={() => setConfirmTask(task)}
-                          disabled={syncing === task.id}
-                          className="shrink-0 h-8 px-2.5 rounded-btn border border-line text-[12px] font-medium text-ink hover:bg-bg disabled:opacity-50 transition-colors"
-                        >
-                          {syncing === task.id ? "..." : "✓ Completar"}
-                        </button>
+                      {isConsultant && (
+                        <div className="shrink-0 flex items-center gap-1">
+                          {!done && (
+                            <button
+                              onClick={() => setConfirmTask(task)}
+                              disabled={syncing === task.id}
+                              className="h-8 px-2.5 rounded-btn border border-line text-[12px] font-medium text-ink hover:bg-bg disabled:opacity-50 transition-colors"
+                            >
+                              {syncing === task.id ? "..." : "✓ Completar"}
+                            </button>
+                          )}
+                          <button
+                            onClick={() => setEditTask(task)}
+                            disabled={syncing === task.id}
+                            aria-label="Editar tarea"
+                            title="Editar"
+                            className="h-8 w-8 rounded-btn border border-line text-muted hover:text-ink hover:bg-bg disabled:opacity-50 transition-colors flex items-center justify-center"
+                          >
+                            <svg
+                              width="14"
+                              height="14"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <path d="M12 20h9" />
+                              <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z" />
+                            </svg>
+                          </button>
+                          <button
+                            onClick={() => setDeleteTask(task)}
+                            disabled={syncing === task.id}
+                            aria-label="Eliminar tarea"
+                            title="Eliminar"
+                            className="h-8 w-8 rounded-btn border border-line text-muted hover:text-danger hover:border-danger/40 hover:bg-red-50 disabled:opacity-50 transition-colors flex items-center justify-center"
+                          >
+                            <svg
+                              width="14"
+                              height="14"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <polyline points="3 6 5 6 21 6" />
+                              <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                              <path d="M10 11v6M14 11v6" />
+                              <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+                            </svg>
+                          </button>
+                        </div>
                       )}
                     </div>
                   );
@@ -672,6 +938,242 @@ function PlanTab({
           </div>
         </div>
       )}
+      {createOpen && (
+        <TaskFormModal
+          mode="create"
+          knownModulos={knownModulos}
+          onCancel={() => setCreateOpen(false)}
+          onSubmit={(draft) => handleCreate(draft)}
+        />
+      )}
+      {editTask && (
+        <TaskFormModal
+          mode="edit"
+          initial={editTask}
+          knownModulos={knownModulos}
+          onCancel={() => setEditTask(null)}
+          onSubmit={(draft) => {
+            if (!editTask.id) return;
+            handleSaveEdit({ id: editTask.id, ...draft });
+          }}
+        />
+      )}
+      {deleteTask && (
+        <div
+          className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/40 px-4 py-6"
+          onClick={() => setDeleteTask(null)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-sm bg-surface rounded-card shadow-card border border-line p-6"
+          >
+            <h2 className="text-[16px] font-semibold text-ink">
+              ¿Eliminar esta tarea?
+            </h2>
+            <p className="text-[13px] text-muted mt-2 leading-snug">
+              {deleteTask.titulo}
+            </p>
+            <p className="text-[12px] text-muted mt-2">
+              Esta acción no se puede deshacer.
+            </p>
+            <div className="flex gap-2 mt-5">
+              <button
+                onClick={() => handleDeleteTask(deleteTask)}
+                className="h-11 px-4 rounded-btn bg-danger text-white text-[13px] font-medium hover:bg-danger/90 transition-colors"
+              >
+                Eliminar
+              </button>
+              <button
+                onClick={() => setDeleteTask(null)}
+                className="h-11 px-4 rounded-btn border border-line text-[13px] font-medium text-ink hover:bg-bg transition-colors"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function TaskFormModal({
+  mode,
+  initial,
+  knownModulos,
+  onCancel,
+  onSubmit,
+}: {
+  mode: "create" | "edit";
+  initial?: MiroTask;
+  knownModulos: string[];
+  onCancel: () => void;
+  onSubmit: (draft: {
+    titulo: string;
+    modulo: string;
+    responsable: string;
+    prioridad: string;
+    fecha: string;
+    estado: string;
+  }) => void;
+}) {
+  const [titulo, setTitulo] = useState(initial?.titulo ?? "");
+  const [modulo, setModulo] = useState(initial?.modulo ?? "");
+  const [responsable, setResponsable] = useState(initial?.responsable ?? "");
+  const [prioridad, setPrioridad] = useState(initial?.prioridad || "Media");
+  const [fecha, setFecha] = useState(initial?.fecha ?? "");
+  const [estado, setEstado] = useState(initial?.estado || "En curso");
+  const [submitting, setSubmitting] = useState(false);
+
+  const disabled = submitting || !titulo.trim() || !modulo.trim();
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (disabled) return;
+    setSubmitting(true);
+    onSubmit({
+      titulo: titulo.trim(),
+      modulo: modulo.trim(),
+      responsable: responsable.trim(),
+      prioridad: prioridad.trim(),
+      fecha: fecha.trim(),
+      estado: estado.trim(),
+    });
+  };
+
+  const title = mode === "create" ? "Nueva tarea" : "Editar tarea";
+  const submitLabel =
+    mode === "create"
+      ? submitting
+        ? "Creando…"
+        : "Crear"
+      : submitting
+      ? "Guardando…"
+      : "Guardar";
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/40 px-4 py-6"
+      onClick={onCancel}
+    >
+      <form
+        onClick={(e) => e.stopPropagation()}
+        onSubmit={handleSubmit}
+        className="w-full max-w-md bg-surface rounded-card shadow-card border border-line p-6 space-y-4 max-h-[90vh] overflow-y-auto"
+      >
+        <h2 className="text-[16px] font-semibold text-ink">{title}</h2>
+
+        <div>
+          <label className="block text-[11px] font-medium text-muted uppercase tracking-label mb-1.5">
+            Título
+          </label>
+          <input
+            type="text"
+            value={titulo}
+            onChange={(e) => setTitulo(e.target.value)}
+            required
+            autoFocus
+            maxLength={500}
+            className="w-full h-10 px-3 rounded-btn border border-line bg-surface text-[14px] text-ink focus:outline-none focus:border-ink transition-colors"
+          />
+        </div>
+
+        <div>
+          <label className="block text-[11px] font-medium text-muted uppercase tracking-label mb-1.5">
+            Módulo
+          </label>
+          <input
+            type="text"
+            value={modulo}
+            onChange={(e) => setModulo(e.target.value)}
+            list="edit-modulos"
+            required
+            maxLength={200}
+            className="w-full h-10 px-3 rounded-btn border border-line bg-surface text-[14px] text-ink focus:outline-none focus:border-ink transition-colors"
+          />
+          <datalist id="edit-modulos">
+            {knownModulos.map((m) => (
+              <option key={m} value={m} />
+            ))}
+          </datalist>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="block text-[11px] font-medium text-muted uppercase tracking-label mb-1.5">
+              Estado
+            </label>
+            <select
+              value={estado}
+              onChange={(e) => setEstado(e.target.value)}
+              className="w-full h-10 px-2 rounded-btn border border-line bg-surface text-[14px] text-ink focus:outline-none focus:border-ink transition-colors"
+            >
+              <option value="En curso">En curso</option>
+              <option value="Iniciativa">Iniciativa</option>
+              <option value="Completada">Completada</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-[11px] font-medium text-muted uppercase tracking-label mb-1.5">
+              Prioridad
+            </label>
+            <select
+              value={prioridad}
+              onChange={(e) => setPrioridad(e.target.value)}
+              className="w-full h-10 px-2 rounded-btn border border-line bg-surface text-[14px] text-ink focus:outline-none focus:border-ink transition-colors"
+            >
+              <option value="Baja">Baja</option>
+              <option value="Media">Media</option>
+              <option value="Alta">Alta</option>
+              <option value="Inmediato">Inmediato</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-[11px] font-medium text-muted uppercase tracking-label mb-1.5">
+            Responsable
+          </label>
+          <input
+            type="text"
+            value={responsable}
+            onChange={(e) => setResponsable(e.target.value)}
+            maxLength={200}
+            className="w-full h-10 px-3 rounded-btn border border-line bg-surface text-[14px] text-ink focus:outline-none focus:border-ink transition-colors"
+          />
+        </div>
+
+        <div>
+          <label className="block text-[11px] font-medium text-muted uppercase tracking-label mb-1.5">
+            Fecha límite
+          </label>
+          <input
+            type="text"
+            value={fecha}
+            onChange={(e) => setFecha(e.target.value)}
+            placeholder="ej: Abr 29 2026 · o texto libre"
+            maxLength={200}
+            className="w-full h-10 px-3 rounded-btn border border-line bg-surface text-[14px] text-ink focus:outline-none focus:border-ink transition-colors"
+          />
+        </div>
+
+        <div className="flex gap-2 pt-2">
+          <button
+            type="submit"
+            disabled={disabled}
+            className="h-11 px-4 rounded-btn bg-ink text-white text-[13px] font-medium hover:bg-ink/90 disabled:opacity-50 transition-colors"
+          >
+            {submitLabel}
+          </button>
+          <button
+            type="button"
+            onClick={onCancel}
+            className="h-11 px-4 rounded-btn border border-line text-[13px] font-medium text-ink hover:bg-bg transition-colors"
+          >
+            Cancelar
+          </button>
+        </div>
+      </form>
     </div>
   );
 }
@@ -685,6 +1187,25 @@ function IndicatorsTab({
   metrics?: Metric[];
   clientId: string;
 }) {
+  const [accumulated, setAccumulated] = useState<number | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch(
+      `/api/clients/accumulated-sales?clientId=${encodeURIComponent(clientId)}`
+    )
+      .then((r) => (r.ok ? r.json() : { accumulated: null }))
+      .then((d) => {
+        if (!cancelled && typeof d.accumulated === "number") {
+          setAccumulated(d.accumulated);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [clientId]);
+
   if (!metrics || metrics.length === 0) {
     return (
       <EmptyState
@@ -694,10 +1215,11 @@ function IndicatorsTab({
     );
   }
 
-  const total = ACCUMULATED_SALES_2026[clientId];
   const accumulatedNote =
-    typeof total === "number"
-      ? `Acumulado 2026: ${formatAccumulated(total)}`
+    typeof accumulated === "number"
+      ? `Acumulado ${new Date().getFullYear()}: ${formatAccumulated(
+          accumulated
+        )}`
       : null;
 
   return (
