@@ -1,8 +1,8 @@
-# Miro ↔ App: Sincronización en una sola fuente
+# Miro ↔ App: Sincronización vía Claude/MCP (Opción D)
 
-**Fecha:** 2026-04-20
+**Fecha:** 2026-04-20 (revisado tras descubrir bloqueo de API REST)
 **Autor:** Tomás + Claude
-**Estado:** Diseño aprobado verbalmente, pendiente revisión escrita
+**Estado:** Diseño final aprobado
 
 ---
 
@@ -13,24 +13,27 @@ Hoy hay **dos copias del mismo dato** sin sincronización automática:
 - La `data_table` "SEGUIMIENTO DE TAREAS v2" en cada board de Miro (5 clientes).
 - La tabla `tasks` en Supabase con 222 tareas migradas.
 
-Cuando Tomás marca una tarea completada en la app, Supabase se actualiza pero Miro no. Cuando Claude (vía Fathom transcript) actualiza Miro a mano, Supabase no se entera. Resultado: el dashboard que Tomás mira a diario en Miro está desincronizado del progreso real, y la app muestra estados que no son los del board.
+Cuando Tomás marca una tarea completada en la app, Supabase se actualiza pero Miro no. Cuando Claude (vía Fathom transcript) actualiza Miro a mano, Supabase no se entera.
 
-El intento previo de "widget en Miro que linkea a la app" generó reproceso porque obliga a hacer click para salir del board — la información ya debería estar visible **dentro** de Miro sin intermediarios.
+## 2. Bloqueo descubierto durante implementación inicial
 
-## 2. Objetivos
+El plan v1 asumía que la app Next.js podía escribir al `data_table` de Miro vía REST API (`/v2-experimental/boards/.../tables/...`). **Falso.** Pruebas confirmaron:
 
-1. **Una sola fuente de verdad** para tareas.
-2. **Una sola interfaz de edición**: la app (web + móvil).
-3. **Miro siempre refleja el estado real** sin intervención manual.
-4. **Workflow Fathom integrado en la app**, no en Claude del navegador.
-5. **El cliente sigue viendo su plan en vivo** vía el embed.
+- GET/POST/PATCH a `/v2-experimental/boards/.../tables/...` retornan **403 Insufficient Permissions** incluso con scopes `boards:write` + `boards:read`.
+- El widget `data_table_format` solo expone metadata vía `/v2/boards/.../items/{id}` (posición, fechas), no filas ni columnas.
+- La REST API solo permite leer/escribir filas a **Miro Apps verificadas** (iframes que corren dentro de Miro), no a apps externas con OAuth tokens estándar.
 
-## 3. No-objetivos
+## 3. Solución: Sincronización vía Claude/MCP
 
-- **No** sincronización bidireccional en tiempo real (overkill para 5 clientes / 1 editor).
-- **No** webhook listener para cambios en Miro (no es necesario porque Tomás se compromete a no editar Miro a mano).
-- **No** soporte para que el equipo (Paulina, Juan Esteban) edite tareas — solo Tomás edita.
-- **No** UI nueva para los clientes (siguen viendo el embed actual).
+**Insight clave:** Yo (Claude vía Claude Code) **sí tengo acceso** al `data_table` de Miro a través de tools MCP (`mcp__claude_ai_Miro__table_list_rows` y `mcp__claude_ai_Miro__table_sync_rows`). Esos tools usan la sesión OAuth interactiva de Tomás con miro.com, no un API token de servicio.
+
+Por lo tanto, **Claude se vuelve el sincronizador**:
+- Tomás edita siempre en la app (Supabase = fuente de verdad).
+- Una vez al día (automático a las 18:00) + on-demand cuando Tomás quiera, Claude:
+  1. Lee tareas de Supabase
+  2. Lee filas del `data_table` de Miro vía MCP
+  3. Calcula diff
+  4. Aplica cambios al `data_table` vía `mcp__claude_ai_Miro__table_sync_rows`
 
 ## 4. Arquitectura
 
@@ -44,18 +47,24 @@ El intento previo de "widget en Miro que linkea a la app" generó reproceso porq
 │   │ App editor   │              │ App embed    │            │
 │   │ (autenticado)│              │ (token URL)  │            │
 │   └──────┬───────┘              └──────┬───────┘            │
-│          │                             │                     │
 │          │ read/write                  │ read-only          │
 │          ▼                             ▼                     │
 │   ┌────────────────────────────────────────────┐            │
 │   │              SUPABASE (tasks)              │            │
 │   │             FUENTE DE VERDAD               │            │
 │   └─────────────────┬──────────────────────────┘            │
-│                     │ push (síncrono)                       │
+│                     │                                        │
+│                     │ HTTP (vía /api/tasks)                 │
+│                     ▼                                        │
+│   ┌────────────────────────────────────────────┐            │
+│   │   CLAUDE CODE (sesión interactiva o       │            │
+│   │   remote agent cron @ 18:00)              │            │
+│   └─────────────────┬──────────────────────────┘            │
+│                     │ MCP table_sync_rows                   │
 │                     ▼                                        │
 │   ┌────────────────────────────────────────────┐            │
 │   │         MIRO data_table (5 boards)         │            │
-│   │         VISTA — read-only para humanos     │            │
+│   │         VISTA — actualizada vía Claude     │            │
 │   └────────────────────────────────────────────┘            │
 │                     ▲                                        │
 │                     │ observa pero no edita                 │
@@ -64,128 +73,93 @@ El intento previo de "widget en Miro que linkea a la app" generó reproceso porq
 └─────────────────────────────────────────────────────────────┘
 ```
 
-**Regla de oro:** Cualquier escritura a `tasks` en Supabase dispara un push correspondiente al `data_table` de Miro del cliente afectado. Si el push a Miro falla, la operación en Supabase **igual se confirma** (Supabase es la verdad), pero se registra el fallo y se muestra un badge en la UI: "Miro desincronizado — reintentar".
-
 ## 5. Componentes
 
-### 5.1 Capa de escritura a Miro (`src/lib/miro-writer.ts`)
+### 5.1 Migración Supabase
 
-Nuevo módulo que encapsula las 3 operaciones de Miro:
+Agregar columna `miro_row_id` a `tasks` para emparejar tareas Supabase ↔ filas Miro de manera estable (los rowIds de Miro son persistentes a sorting/insertion/deletion).
 
-- `setRowEstado(clientId, taskTitulo, estado)` — cambia el dropdown Estado de una fila existente. Resuelve la fila por título exacto (case-insensitive).
-- `createRow(clientId, task)` — agrega una fila nueva con todos los campos.
-- `updateRow(clientId, taskTitulo, fields)` — edita campos de una fila existente.
+```sql
+alter table public.tasks add column if not exists miro_row_id text;
+create index if not exists tasks_miro_row_id_idx on public.tasks(miro_row_id);
+```
 
-Internamente usa la API experimental `https://api.miro.com/v2-experimental/boards/{board}/tables/{tableId}/rows` que ya está validada en `/api/miro/complete`.
+### 5.2 Endpoint snapshot (opcional)
 
-Requiere `MIRO_ACCESS_TOKEN` con scope `boards:write`. Si falta, las funciones devuelven `{ ok: false, code: "missing_scope" }` sin lanzar excepción (la operación de Supabase no debe fallar por eso).
+Reusar `/api/tasks?clientId=X&embedToken=...` que ya existe — no necesitamos endpoint nuevo. El snapshot de Miro lo lee directamente Claude vía MCP.
 
-### 5.2 Endpoints API
+### 5.3 Procedimiento de sincronización (documentado en `docs/SYNC-MIRO.md`)
 
-| Endpoint | Cambio |
-|---|---|
-| `POST /api/tasks/[id]/complete` | **Modificar**: después de actualizar Supabase, llamar `setRowEstado(...)` |
-| `PATCH /api/tasks/[id]` | **Modificar**: después del update, llamar `updateRow(...)` con los campos cambiados; si cambió `estado`, llamar `setRowEstado(...)` |
-| `POST /api/tasks/bulk-create` | **Modificar**: después de insertar a Supabase, llamar `createRow(...)` por cada tarea nueva |
-| `DELETE /api/tasks/[id]` | **Modificar**: después de borrar de Supabase, eliminar la fila de Miro (vía `deleteRow`) |
-| `POST /api/meetings/process` | **Nuevo**: recibe transcript Fathom, llama Anthropic API, devuelve diff propuesto (sin aplicar) |
-| `POST /api/meetings/apply` | **Nuevo**: recibe diff editado por el usuario, lo ejecuta como secuencia de creates/updates/completes |
-| `/api/miro/complete`, `/api/miro/tasks` | **Eliminar** — reemplazados por la capa interna |
+**Para cada cliente:**
 
-### 5.3 Página nueva: "Actualizar desde reunión"
+1. **Leer Supabase**: `GET /api/tasks?clientId=X&embedToken=Y` → array de tareas con `id`, `titulo`, `modulo`, `responsable`, `prioridad`, `fecha`, `estado`, `miro_row_id` (si existe).
 
-Ruta: `/dashboard/meeting-import` (autenticado, solo Tomás).
+2. **Leer Miro**: `mcp__claude_ai_Miro__table_list_rows` con paginación (limit=200) → array de rows con `rowId`, `cells`.
 
-Flujo en 3 pasos:
+3. **Calcular diff**:
+   - **Match por `miro_row_id`** primero (lo más confiable).
+   - **Match por `titulo` exacto** como fallback (case-insensitive, trimmed).
+   - **Tareas en Supabase sin match en Miro** → INSERT row en Miro.
+   - **Tareas en Miro sin match en Supabase** → reportar (no borrar — puede ser histórico que Tomás dejó intencional).
+   - **Matches con campos diferentes** → UPDATE row en Miro.
 
-1. **Pegar transcript**
-   - Selector de cliente (CYGNUSS, Dentilandia, AC Autos, Paulina, Lativo)
-   - Textarea grande para el transcript de Fathom
-   - Botón "Procesar con AI"
+4. **Aplicar**: `mcp__claude_ai_Miro__table_sync_rows` con array de rows (UPDATE incluyendo `rowId`, INSERT sin `rowId`).
 
-2. **Revisar diff propuesto**
-   - Lista de cambios agrupados por tipo: nuevas tareas, completadas, editadas
-   - Cada cambio es una card editable: título, módulo, responsable, prioridad, fecha
-   - Checkbox por cada cambio para incluir/excluir
-   - Vista previa de impacto: "Vas a agregar X tareas, completar Y, editar Z"
-   - Botón "Aplicar" / "Cancelar"
+5. **Backfill `miro_row_id`** en Supabase para tareas recién insertadas (PATCH a `/api/tasks/[id]` con el nuevo `miro_row_id`).
 
-3. **Aplicar y confirmar**
-   - Ejecuta la secuencia
-   - Muestra progreso (10/15 aplicados)
-   - Reporta éxitos y fallos por separado
-   - Si Miro falla, muestra badge "X tareas en Supabase OK pero no llegaron a Miro — reintentar"
+### 5.4 Cron remote agent @ 18:00 diario
 
-Diseño visual: pendiente de iteración con `web-design`.
+Vía `superpowers:schedule` skill, se crea un trigger que dispara un Claude agent remoto cada día a las 18:00 (zona horaria Bogotá UTC-5). El agent:
 
-### 5.4 Servicio de procesamiento de transcript (`src/lib/meeting-processor.ts`)
+1. Lee este spec + `docs/SYNC-MIRO.md`
+2. Ejecuta el procedimiento para los 5 clientes
+3. Reporta el resultado (cambios aplicados, errores) — visible en el panel de triggers de Claude Code
 
-Función `processTranscript(clientId, transcript)`:
+## 6. Flujo de Tomás día a día
 
-1. Carga las tareas existentes del cliente (Supabase) para dar contexto a Claude.
-2. Llama Anthropic API con un prompt sistema que contiene:
-   - Lista de tareas existentes del cliente
-   - Esquema esperado del JSON de salida (con módulos válidos, estados válidos, etc.)
-   - Reglas: no inventar tareas, mapear menciones a tareas existentes cuando sea posible
-3. Recibe JSON con `creates`, `completes`, `updates`.
-4. Valida el JSON contra esquema (Zod).
-5. Devuelve el diff con IDs internos para que la UI pueda editar antes de aplicar.
-
-Modelo: `claude-sonnet-4-6` (rápido y suficientemente capaz para esta tarea estructurada).
-Caching: prompt cache para el system prompt (lista de tareas existentes cambia, pero el resto no).
-
-### 5.5 Cleanup
-
-- Borrar los 5 widgets verdes de los boards (script ya validado).
-- Eliminar `src/lib/miro-data.ts` (cache obsoleto).
-- Eliminar `/api/miro/tasks` (no se usa más).
-
-## 6. Configuración requerida
-
-Variables de entorno en Netlify (production):
-
-| Var | Valor | Notas |
+| Cuándo | Qué hace Tomás | Qué pasa atrás |
 |---|---|---|
-| `MIRO_ACCESS_TOKEN` | (token regenerado con scope `boards:write`) | Crítico — sin esto, los pushes a Miro no funcionan |
-| `ANTHROPIC_API_KEY` | (API key de console.anthropic.com) | Para `/api/meetings/process` |
+| Después de meeting | Pega Fathom en `/client/[id]/pegar-pendientes` | Tareas a Supabase |
+| Mientras maneja | Marca completada desde el celular | Cambio a Supabase |
+| Cualquier momento | Abre app, edita responsable/fecha/etc | Cambio a Supabase |
+| 18:00 diario | (nada, es automático) | Claude agent sincroniza Miro |
+| On-demand urgente | Abre Claude Code, dice "sync miro" | Claude sincroniza Miro |
+| Diaria visualización | Abre Miro, mira `data_table` | Ya está actualizada |
 
-## 7. Manejo de errores y casos borde
+## 7. Manejo de errores
 
-- **Push a Miro falla pero Supabase OK**: la operación se confirma, se loguea el error, y la próxima vez que el usuario abra el dashboard verá un badge "N tareas desincronizadas con Miro — reintentar". El botón reintenta solo los items pendientes.
-- **Tarea con título duplicado en Miro**: `setRowEstado` actualiza la primera coincidencia y loguea warning. Mitigación: validar unicidad de títulos por cliente al crear.
-- **Tomás edita Miro a mano** (caso prohibido pero realista): el cambio se pierde la próxima vez que la app actualice esa fila. Mitigación: documentar la regla en CLAUDE.md y poner un warning visual en el board (sticky note: "No editar — gestionado desde la app").
-- **Anthropic API down**: la página "Actualizar desde reunión" muestra error y permite pegar el JSON manualmente como fallback.
-- **Miro API rate limit (60 req/min)**: el bulk apply ejecuta secuencialmente con throttle de 1 req/segundo.
-- **Token Miro expirado**: error 401 → la app muestra banner persistente pidiendo regenerar token.
+- **MCP no disponible en cron agent**: si el cron Claude no tiene acceso al MCP de Miro (porque la auth interactiva no está disponible en background), el cron falla y notifica. Tomás corre el sync manual cuando vea la notificación.
+- **Diff con conflictos**: si una tarea está "Completada" en Miro pero "En curso" en Supabase, prevalece Supabase (es la fuente de verdad). Reportar para que Tomás revise manualmente.
+- **Tarea borrada en Supabase pero presente en Miro**: NO borramos de Miro automáticamente (riesgo). Reportar para revisión manual.
+- **Title duplicado**: el match por `miro_row_id` previene duplicados. Para tareas pre-existentes sin `miro_row_id`, primer sync hace match por título y backfillea el rowId.
 
-## 8. Migración
+## 8. Fuera de alcance
 
-1. Validar que las 222 tareas en Supabase corresponden 1:1 con las filas en `data_table` de Miro (puede haber drift desde la migración inicial).
-2. Si hay drift, decidir caso por caso: ¿usar Supabase o Miro como verdad para reconciliar?
-3. Una vez reconciliado, activar los pushes.
-4. Borrar widgets.
-5. Agregar sticky note de warning en cada board.
+- Push automático a Miro en cada cambio (requiere Miro App, ~2 días).
+- Bidireccional sync (editar en Miro y que se refleje en app) — Tomás se compromete a editar siempre en la app.
+- Sticky notes overlay como vista alternativa.
+- Anthropic API integration para procesar Fathom dentro de la app (Tomás puede seguir usando Claude del navegador, o lo agregamos después si conviene).
 
-## 9. Fuera de alcance (futuro)
+## 9. Criterios de aceptación
 
-- Auto-clasificar módulo de tarea con AI.
-- Sugerir prioridad basada en histórico.
-- Generar resumen ejecutivo del cliente para el embed.
-- Crear usuarios de los clientes en Supabase Auth (pendiente independiente).
-- Arreglar carga del histórico (`MIRO_ACCESS_TOKEN` solo soluciona la parte de write — el read de histórico también lo necesita).
+- [ ] Migración `miro_row_id` aplicada en Supabase
+- [ ] `docs/SYNC-MIRO.md` documenta el procedimiento exacto que cualquier Claude session puede seguir
+- [ ] Sync end-to-end probado en CYGNUSS — diff calculado y aplicado correctamente
+- [ ] 4 clientes restantes sincronizados como validación masiva
+- [ ] Cron @ 18:00 daily creado vía `superpowers:schedule`
+- [ ] Tras el primer cron run exitoso, todos los `data_table` reflejan estado de Supabase
 
-## 10. Preguntas abiertas
+## 10. Migración / cleanup
 
-- **Modelo Anthropic**: confirmado `claude-sonnet-4-6` o ¿prefieres `claude-opus-4-7` para mejor calidad a 5x el costo?
-- **Idempotencia de bulk apply**: si el usuario aplica dos veces el mismo diff por error, ¿qué pasa? Propuesta: cada diff tiene un UUID y se rechaza si ya se aplicó.
-- **Confirmación destructiva**: completar una tarea es reversible (vuelves a En curso). Borrar una tarea no. ¿Pedir confirmación extra?
+- Sin código a borrar (el commit `64d8d6c` con `miro-writer.ts` ya fue revertido).
+- Los 5 widgets verdes del Miro siguen ahí — no son urgentes de borrar pero se pueden remover en cualquier momento con el script `scripts/delete-miro-widgets.mjs` (ya validado en sesiones anteriores).
 
-## 11. Criterios de aceptación
+## 11. Trabajo desechado del plan v1
 
-- [ ] Marcar una tarea como completada en la app actualiza la columna Estado de la fila correspondiente en Miro en menos de 5 segundos.
-- [ ] Crear una tarea nueva en la app aparece como fila nueva en Miro en menos de 5 segundos.
-- [ ] Editar responsable/prioridad/fecha en la app se refleja en Miro en menos de 5 segundos.
-- [ ] Pegar un transcript de Fathom genera un diff procesable en menos de 30 segundos.
-- [ ] El usuario puede editar cada cambio del diff antes de aplicar.
-- [ ] Si la API de Miro falla, el cambio en Supabase se confirma igual y la app muestra el estado de "desincronizado".
-- [ ] Los 5 widgets verdes están borrados de Miro al finalizar.
+Lo siguiente quedó **fuera de scope** porque el bloqueo de API REST de Miro lo invalida:
+
+- `src/lib/miro-writer.ts` (nunca funcionará via REST con scopes estándar)
+- Cableado de `setRowEstado/createRow/updateRow/deleteRow` en endpoints
+- `meeting-processor.ts` con Anthropic API (separable, puede agregarse después)
+- Página `meeting-import` separada (Tomás usa `pegar-pendientes` que ya existe)
+- Badge "Miro desincronizado" en dashboard (irrelevante con sync diario automático)
