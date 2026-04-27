@@ -36,5 +36,6 @@ yarn-error.log*
 next-env.d.ts
 
 # local / editor
-.claude/
+.claude/*
+!.claude/commands/
 app-backup.txt
