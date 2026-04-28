@@ -22,19 +22,21 @@ Custom WordPress block theme for La Dentisteria dental clinic. Built for ladenti
 
 ## Fonts
 
-Currently the theme uses Google Fonts CDN via @import in `assets/css/tokens.css` for development simplicity. For production performance, download local woff2 versions:
+**Current (dev):** Google Fonts CDN — loaded via `wp_enqueue_style` in `inc/enqueue.php` with `<link rel="preconnect">` hints in `<head>`. Parallel fetch, no `@import` blocking.
+
+**Production swap to self-hosted (better Core Web Vitals):**
 
 1. Visit https://gwfh.mranftl.com/fonts
 2. Download:
    - DM Serif Display: regular 400 + italic 400 (woff2)
    - Inter Tight: variable font (woff2)
-3. Place in `assets/fonts/` with these exact filenames:
+3. Place files in `assets/fonts/` with these exact filenames:
    - `dm-serif-display-400.woff2`
    - `dm-serif-display-400-italic.woff2`
    - `inter-tight-variable.woff2`
-4. Remove the `@import url('https://fonts.googleapis.com/...')` line from `tokens.css`.
-
-The `theme.json` already references the local files — once downloaded, fonts switch to self-hosted automatically.
+4. Restore the `fontFace` arrays in `theme.json` for both families (see git history of theme.json before commit f4c6c8c for the original arrays — or reconstruct using the file paths above).
+5. Remove the `ladent-google-fonts` `wp_enqueue_style` call from `inc/enqueue.php`.
+6. Remove the `wp_head` preconnect hints for `fonts.googleapis.com` and `fonts.gstatic.com`.
 
 ## Project structure
 

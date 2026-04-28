@@ -1,29 +1,28 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter+Tight:wght@400..700&display=swap');
-
-/* Design tokens — La Dentisteria
- * These mirror theme.json for direct CSS use.
- * Source of truth: theme.json
+/* Design token aliases — La Dentisteria
+ * Source of truth: theme.json (which generates --wp--preset--* CSS vars).
+ * This file aliases those into shorter, semantic names for use in main.css and patterns.
+ * Edit theme.json to change values; this file does NOT redeclare hex codes.
  */
 :root {
-  --beige: #F1E8DA;
-  --beige-deep: #E8DCC4;
-  --teal: #0E6B6B;
-  --teal-deep: #114848;
-  --ink: #1a1a1a;
-  --ink-soft: #5a5a5a;
-  --line: #d8ccb6;
-  --gold-accent: #E8C9A0;
+  --beige:        var(--wp--preset--color--beige);
+  --beige-deep:   var(--wp--preset--color--beige-deep);
+  --teal:         var(--wp--preset--color--teal);
+  --teal-deep:    var(--wp--preset--color--teal-deep);
+  --ink:          var(--wp--preset--color--ink);
+  --ink-soft:     var(--wp--preset--color--ink-soft);
+  --line:         var(--wp--preset--color--line);
+  --gold-accent:  var(--wp--preset--color--gold-accent);
 
-  --font-serif: 'DM Serif Display', Georgia, serif;
-  --font-sans: 'Inter Tight', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-serif:   var(--wp--preset--font-family--serif);
+  --font-sans:    var(--wp--preset--font-family--sans);
 
-  --content-max: 1180px;
-  --wide-max: 1320px;
+  --content-max:  1180px;
+  --wide-max:     1320px;
 
-  --space-xs: 0.5rem;
-  --space-sm: 1rem;
-  --space-md: 1.5rem;
-  --space-lg: 2.5rem;
-  --space-xl: 4rem;
-  --space-xxl: 6rem;
+  --space-xs:     0.5rem;
+  --space-sm:     1rem;
+  --space-md:     1.5rem;
+  --space-lg:     2.5rem;
+  --space-xl:     4rem;
+  --space-xxl:    6rem;
 }

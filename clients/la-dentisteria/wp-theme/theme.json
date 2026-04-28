@@ -23,34 +23,12 @@
         {
           "fontFamily": "'DM Serif Display', Georgia, serif",
           "slug": "serif",
-          "name": "DM Serif Display",
-          "fontFace": [
-            {
-              "fontFamily": "DM Serif Display",
-              "fontStyle": "normal",
-              "fontWeight": "400",
-              "src": ["file:./assets/fonts/dm-serif-display-400.woff2"]
-            },
-            {
-              "fontFamily": "DM Serif Display",
-              "fontStyle": "italic",
-              "fontWeight": "400",
-              "src": ["file:./assets/fonts/dm-serif-display-400-italic.woff2"]
-            }
-          ]
+          "name": "DM Serif Display"
         },
         {
-          "fontFamily": "'Inter Tight', -apple-system, sans-serif",
+          "fontFamily": "'Inter Tight', -apple-system, BlinkMacSystemFont, sans-serif",
           "slug": "sans",
-          "name": "Inter Tight",
-          "fontFace": [
-            {
-              "fontFamily": "Inter Tight",
-              "fontStyle": "normal",
-              "fontWeight": "400 700",
-              "src": ["file:./assets/fonts/inter-tight-variable.woff2"]
-            }
-          ]
+          "name": "Inter Tight"
         }
       ],
       "fontSizes": [
