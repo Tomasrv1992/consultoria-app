@@ -25,8 +25,8 @@
       <!-- wp:paragraph {"className":"quote-mark","style":{"typography":{"fontFamily":"var(--wp--preset--font-family--serif)","fontSize":"48px","fontStyle":"italic","lineHeight":"1"}},"textColor":"teal"} -->
       <p class="quote-mark has-teal-color has-text-color" style="font-family:var(--wp--preset--font-family--serif);font-size:48px;font-style:italic;line-height:1">"</p>
       <!-- /wp:paragraph -->
-      <!-- wp:paragraph {"style":{"typography":{"fontSize":"13px","lineHeight":"1.6"},"color":{"text":"#b5a585"}}} -->
-      <p style="color:#b5a585;font-size:13px;line-height:1.6">Pronto compartiremos las historias de quienes confiaron en nosotros.</p>
+      <!-- wp:paragraph {"style":{"typography":{"fontSize":"13px","lineHeight":"1.6"},"color":{"text":"var:preset|color|ink-soft"}}} -->
+      <p style="color:var(--wp--preset--color--ink-soft);font-size:13px;line-height:1.6">Pronto compartiremos las historias de quienes confiaron en nosotros.</p>
       <!-- /wp:paragraph -->
     </div>
     <!-- /wp:column -->
@@ -36,8 +36,8 @@
       <!-- wp:paragraph {"className":"quote-mark","style":{"typography":{"fontFamily":"var(--wp--preset--font-family--serif)","fontSize":"48px","fontStyle":"italic","lineHeight":"1"}},"textColor":"teal"} -->
       <p class="quote-mark has-teal-color has-text-color" style="font-family:var(--wp--preset--font-family--serif);font-size:48px;font-style:italic;line-height:1">"</p>
       <!-- /wp:paragraph -->
-      <!-- wp:paragraph {"style":{"typography":{"fontSize":"13px","lineHeight":"1.6"},"color":{"text":"#b5a585"}}} -->
-      <p style="color:#b5a585;font-size:13px;line-height:1.6">Estamos recopilando testimonios reales con consentimiento de cada paciente.</p>
+      <!-- wp:paragraph {"style":{"typography":{"fontSize":"13px","lineHeight":"1.6"},"color":{"text":"var:preset|color|ink-soft"}}} -->
+      <p style="color:var(--wp--preset--color--ink-soft);font-size:13px;line-height:1.6">Estamos recopilando testimonios reales con consentimiento de cada paciente.</p>
       <!-- /wp:paragraph -->
     </div>
     <!-- /wp:column -->
@@ -47,8 +47,8 @@
       <!-- wp:paragraph {"className":"quote-mark","style":{"typography":{"fontFamily":"var(--wp--preset--font-family--serif)","fontSize":"48px","fontStyle":"italic","lineHeight":"1"}},"textColor":"teal"} -->
       <p class="quote-mark has-teal-color has-text-color" style="font-family:var(--wp--preset--font-family--serif);font-size:48px;font-style:italic;line-height:1">"</p>
       <!-- /wp:paragraph -->
-      <!-- wp:paragraph {"style":{"typography":{"fontSize":"13px","lineHeight":"1.6"},"color":{"text":"#b5a585"}}} -->
-      <p style="color:#b5a585;font-size:13px;line-height:1.6">Mientras tanto, escríbenos y conversemos sobre tu caso.</p>
+      <!-- wp:paragraph {"style":{"typography":{"fontSize":"13px","lineHeight":"1.6"},"color":{"text":"var:preset|color|ink-soft"}}} -->
+      <p style="color:var(--wp--preset--color--ink-soft);font-size:13px;line-height:1.6">Mientras tanto, escríbenos y conversemos sobre tu caso.</p>
       <!-- /wp:paragraph -->
     </div>
     <!-- /wp:column -->

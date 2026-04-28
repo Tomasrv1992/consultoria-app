@@ -15,7 +15,7 @@
     <!-- wp:column {"verticalAlignment":"center"} -->
     <div class="wp-block-column is-vertically-aligned-center">
       <!-- wp:html -->
-      <div class="nosotros-photo" aria-label="Foto del consultorio (placeholder)"></div>
+      <div class="nosotros-photo" role="presentation" aria-hidden="true"></div>
       <!-- /wp:html -->
     </div>
     <!-- /wp:column -->

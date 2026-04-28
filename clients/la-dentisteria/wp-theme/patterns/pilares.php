@@ -22,7 +22,7 @@
 
     <!-- wp:column {"className":"pilar"} -->
     <div class="wp-block-column pilar">
-      <!-- wp:paragraph {"className":"pilar-icon"} --><p class="pilar-icon">◆</p><!-- /wp:paragraph -->
+      <!-- wp:paragraph {"className":"pilar-icon"} --><p class="pilar-icon"><span aria-hidden="true">◆</span></p><!-- /wp:paragraph -->
       <!-- wp:heading {"level":3,"style":{"typography":{"fontSize":"18px"}}} --><h3 style="font-size:18px">Equipo especialista</h3><!-- /wp:heading -->
       <!-- wp:paragraph {"style":{"typography":{"fontSize":"13px","lineHeight":"1.55"},"color":{"text":"var:preset|color|ink-soft"}}} -->
       <p style="font-size:13px;line-height:1.55">Odontólogos formados en cada especialidad, no generalistas. Cada tratamiento lo hace quien sabe.</p>
@@ -32,7 +32,7 @@
 
     <!-- wp:column {"className":"pilar"} -->
     <div class="wp-block-column pilar">
-      <!-- wp:paragraph {"className":"pilar-icon"} --><p class="pilar-icon">◐</p><!-- /wp:paragraph -->
+      <!-- wp:paragraph {"className":"pilar-icon"} --><p class="pilar-icon"><span aria-hidden="true">◐</span></p><!-- /wp:paragraph -->
       <!-- wp:heading {"level":3,"style":{"typography":{"fontSize":"18px"}}} --><h3 style="font-size:18px">Ubicación céntrica</h3><!-- /wp:heading -->
       <!-- wp:paragraph {"style":{"typography":{"fontSize":"13px","lineHeight":"1.55"},"color":{"text":"var:preset|color|ink-soft"}}} -->
       <p style="font-size:13px;line-height:1.55">En Centro Comercial Parque Fabricato. Acceso fácil, parqueadero, transporte público a la puerta.</p>
@@ -42,7 +42,7 @@
 
     <!-- wp:column {"className":"pilar"} -->
     <div class="wp-block-column pilar">
-      <!-- wp:paragraph {"className":"pilar-icon"} --><p class="pilar-icon">◇</p><!-- /wp:paragraph -->
+      <!-- wp:paragraph {"className":"pilar-icon"} --><p class="pilar-icon"><span aria-hidden="true">◇</span></p><!-- /wp:paragraph -->
       <!-- wp:heading {"level":3,"style":{"typography":{"fontSize":"18px"}}} --><h3 style="font-size:18px">Atención personalizada</h3><!-- /wp:heading -->
       <!-- wp:paragraph {"style":{"typography":{"fontSize":"13px","lineHeight":"1.55"},"color":{"text":"var:preset|color|ink-soft"}}} -->
       <p style="font-size:13px;line-height:1.55">Consulta detallada, plan a medida. Te explicamos cada paso y respetamos tu tiempo.</p>
@@ -52,7 +52,7 @@
 
     <!-- wp:column {"className":"pilar"} -->
     <div class="wp-block-column pilar">
-      <!-- wp:paragraph {"className":"pilar-icon"} --><p class="pilar-icon">◯</p><!-- /wp:paragraph -->
+      <!-- wp:paragraph {"className":"pilar-icon"} --><p class="pilar-icon"><span aria-hidden="true">◯</span></p><!-- /wp:paragraph -->
       <!-- wp:heading {"level":3,"style":{"typography":{"fontSize":"18px"}}} --><h3 style="font-size:18px">Cobertura integral</h3><!-- /wp:heading -->
       <!-- wp:paragraph {"style":{"typography":{"fontSize":"13px","lineHeight":"1.55"},"color":{"text":"var:preset|color|ink-soft"}}} -->
       <p style="font-size:13px;line-height:1.55">Todas las especialidades bajo un mismo techo. No te enviamos a otro lado.</p>
