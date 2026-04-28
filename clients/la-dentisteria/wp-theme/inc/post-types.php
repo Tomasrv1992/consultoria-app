@@ -1,0 +1,1 @@
+<?php // post-types stub - implemented in Batch 3

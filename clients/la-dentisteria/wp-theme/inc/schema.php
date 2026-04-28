@@ -1,0 +1,1 @@
+<?php // schema stub - implemented in Batch 5

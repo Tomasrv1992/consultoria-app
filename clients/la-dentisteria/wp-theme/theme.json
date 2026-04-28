@@ -1,0 +1,136 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/theme.json",
+  "version": 2,
+  "settings": {
+    "appearanceTools": true,
+    "color": {
+      "palette": [
+        { "slug": "beige", "color": "#F1E8DA", "name": "Beige" },
+        { "slug": "beige-deep", "color": "#E8DCC4", "name": "Beige Deep" },
+        { "slug": "teal", "color": "#0E6B6B", "name": "Teal" },
+        { "slug": "teal-deep", "color": "#114848", "name": "Teal Deep" },
+        { "slug": "ink", "color": "#1a1a1a", "name": "Ink" },
+        { "slug": "ink-soft", "color": "#5a5a5a", "name": "Ink Soft" },
+        { "slug": "line", "color": "#d8ccb6", "name": "Line" },
+        { "slug": "gold-accent", "color": "#E8C9A0", "name": "Gold Accent" }
+      ],
+      "custom": false,
+      "customGradient": false,
+      "defaultPalette": false
+    },
+    "typography": {
+      "fontFamilies": [
+        {
+          "fontFamily": "'DM Serif Display', Georgia, serif",
+          "slug": "serif",
+          "name": "DM Serif Display",
+          "fontFace": [
+            {
+              "fontFamily": "DM Serif Display",
+              "fontStyle": "normal",
+              "fontWeight": "400",
+              "src": ["file:./assets/fonts/dm-serif-display-400.woff2"]
+            },
+            {
+              "fontFamily": "DM Serif Display",
+              "fontStyle": "italic",
+              "fontWeight": "400",
+              "src": ["file:./assets/fonts/dm-serif-display-400-italic.woff2"]
+            }
+          ]
+        },
+        {
+          "fontFamily": "'Inter Tight', -apple-system, sans-serif",
+          "slug": "sans",
+          "name": "Inter Tight",
+          "fontFace": [
+            {
+              "fontFamily": "Inter Tight",
+              "fontStyle": "normal",
+              "fontWeight": "400 700",
+              "src": ["file:./assets/fonts/inter-tight-variable.woff2"]
+            }
+          ]
+        }
+      ],
+      "fontSizes": [
+        { "slug": "small", "size": "13px", "name": "Small" },
+        { "slug": "medium", "size": "16px", "name": "Medium" },
+        { "slug": "large", "size": "24px", "name": "Large" },
+        { "slug": "xlarge", "size": "44px", "name": "X-Large" },
+        { "slug": "display", "size": "76px", "name": "Display" }
+      ],
+      "customFontSize": true,
+      "lineHeight": true,
+      "letterSpacing": true
+    },
+    "layout": {
+      "contentSize": "1180px",
+      "wideSize": "1320px"
+    },
+    "spacing": {
+      "spacingScale": {
+        "operator": "*",
+        "increment": 1.5,
+        "steps": 7,
+        "mediumStep": 1.5,
+        "unit": "rem"
+      }
+    }
+  },
+  "styles": {
+    "color": {
+      "background": "var(--wp--preset--color--beige)",
+      "text": "var(--wp--preset--color--ink)"
+    },
+    "typography": {
+      "fontFamily": "var(--wp--preset--font-family--sans)",
+      "fontSize": "var(--wp--preset--font-size--medium)",
+      "lineHeight": "1.5"
+    },
+    "elements": {
+      "h1": {
+        "typography": {
+          "fontFamily": "var(--wp--preset--font-family--serif)",
+          "fontSize": "clamp(44px, 6vw, 76px)",
+          "lineHeight": "1.0",
+          "letterSpacing": "-0.02em",
+          "fontWeight": "400"
+        }
+      },
+      "h2": {
+        "typography": {
+          "fontFamily": "var(--wp--preset--font-family--serif)",
+          "fontSize": "clamp(28px, 4vw, 44px)",
+          "lineHeight": "1.05",
+          "letterSpacing": "-0.01em",
+          "fontWeight": "400"
+        }
+      },
+      "h3": {
+        "typography": {
+          "fontFamily": "var(--wp--preset--font-family--serif)",
+          "fontSize": "24px",
+          "fontWeight": "400"
+        }
+      },
+      "button": {
+        "color": {
+          "background": "var(--wp--preset--color--teal)",
+          "text": "var(--wp--preset--color--beige)"
+        },
+        "border": { "radius": "999px" },
+        "spacing": { "padding": { "top": "14px", "right": "28px", "bottom": "14px", "left": "28px" } },
+        "typography": {
+          "fontSize": "12px",
+          "fontWeight": "600",
+          "letterSpacing": "0.06em",
+          "textTransform": "uppercase"
+        }
+      },
+      "link": {
+        "color": { "text": "var(--wp--preset--color--teal)" }
+      }
+    }
+  }
+}
