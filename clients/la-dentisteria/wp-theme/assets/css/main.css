@@ -71,3 +71,70 @@ a { color: inherit; text-decoration: none; }
 @media (max-width: 768px) {
   body { font-size: 14px; }
 }
+
+/* === Patterns CSS — Batch 2 === */
+
+/* Site header sticky behavior */
+.site-header { border-bottom: 1px solid var(--line); }
+
+/* Site logo */
+.site-logo .wp-block-site-title a { color: var(--ink); text-decoration: none; }
+.site-logo .logo-tag { margin: 2px 0 0; line-height: 1; }
+
+/* Footer */
+.site-footer .footer-list,
+.site-footer .wp-block-list { list-style: none; padding: 0; margin: 0; }
+.site-footer .footer-list li,
+.site-footer .wp-block-list li { margin-bottom: 7px; opacity: 0.85; }
+.site-footer a:hover { color: var(--gold-accent); }
+.site-footer .footer-heading { opacity: 0.6; margin-bottom: 14px; }
+
+/* Service cards hover */
+.servicio-card { transition: transform 0.2s, box-shadow 0.2s; }
+.servicio-card:hover { transform: translateY(-3px); box-shadow: 0 12px 28px rgba(0,0,0,0.06); }
+
+/* Pilar icon */
+.pilar-icon {
+  width: 32px;
+  height: 32px;
+  border: 1.5px solid var(--teal);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--teal);
+  font-size: 14px;
+  margin: 0 0 14px;
+}
+
+/* Nosotros photo placeholder (until real photo uploaded) */
+.nosotros-photo {
+  aspect-ratio: 4 / 5;
+  background: linear-gradient(135deg, #C9A878 0%, #6B5238 100%);
+  border-radius: 6px;
+}
+
+/* Blog card thumb placeholder */
+.blog-card-thumb {
+  aspect-ratio: 16 / 10;
+  background: linear-gradient(135deg, #d8c8a8 0%, #8b7350 100%);
+  border-radius: 6px 6px 0 0;
+}
+
+/* Channel button hover (CTA final) */
+.channel-btn .wp-block-button__link { transition: opacity 0.15s; }
+.channel-btn .wp-block-button__link:hover { opacity: 0.85; }
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+  .site-header { padding: 14px 18px !important; }
+  .hero { padding: 70px 20px 60px !important; }
+  .servicios-section,
+  .pilares-section,
+  .nosotros-section,
+  .testimonios-section,
+  .blog-section,
+  .internacional-section,
+  .cta-final-section { padding: 60px 20px !important; }
+  .footer-grid .wp-block-column { flex-basis: 100% !important; }
+}
