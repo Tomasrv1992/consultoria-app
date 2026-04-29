@@ -25,4 +25,8 @@
   --space-lg:     2.5rem;
   --space-xl:     4rem;
   --space-xxl:    6rem;
+
+  /* Third-party brand colors (not part of theme.json palette) */
+  --wa-green:      #25D366;
+  --wa-green-deep: #128C7E;
 }

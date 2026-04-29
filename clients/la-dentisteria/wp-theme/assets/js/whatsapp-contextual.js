@@ -27,7 +27,8 @@
   function buildMessage() {
     const path = window.location.pathname;
 
-    // English routes
+    // English routes (per spec §6: /pacientes-internacionales/ is targeted at
+    // English-speaking dental tourism visitors, even though the page title is Spanish).
     if (path.startsWith('/en/') || path.includes('/pacientes-internacionales/')) {
       return DEFAULT_EN;
     }
