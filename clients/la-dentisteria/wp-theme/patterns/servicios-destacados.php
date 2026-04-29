@@ -7,7 +7,7 @@
  */
 ?>
 <!-- wp:group {"tagName":"section","className":"servicios-section","style":{"spacing":{"padding":{"top":"90px","right":"36px","bottom":"90px","left":"36px"}}},"backgroundColor":"beige","layout":{"type":"constrained"}} -->
-<section class="wp-block-group servicios-section has-beige-background-color has-background" style="padding:90px 36px">
+<section class="wp-block-group servicios-section has-beige-background-color has-background" style="padding-top:90px;padding-right:36px;padding-bottom:90px;padding-left:36px">
 
   <!-- wp:paragraph {"className":"section-label","style":{"typography":{"fontSize":"11px","textTransform":"uppercase","letterSpacing":"0.2em","fontWeight":"600"}},"textColor":"teal"} -->
   <p class="section-label has-teal-color has-text-color">Servicios destacados</p>

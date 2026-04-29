@@ -42,6 +42,10 @@ add_action( 'wp_enqueue_scripts', function() {
         [ 'strategy' => 'defer', 'in_footer' => true ]
     );
 
+    // V1.1: enable when assets/js/nav-mobile.js has real implementation.
+    // wp:navigation overlayMenu="mobile" provides hamburger behavior natively;
+    // this stub is reserved for any custom enhancements (e.g., scroll-direction hide).
+    /*
     wp_enqueue_script(
         'ladent-nav-mobile',
         LADENT_THEME_URI . '/assets/js/nav-mobile.js',
@@ -49,6 +53,7 @@ add_action( 'wp_enqueue_scripts', function() {
         LADENT_THEME_VERSION,
         [ 'strategy' => 'defer', 'in_footer' => true ]
     );
+    */
 } );
 
 // Preconnect hints for Google Fonts (saves DNS+TLS round trips)

@@ -7,7 +7,7 @@
  */
 ?>
 <!-- wp:group {"tagName":"section","className":"pilares-section","style":{"spacing":{"padding":{"top":"90px","right":"36px","bottom":"90px","left":"36px"}}},"backgroundColor":"beige-deep","layout":{"type":"constrained"}} -->
-<section class="wp-block-group pilares-section has-beige-deep-background-color has-background" style="padding:90px 36px">
+<section class="wp-block-group pilares-section has-beige-deep-background-color has-background" style="padding-top:90px;padding-right:36px;padding-bottom:90px;padding-left:36px">
 
   <!-- wp:paragraph {"className":"section-label"} -->
   <p class="section-label">Por qué elegirnos</p>

@@ -7,7 +7,7 @@
  */
 ?>
 <!-- wp:group {"tagName":"section","className":"cta-final-section","style":{"spacing":{"padding":{"top":"110px","right":"36px","bottom":"110px","left":"36px"}}},"backgroundColor":"beige","layout":{"type":"constrained"}} -->
-<section class="wp-block-group cta-final-section has-beige-background-color has-background" style="padding:110px 36px;text-align:center">
+<section class="wp-block-group cta-final-section has-beige-background-color has-background" style="padding-top:110px;padding-right:36px;padding-bottom:110px;padding-left:36px;text-align:center">
 
   <!-- wp:paragraph {"align":"center","className":"section-label"} --><p class="section-label has-text-align-center">Reserva tu cita</p><!-- /wp:paragraph -->
 

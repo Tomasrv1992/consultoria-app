@@ -7,7 +7,7 @@
  */
 ?>
 <!-- wp:group {"tagName":"section","className":"nosotros-section","style":{"spacing":{"padding":{"top":"90px","right":"36px","bottom":"90px","left":"36px"}}},"backgroundColor":"beige","layout":{"type":"constrained"}} -->
-<section class="wp-block-group nosotros-section has-beige-background-color has-background" style="padding:90px 36px">
+<section class="wp-block-group nosotros-section has-beige-background-color has-background" style="padding-top:90px;padding-right:36px;padding-bottom:90px;padding-left:36px">
 
   <!-- wp:columns {"verticalAlignment":"center","style":{"spacing":{"blockGap":{"top":"60px","left":"60px"}}}} -->
   <div class="wp-block-columns are-vertically-aligned-center">

@@ -7,7 +7,7 @@
  */
 ?>
 <!-- wp:group {"tagName":"section","className":"blog-section","style":{"spacing":{"padding":{"top":"90px","right":"36px","bottom":"90px","left":"36px"}}},"backgroundColor":"beige-deep","layout":{"type":"constrained"}} -->
-<section class="wp-block-group blog-section has-beige-deep-background-color has-background" style="padding:90px 36px">
+<section class="wp-block-group blog-section has-beige-deep-background-color has-background" style="padding-top:90px;padding-right:36px;padding-bottom:90px;padding-left:36px">
 
   <!-- wp:paragraph {"className":"section-label"} --><p class="section-label">Blog</p><!-- /wp:paragraph -->
   <!-- wp:heading {"level":2} --><h2>Todo lo que querías saber<br><em>sobre tu sonrisa.</em></h2><!-- /wp:heading -->
@@ -19,7 +19,7 @@
     <div class="wp-block-column blog-card has-background" style="border-color:var(--wp--preset--color--line);border-width:1px;border-radius:6px;background-color:#ffffff;padding:0">
       <!-- wp:html --><div class="blog-card-thumb" role="presentation" aria-hidden="true"></div><!-- /wp:html -->
       <!-- wp:group {"style":{"spacing":{"padding":{"top":"22px","right":"24px","bottom":"22px","left":"24px"}}}} -->
-      <div class="wp-block-group" style="padding:22px 24px">
+      <div class="wp-block-group" style="padding-top:22px;padding-right:24px;padding-bottom:22px;padding-left:24px">
         <!-- wp:paragraph {"className":"blog-meta","style":{"typography":{"fontSize":"10px","textTransform":"uppercase","letterSpacing":"0.12em","fontWeight":"600"}},"textColor":"teal"} -->
         <p class="blog-meta has-teal-color has-text-color" style="font-size:10px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase">Ortodoncia · 5 min</p>
         <!-- /wp:paragraph -->
@@ -38,7 +38,7 @@
     <div class="wp-block-column blog-card has-background" style="border-color:var(--wp--preset--color--line);border-width:1px;border-radius:6px;background-color:#ffffff;padding:0">
       <!-- wp:html --><div class="blog-card-thumb" role="presentation" aria-hidden="true"></div><!-- /wp:html -->
       <!-- wp:group {"style":{"spacing":{"padding":{"top":"22px","right":"24px","bottom":"22px","left":"24px"}}}} -->
-      <div class="wp-block-group" style="padding:22px 24px">
+      <div class="wp-block-group" style="padding-top:22px;padding-right:24px;padding-bottom:22px;padding-left:24px">
         <!-- wp:paragraph {"className":"blog-meta","style":{"typography":{"fontSize":"10px","textTransform":"uppercase","letterSpacing":"0.12em","fontWeight":"600"}},"textColor":"teal"} -->
         <p class="blog-meta has-teal-color has-text-color" style="font-size:10px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase">Estética · 4 min</p>
         <!-- /wp:paragraph -->
@@ -57,7 +57,7 @@
     <div class="wp-block-column blog-card has-background" style="border-color:var(--wp--preset--color--line);border-width:1px;border-radius:6px;background-color:#ffffff;padding:0">
       <!-- wp:html --><div class="blog-card-thumb" role="presentation" aria-hidden="true"></div><!-- /wp:html -->
       <!-- wp:group {"style":{"spacing":{"padding":{"top":"22px","right":"24px","bottom":"22px","left":"24px"}}}} -->
-      <div class="wp-block-group" style="padding:22px 24px">
+      <div class="wp-block-group" style="padding-top:22px;padding-right:24px;padding-bottom:22px;padding-left:24px">
         <!-- wp:paragraph {"className":"blog-meta","style":{"typography":{"fontSize":"10px","textTransform":"uppercase","letterSpacing":"0.12em","fontWeight":"600"}},"textColor":"teal"} -->
         <p class="blog-meta has-teal-color has-text-color" style="font-size:10px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase">Cuidado diario · 6 min</p>
         <!-- /wp:paragraph -->

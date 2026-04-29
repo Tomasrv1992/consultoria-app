@@ -7,7 +7,7 @@
  */
 ?>
 <!-- wp:group {"tagName":"section","className":"internacional-section","style":{"spacing":{"padding":{"top":"90px","right":"36px","bottom":"90px","left":"36px"}}},"backgroundColor":"teal-deep","textColor":"beige","layout":{"type":"constrained"}} -->
-<section class="wp-block-group internacional-section has-beige-color has-teal-deep-background-color has-text-color has-background" style="padding:90px 36px;text-align:center">
+<section class="wp-block-group internacional-section has-beige-color has-teal-deep-background-color has-text-color has-background" style="padding-top:90px;padding-right:36px;padding-bottom:90px;padding-left:36px;text-align:center">
 
   <!-- wp:paragraph {"align":"center","className":"section-label","style":{"typography":{"fontSize":"11px","textTransform":"uppercase","letterSpacing":"0.2em","fontWeight":"600"},"color":{"text":"#E8C9A0"}}} -->
   <p class="has-text-align-center section-label" style="color:#E8C9A0;font-size:11px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase">International patients</p>
