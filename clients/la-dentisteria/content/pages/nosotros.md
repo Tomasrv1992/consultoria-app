@@ -28,7 +28,17 @@ Cuatro pilares definen cómo trabajamos en La Dentisteria:
 
 ## Visítanos
 
-Estamos en Centro Comercial Parque Fabricato, Bello, Antioquia. Atendemos con cita previa y damos confirmación por WhatsApp el día anterior. Si necesitas un horario fuera de los habituales, escríbenos: en muchos casos podemos acomodarnos.
+**La Dentisteria**
+Cra. 50 # 38 A 185, Local 99300
+Centro Comercial Parque Fabricato
+Bello, Antioquia, Colombia
+
+**Teléfono / WhatsApp:** [+57 304 426 9079](tel:+573044269079)
+**Email:** [infoladentisteria@gmail.com](mailto:infoladentisteria@gmail.com)
+
+**Horarios**
+Lunes a Viernes: 8:00 a.m. — 6:00 p.m.
+Sábados: 8:00 a.m. — 12:00 p.m.
 
 ## Agenda tu valoración
 

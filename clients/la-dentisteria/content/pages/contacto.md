@@ -14,11 +14,13 @@ Estamos para responderte. Si tienes dudas sobre un tratamiento, quieres confirma
 
 **Llamar.** Si prefieres conversar directamente, llámanos al +57 304 426 9079. Si no contestamos al primer intento, déjanos un mensaje de voz o un WhatsApp y te devolvemos la llamada.
 
-**Email.** Para casos en los que necesitas adjuntar radiografías, historias previas o información detallada: [hola@ladentisteria.co](mailto:hola@ladentisteria.co). Respondemos dentro de un día hábil.
+**Email.** Para casos en los que necesitas adjuntar radiografías, historias previas o información detallada: [infoladentisteria@gmail.com](mailto:infoladentisteria@gmail.com). Respondemos dentro de un día hábil.
 
 ## Visítanos
 
-**Centro Comercial Parque Fabricato**
+**La Dentisteria**
+Cra. 50 # 38 A 185, Local 99300
+Centro Comercial Parque Fabricato
 Bello, Antioquia, Colombia
 
 <!-- TODO: Insert Google Maps embed once GBP listing is verified -->
@@ -31,7 +33,7 @@ Bello, Antioquia, Colombia
 ## Horarios
 
 **Lunes a viernes:** 8:00 a.m. — 6:00 p.m.
-**Sábados:** 8:00 a.m. — 1:00 p.m.
+**Sábados:** 8:00 a.m. — 12:00 p.m.
 **Domingos y festivos:** cerrado
 
 Si necesitas un horario fuera de los habituales, escríbenos por WhatsApp y vemos si podemos acomodarnos.
