@@ -39,3 +39,10 @@ next-env.d.ts
 .claude/*
 !.claude/commands/
 app-backup.txt
+
+.superpowers/
+
+# la-dentisteria static preview build artifacts
+clients/la-dentisteria/preview-static/
+clients/la-dentisteria/node_modules/
+clients/la-dentisteria/package-lock.json

@@ -1,0 +1,14 @@
+{
+  "name": "la-dentisteria-render",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Static HTML render of La Dentisteria WordPress theme for client preview",
+  "type": "module",
+  "scripts": {
+    "render": "node scripts/render-static.js"
+  },
+  "dependencies": {
+    "marked": "^12.0.0",
+    "gray-matter": "^4.0.3"
+  }
+}
