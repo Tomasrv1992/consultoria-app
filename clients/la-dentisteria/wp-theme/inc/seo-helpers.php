@@ -50,7 +50,7 @@ add_filter( 'robots_txt', function( $output, $public ) {
     $custom  = "User-agent: *\n";
     $custom .= "Disallow: /wp-admin/\n";
     $custom .= "Disallow: /agendar-cita/gracias/\n";
-    $custom .= "Disallow: /*?utm_*\n";
+    $custom .= "Disallow: /*?utm_*\n";  // prevent UTM-tagged duplicates from being indexed
     $custom .= "Allow: /\n";
     $custom .= "Sitemap: " . home_url( '/sitemap_index.xml' ) . "\n";
 

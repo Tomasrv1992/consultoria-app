@@ -8,7 +8,9 @@
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 add_action( 'wp_head', function() {
-    if ( is_front_page() || is_page( 'contacto' ) ) {
+    // is_page('contacto') matches by slug or title; we explicitly check slug
+    // so renaming the title (e.g., "Contáctanos") doesn't silently drop schema.
+    if ( is_front_page() || ( is_page() && get_post_field( 'post_name' ) === 'contacto' ) ) {
         echo ladent_schema_dentist();
     } elseif ( is_singular( 'servicio' ) ) {
         echo ladent_schema_medical_procedure();
@@ -24,7 +26,6 @@ function ladent_schema_dentist(): string {
         'url'       => home_url( '/' ),
         'telephone' => '+57-304-426-9079',
         'email'     => 'infoladentisteria@gmail.com',
-        'image'     => get_template_directory_uri() . '/assets/img/logo.png',
         'address'   => [
             '@type'           => 'PostalAddress',
             'streetAddress'   => 'Carrera 50 # 38 A 185, Local 99300, Centro Comercial Parque Fabricato',
@@ -35,8 +36,8 @@ function ladent_schema_dentist(): string {
         ],
         'geo' => [
             '@type'     => 'GeoCoordinates',
-            'latitude'  => 6.3399,
-            'longitude' => -75.5566,
+            'latitude'  => 6.3370,
+            'longitude' => -75.5550,
         ],
         'openingHoursSpecification' => [
             [
@@ -52,6 +53,8 @@ function ladent_schema_dentist(): string {
                 'closes'    => '12:00',
             ],
         ],
+        // V1: aggregateRating omitted intentionally — Schema.org requires real review counts.
+        // V1.2 TODO: pull rating from Google Business Profile API once reviews exist.
         'priceRange'       => '$$',
         'medicalSpecialty' => [ 'Dentistry', 'Orthodontics', 'OralAndMaxillofacialSurgery' ],
         'availableService' => [
@@ -65,19 +68,27 @@ function ladent_schema_dentist(): string {
             [ '@type' => 'City', 'name' => 'Bello' ],
         ],
     ];
+
+    // Conditional: only emit image if file exists (prevents 404s in schema validators)
+    $logo_path = LADENT_THEME_DIR . '/assets/img/logo.png';
+    if ( file_exists( $logo_path ) ) {
+        $data['image'] = LADENT_THEME_URI . '/assets/img/logo.png';
+    }
+
     return '<script type="application/ld+json">' . wp_json_encode( $data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) . '</script>' . "\n";
 }
 
 function ladent_schema_medical_procedure(): string {
     $title       = get_the_title();
-    $description = get_the_excerpt();
+    // Strip tags AND escape closing </script> sequences (defense-in-depth)
+    $description = str_replace( '</', '<\/', wp_strip_all_tags( get_the_excerpt() ) );
 
     $data = [
         '@context'         => 'https://schema.org',
         '@type'            => 'MedicalProcedure',
         '@id'              => get_permalink() . '#procedure',
         'name'             => $title,
-        'description'      => wp_strip_all_tags( $description ),
+        'description'      => $description,
         'url'              => get_permalink(),
         'medicalSpecialty' => 'Dentistry',
         'performedBy'      => [
