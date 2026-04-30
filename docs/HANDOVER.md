@@ -1,7 +1,7 @@
 # HANDOVER — Estado actual y cómo retomar
 
-**Última actualización:** 2026-04-29
-**Snapshot del trabajo en curso al cambiar de PC.**
+**Última actualización:** 2026-04-30
+**Snapshot del proyecto al final del día.**
 
 ---
 
@@ -22,82 +22,73 @@ Eso es todo — Claude carga el contexto desde acá + auto-memoria.
 | Cron sync 18:00 Bogotá | ✅ activo, trigger `trig_01AFWkRYkH53Dc4AMSNuGh5C` |
 | Procedimiento sync | ✅ documentado en `docs/SYNC-MIRO.md` |
 | Workflow post-reunión | ✅ guardado en auto-memoria `workflow_post_reunion.md` |
-| 5 widgets verdes en Miro | ✅ borrados |
-| Minutas Dentilandia | ✅ 8 abr, 15 abr, 22 abr, 29 abr (todas en fila y=18604) |
 
 ## Estado de sincronización por cliente
 
-| Cliente | Miro | Supabase | Pendiente |
+**Todos los clientes están sincronizados Miro ↔ Supabase con `miro_row_id` poblado en el 100% de las filas.** Cero deuda técnica de datos. El cron 18:00 hace match exacto por rowId, no por título.
+
+| Cliente | Filas Supabase | Filas Miro | miro_row_id |
 |---|---|---|---|
-| CYGNUSS | 40 ✅ | 40 ✅ | Nada |
-| Dentilandia | ~98 (post 22+29 abr) | 50 únicos (100 con dupes) | **SQL pendiente** |
-| AC Autos | 21 ✅ | 22 con dupes (11 únicos) | **SQL pendiente** |
-| Paulina | 18 ✅ | 60 con dupes (30 únicos) + 7 orphans | **SQL pendiente** |
-| Lativo | 5 ✅ | 0 | **SQL pendiente** (5 orphans) |
+| CYGNUSS | 40 | 40 | 40/40 ✅ |
+| Dentilandia | 70 | 70 | 70/70 ✅ |
+| AC Autos | 13 | 13 | 13/13 ✅ |
+| Paulina | 18 | 18 | 18/18 ✅ |
+| Lativo (c5) | 5 | 5 | 5/5 ✅ |
+| **Total** | **146** | **146** | **146/146** |
 
-## TAREA ABIERTA #1 — Aplicar el SQL consolidado
+Última limpieza masiva: **30 de abril 2026** (eliminó dupes, sincronizó cambios reunión 29 abr Dentilandia, populó `miro_row_id` en todos los clientes).
 
-El SQL local incluye:
-1. Migración: agregar columna `miro_row_id`
-2. Dedup: eliminar duplicados de Dentilandia + AC Autos + Paulina
-3. DELETE 31 tareas que Tomás quitó de Dentilandia el 22 abril
-4. INSERT 49 tareas Dentilandia (orphans + 27 nuevas reunión 22 abril) — con miro_row_id
-5. INSERT 10 orphans AC Autos
-6. INSERT 7 orphans Paulina
-7. INSERT 5 orphans Lativo
+---
 
-**Archivo local (NO commiteado por privacidad):**
+## Tareas abiertas
+
+### Ninguna técnica urgente.
+
+El sistema está en estado consistente por primera vez en el proyecto. El cron diario mantiene el sync sin intervención.
+
+### Pre-existentes (no urgentes)
+
+- **Crear usuarios clientes en Supabase Auth** — emails como `contacto@cygnuss.com` no pueden hacer login todavía
+- **`MIRO_ACCESS_TOKEN` en Netlify env vars** — para que el histórico se lea en el embed
+- **Endpoint `/api/meetings/process` con Anthropic SDK** — para procesar transcripts Fathom dentro de la app (en vez de Claude del navegador). Diferido — el flujo manual ya funciona.
+- **`scripts/` y `src/` están borrados del working tree local** (visible en `git status`). Existen en HEAD pero el working tree los marca como deleted. No bloquea nada de producción (Netlify usa el código del repo). Restaurar con `git restore .` cuando se vaya a tocar código del app.
+
+### Notas de arquitectura por cliente
+
+- **Lativo (c5)** es un proyecto de estructuración, no consultoría en dirección estratégica. Su board en Miro **no tiene columna "Área"** — los módulos en Supabase se asignaron manualmente. Si en algún momento se quiere alinear al esquema estándar, agregar la columna en Miro y el cron 18:00 va a empezar a tomarla automáticamente. Por ahora se deja así a propósito.
+
+---
+
+## Workflow para próximas reuniones
+
+Cuando Tomás mande un transcript Fathom de reunión con un cliente, Claude ejecuta el flujo `workflow_post_reunion.md` (en auto-memoria):
+
+1. Lee Supabase actual del cliente vía `/api/tasks?clientId=...&embedToken=...`
+2. Parsea transcript: nuevas tareas + completadas + updates
+3. Cross-check fuzzy con existentes
+4. Muestra diff a Tomás (corto)
+5. Aplica a Miro vía `mcp__claude_ai_Miro__table_sync_rows`
+6. Crea minuta como Doc en Miro
+7. **Espera a que Tomás organice Miro manualmente** (NO TOCAR mientras él edita)
+8. Cuando Tomás dice "listo", regenera SQL para que Supabase replique los cambios
+
+Como Supabase ahora tiene `miro_row_id` poblado, el matching post-edición es exacto y no hay drift.
+
+---
+
+## Embeds en Miro (opcional, no en uso)
+
+Cada cliente tiene una página de embed disponible (read-only, refresh cada 30s):
+
 ```
-c:/Users/TOMAS/Desktop/consultoria-app/scripts/sync-cleanup.sql
+https://consultoria-ea.netlify.app/embed/{clientId}/plan?token=embed-consultoria-a7x9k2m5p3
 ```
 
-⚠️ **Este SQL está desactualizado — no incluye los cambios del 29 abril.** Antes de aplicarlo, regenerar (instrucciones más abajo).
+Donde `{clientId}` es: `client-cygnuss` · `client-dentilandia` · `client-acautos` · `client-paulina` · `c5`
 
-## TAREA ABIERTA #2 — Sincronizar reunión 29 abril a Supabase
+Para insertar uno: en Miro → barra izquierda → "+" → "Embed" → pegar URL → seleccionar opción "Insert as embed" (no "Insert as link").
 
-El 29 abril se aplicaron en Miro:
-- 29 INSERTs (tareas nuevas con `Fecha ingreso = 29/04/2026`)
-- 2 UPDATEs (Andrés→Clara responsable, Melisa título extendido)
-- 1 COMPLETADA: "Definir y comprar obsequios educativos Día Niños"
-
-Ninguno de estos cambios está aún en Supabase. Cuando Tomás termine de organizar Miro, regenerar el SQL para que incluya:
-- Todo lo del SQL anterior
-- + los 29 inserts del 29 abril
-- + las 2 actualizaciones
-- + el cambio a Completada
-- + DELETE de cualquier cosa que Tomás haya borrado durante su edición
-
-Regenerar con:
-1. Abrir Claude Code en el repo
-2. Decir: "Tomás terminó de organizar Miro Dentilandia, regenera el SQL final"
-3. Claude ejecuta el flujo: lee Miro actual + Supabase + diff + escribe el SQL nuevo a `scripts/sync-cleanup.sql`
-
-**Archivo local (NO commiteado por privacidad):**
-```
-c:/Users/TOMAS/Desktop/consultoria-app/scripts/sync-cleanup.sql
-```
-
-**Cómo llevarlo al PC nuevo:**
-- **Opción A (más simple):** copia el archivo `sync-cleanup.sql` por USB/Drive/email/Slack
-- **Opción B (regenerar):** en el PC nuevo, dile a Claude "regenera el SQL de cleanup leyendo Miro y Supabase de nuevo" — toma ~10 min
-
-**Cómo aplicarlo:**
-1. https://supabase.com → proyecto → SQL Editor → New query
-2. Pegar el contenido del SQL
-3. Run
-4. Verificar que el SELECT final muestra:
-   - c5: 5
-   - client-acautos: 21
-   - client-cygnuss: 40
-   - client-dentilandia: 95
-   - client-paulina: 37
-
-## Después del SQL — Sync final
-
-Una vez el SQL corra OK, dile a Claude:
-> "El SQL ya corrió, hace el sync final de los 5 clientes."
-
-Claude re-corre el procedimiento de `docs/SYNC-MIRO.md` para los 5 clientes. Como ahora Supabase está limpio + tiene los rowIds, los matches son perfectos y el sync queda 100%.
+Decisión actual: **no se usan en producción** porque son read-only y la edición durante reuniones se hace en `data_table`. Quedan disponibles si en el futuro se quiere un panel-resumen con % de progreso siempre actualizado.
 
 ---
 
@@ -138,7 +129,7 @@ Debe completar sin errores.
 claude
 ```
 Y como primer mensaje:
-> "Estoy retomando el trabajo de Miro-Supabase sync. Lee `docs/HANDOVER.md` y dame status actual."
+> "Estoy retomando el trabajo. Lee `docs/HANDOVER.md` y dame status actual."
 
 ### 7. (Opcional) Migrar la auto-memoria
 La carpeta `~/.claude/projects/c--Users-TOMAS-Desktop-consultoria-app/memory/` (Windows: `C:\Users\TOMAS\.claude\projects\c--Users-TOMAS-Desktop-consultoria-app\memory\`) tiene los recordatorios del proyecto.
@@ -175,19 +166,20 @@ Y los MCP connectors (estos viven en tu cuenta de claude.ai, no en el PC):
 
 5. **El cron diario 18:00 Bogotá** está activo. Si lo necesitas pausar/borrar: https://claude.ai/code/scheduled/trig_01AFWkRYkH53Dc4AMSNuGh5C
 
----
+6. **Matching Miro ↔ Supabase usa `miro_row_id`** como key primaria. Título es fallback solo si rowId no está. Después de la limpieza del 30 abr, todas las filas tienen rowId — el matching es 100% exacto.
 
-## Cosas pendientes pre-existentes (no urgentes, pero anotadas)
-
-- **Crear usuarios clientes en Supabase Auth** — los emails como `contacto@cygnuss.com` no pueden hacer login todavía
-- **`MIRO_ACCESS_TOKEN` en Netlify env vars** — para que el histórico se lea en el embed
-- **Instalar Anthropic SDK + endpoint `/api/meetings/process`** — para que el flujo Fathom se procese DENTRO de la app (en vez de en Claude del navegador). Diferido del plan original — no urgente porque el cron + flujo manual ya funciona.
+7. **Schema de la tabla `tasks`** (importante si vas a generar SQL nuevo):
+   - `categoria` es **NOT NULL** con CHECK (`ingresos|gestion|operaciones|mercadeo`) — minúscula, sin tildes
+   - `fecha_ingreso` es **TIMESTAMPTZ**, no TEXT — usar formato ISO `'2026-04-22T00:00:00+00:00'`
+   - `modulo` es TEXT con valor display (`Mercadeo`, `Operaciones`, `Gestión interna`, `Ingresos`)
+   - Mapeo `modulo → categoria` debe coincidir con `moduloToCategory` en `src/lib/miro-progress.ts`
 
 ---
 
 ## Commits relevantes para entender la historia
 
 ```
+1d41cff docs: HANDOVER updated for PC migration (post 29 abr meeting)
 46202e5 sync: option D — claude/MCP based Supabase→Miro sync
 f0daf69 plan: miro-supabase sync implementation
 7509f92 spec: miro-supabase sync design
