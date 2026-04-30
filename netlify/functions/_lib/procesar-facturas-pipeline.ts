@@ -115,7 +115,7 @@ export async function run(cfg: PipelineConfig): Promise<PipelineResult> {
   if (limit != null && limit > 0) emails = emails.slice(0, limit);
 
   if (dryRun) {
-    const detailed: PipelineResult["dryRun"]["sample"] = [];
+    const detailed: NonNullable<PipelineResult["dryRun"]>["sample"] = [];
     for (const e of emails.slice(0, 20)) {
       const m = await getMessageFull(gmail, e.id!);
       detailed.push({
