@@ -1,15 +1,15 @@
 # HANDOVER — Estado actual y cómo retomar
 
-**Última actualización:** 2026-04-27
+**Última actualización:** 2026-04-29
 **Snapshot del trabajo en curso al cambiar de PC.**
 
 ---
 
 ## Si abres Claude Code por primera vez en este proyecto, di:
 
-> "Estoy retomando el trabajo de Miro-Supabase sync. Lee `docs/HANDOVER.md` y dame status actual."
+> "Estoy retomando el trabajo. Lee `docs/HANDOVER.md` y dame status actual."
 
-Eso es todo — Claude carga el contexto desde acá.
+Eso es todo — Claude carga el contexto desde acá + auto-memoria.
 
 ---
 
@@ -21,24 +21,56 @@ Eso es todo — Claude carga el contexto desde acá.
 | Supabase | ✅ proyecto `gbulutnlacwjzqsrxoku.supabase.co` (Tomasrv1992's Project) |
 | Cron sync 18:00 Bogotá | ✅ activo, trigger `trig_01AFWkRYkH53Dc4AMSNuGh5C` |
 | Procedimiento sync | ✅ documentado en `docs/SYNC-MIRO.md` |
+| Workflow post-reunión | ✅ guardado en auto-memoria `workflow_post_reunion.md` |
 | 5 widgets verdes en Miro | ✅ borrados |
+| Minutas Dentilandia | ✅ 8 abr, 15 abr, 22 abr, 29 abr (todas en fila y=18604) |
 
 ## Estado de sincronización por cliente
 
-| Cliente | Sync inicial | Pendiente al cambiar PC |
-|---|---|---|
-| CYGNUSS (40) | ✅ 7 updates aplicados | Nada |
-| Dentilandia | ⏳ 27 inserts hechos | **SQL cleanup pendiente** (50 dupes Supabase + 45 orphans Miro) |
-| AC Autos (22→11) | ✅ 1 update + Cyrillic fix | **SQL cleanup pendiente** (11 dupes + 10 orphans) |
-| Paulina (60→30) | ⏳ diff calculado | **SQL cleanup pendiente** (30 dupes + 7 orphans) |
-| Lativo (0) | ⏳ 5 orphans en Miro | **SQL cleanup pendiente** |
+| Cliente | Miro | Supabase | Pendiente |
+|---|---|---|---|
+| CYGNUSS | 40 ✅ | 40 ✅ | Nada |
+| Dentilandia | ~98 (post 22+29 abr) | 50 únicos (100 con dupes) | **SQL pendiente** |
+| AC Autos | 21 ✅ | 22 con dupes (11 únicos) | **SQL pendiente** |
+| Paulina | 18 ✅ | 60 con dupes (30 únicos) + 7 orphans | **SQL pendiente** |
+| Lativo | 5 ✅ | 0 | **SQL pendiente** (5 orphans) |
 
-## TAREA ABIERTA — Aplicar el SQL de cleanup
+## TAREA ABIERTA #1 — Aplicar el SQL consolidado
 
-Generamos un SQL consolidado el 2026-04-22 que hace:
-1. Migración: agregar columna `miro_row_id` a tabla `tasks`
-2. Dedup: eliminar duplicados de Dentilandia, AC Autos, Paulina
-3. INSERT 67 orphans (45 Dentilandia + 10 AC Autos + 7 Paulina + 5 Lativo)
+El SQL local incluye:
+1. Migración: agregar columna `miro_row_id`
+2. Dedup: eliminar duplicados de Dentilandia + AC Autos + Paulina
+3. DELETE 31 tareas que Tomás quitó de Dentilandia el 22 abril
+4. INSERT 49 tareas Dentilandia (orphans + 27 nuevas reunión 22 abril) — con miro_row_id
+5. INSERT 10 orphans AC Autos
+6. INSERT 7 orphans Paulina
+7. INSERT 5 orphans Lativo
+
+**Archivo local (NO commiteado por privacidad):**
+```
+c:/Users/TOMAS/Desktop/consultoria-app/scripts/sync-cleanup.sql
+```
+
+⚠️ **Este SQL está desactualizado — no incluye los cambios del 29 abril.** Antes de aplicarlo, regenerar (instrucciones más abajo).
+
+## TAREA ABIERTA #2 — Sincronizar reunión 29 abril a Supabase
+
+El 29 abril se aplicaron en Miro:
+- 29 INSERTs (tareas nuevas con `Fecha ingreso = 29/04/2026`)
+- 2 UPDATEs (Andrés→Clara responsable, Melisa título extendido)
+- 1 COMPLETADA: "Definir y comprar obsequios educativos Día Niños"
+
+Ninguno de estos cambios está aún en Supabase. Cuando Tomás termine de organizar Miro, regenerar el SQL para que incluya:
+- Todo lo del SQL anterior
+- + los 29 inserts del 29 abril
+- + las 2 actualizaciones
+- + el cambio a Completada
+- + DELETE de cualquier cosa que Tomás haya borrado durante su edición
+
+Regenerar con:
+1. Abrir Claude Code en el repo
+2. Decir: "Tomás terminó de organizar Miro Dentilandia, regenera el SQL final"
+3. Claude ejecuta el flujo: lee Miro actual + Supabase + diff + escribe el SQL nuevo a `scripts/sync-cleanup.sql`
 
 **Archivo local (NO commiteado por privacidad):**
 ```
