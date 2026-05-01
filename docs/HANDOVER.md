@@ -88,9 +88,14 @@ https://consultoria-ea.netlify.app/embed/{clientId}/plan?token=embed-consultoria
 
 Donde `{clientId}` es: `client-cygnuss` · `client-dentilandia` · `client-acautos` · `client-paulina` · `c5`
 
+**Layout (post smoke-test 2026-05-01):**
+- Tab principal arriba: `Resumen` (4 cards de progreso por módulo) · `Plan de trabajo` (módulos editables)
+- Cada módulo tiene sub-tabs `En curso (N)` / `Iniciativa (N)`
+- La prioridad ya no se muestra (datos siguen en BD por si en el futuro se quiere reactivar)
+
 **Acciones soportadas:**
 - ☐ Completar tarea (checkbox)
-- Menú ⋯: cambiar estado (En curso ↔ Iniciativa), cambiar responsable (con autocomplete), borrar tarea (con confirmación)
+- Menú ⋯: cambiar estado (En curso ↔ Iniciativa), cambiar responsable (con autocomplete), borrar tarea (con confirmación + cancelable con ESC)
 - "+ Nueva tarea" en cada módulo (mínimo viable: título + módulo)
 
 **Para insertar uno:** en Miro → barra izquierda → "+" → "Embed" → pegar URL → seleccionar opción "Insert as embed" (no "Insert as link").
@@ -108,8 +113,8 @@ Para dev local: ambas deben estar en `.env.local` también, sino el dev server t
 **Acciones NO soportadas (intencional):** cambiar prioridad, cambiar fecha límite, editar título, deshacer post-borrado. Si se necesitan, ver spec `docs/superpowers/specs/2026-04-30-embed-edicion-tareas-design.md` §2.
 
 **Tests:**
-- Unit: `npm test` corre 6 tests de `checkAuth` (Vitest)
-- Aceptación post-deploy: `bash scripts/test-endpoints.sh` (6 tests con curl contra Netlify)
+- Unit: `npm test` corre 6 tests de `checkAuth` con Vitest (sesión, token válido, token vacío, token incorrecto, sin nada, prioridad sesión > token)
+- Aceptación post-deploy: `bash scripts/test-endpoints.sh` corre 10 tests con curl contra Netlify — incluye guards de cross-client (PATCH/DELETE/complete con token requieren `clientId` o devuelven 400)
 
 ---
 
