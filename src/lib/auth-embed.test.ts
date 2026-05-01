@@ -52,6 +52,13 @@ describe("checkAuth", () => {
     expect(result).toEqual({ ok: false });
   });
 
+  it("rechaza si embedToken está vacío", async () => {
+    mockGetUser.mockResolvedValue({ data: { user: null } });
+    const req = makeRequest("https://x/api/tasks/abc?embedToken=");
+    const result = await checkAuth(req);
+    expect(result).toEqual({ ok: false });
+  });
+
   it("prioriza sesión sobre token (si ambos son válidos)", async () => {
     mockGetUser.mockResolvedValue({ data: { user: { id: "u1" } } });
     const req = makeRequest("https://x/api/tasks/abc?embedToken=test-secret-123");
