@@ -19,8 +19,10 @@ Eso es todo — Claude carga el contexto desde acá + auto-memoria.
 |---|---|
 | App web | ✅ Live en https://consultoria-ea.netlify.app |
 | Supabase | ✅ proyecto `gbulutnlacwjzqsrxoku.supabase.co` (Tomasrv1992's Project) |
-| Cron sync 18:00 Bogotá | ✅ activo, trigger `trig_01AFWkRYkH53Dc4AMSNuGh5C` |
-| Procedimiento sync | ✅ documentado en `docs/SYNC-MIRO.md` |
+| Cron sync Miro 18:00 Bogotá | ✅ activo, trigger `trig_01AFWkRYkH53Dc4AMSNuGh5C` |
+| Procedimiento sync Miro | ✅ documentado en `docs/SYNC-MIRO.md` |
+| **Cron facturas 7am Bogotá** | ✅ desplegado en Netlify (`procesar-facturas-cron` + `procesar-facturas-background`) |
+| **Procedimiento facturas** | ✅ documentado en `docs/PROCESAR-FACTURAS.md` |
 | Workflow post-reunión | ✅ guardado en auto-memoria `workflow_post_reunion.md` |
 
 ## Estado de sincronización por cliente
