@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
-import { checkAuth } from "@/lib/auth-embed";
+import { checkAuth, assertTaskBelongsToClient } from "@/lib/auth-embed";
 import { moduloToCategory } from "@/lib/miro-progress";
 
 export const dynamic = "force-dynamic";
@@ -55,6 +55,12 @@ export async function PATCH(
       { ok: false, error: "taskId requerido" },
       { status: 400 }
     );
+  }
+
+  if (auth.via === "token") {
+    const expected = request.nextUrl.searchParams.get("clientId");
+    const fail = await assertTaskBelongsToClient(supabase, taskId, expected);
+    if (fail) return fail;
   }
 
   const body = (await request.json().catch(() => null)) as PatchBody | null;
@@ -178,6 +184,12 @@ export async function DELETE(
       { ok: false, error: "taskId requerido" },
       { status: 400 }
     );
+  }
+
+  if (auth.via === "token") {
+    const expected = request.nextUrl.searchParams.get("clientId");
+    const fail = await assertTaskBelongsToClient(supabase, taskId, expected);
+    if (fail) return fail;
   }
 
   const { error } = await supabase.from("tasks").delete().eq("id", taskId);

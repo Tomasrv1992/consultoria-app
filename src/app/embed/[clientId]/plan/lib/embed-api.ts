@@ -5,6 +5,10 @@ interface ApiOptions {
   clientId: string;
 }
 
+function tokenAndClient(opts: ApiOptions): string {
+  return `embedToken=${encodeURIComponent(opts.token)}&clientId=${encodeURIComponent(opts.clientId)}`;
+}
+
 async function safeError(res: Response, fallback: string): Promise<string> {
   try {
     const body = (await res.json()) as { error?: string };
@@ -18,7 +22,7 @@ export async function completeTask(
   taskId: string,
   opts: ApiOptions
 ): Promise<void> {
-  const url = `${API_BASE}/${encodeURIComponent(taskId)}/complete?embedToken=${encodeURIComponent(opts.token)}`;
+  const url = `${API_BASE}/${encodeURIComponent(taskId)}/complete?${tokenAndClient(opts)}`;
   const res = await fetch(url, { method: "POST" });
   if (!res.ok) throw new Error(await safeError(res, "Error completando tarea"));
 }
@@ -28,7 +32,7 @@ export async function patchTask(
   patch: { estado?: string; responsable?: string | null },
   opts: ApiOptions
 ): Promise<void> {
-  const url = `${API_BASE}/${encodeURIComponent(taskId)}?embedToken=${encodeURIComponent(opts.token)}`;
+  const url = `${API_BASE}/${encodeURIComponent(taskId)}?${tokenAndClient(opts)}`;
   const res = await fetch(url, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
@@ -41,7 +45,7 @@ export async function deleteTask(
   taskId: string,
   opts: ApiOptions
 ): Promise<void> {
-  const url = `${API_BASE}/${encodeURIComponent(taskId)}?embedToken=${encodeURIComponent(opts.token)}`;
+  const url = `${API_BASE}/${encodeURIComponent(taskId)}?${tokenAndClient(opts)}`;
   const res = await fetch(url, { method: "DELETE" });
   if (!res.ok) throw new Error(await safeError(res, "Error borrando tarea"));
 }

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
-import { checkAuth } from "@/lib/auth-embed";
+import { checkAuth, assertTaskBelongsToClient } from "@/lib/auth-embed";
 
 export const dynamic = "force-dynamic";
 
@@ -30,6 +30,12 @@ export async function POST(
 
   const supabase =
     auth.via === "session" ? createServerSupabaseClient() : getSupabaseAdmin();
+
+  if (auth.via === "token") {
+    const expected = request.nextUrl.searchParams.get("clientId");
+    const fail = await assertTaskBelongsToClient(supabase, taskId, expected);
+    if (fail) return fail;
+  }
 
   const { data, error } = await supabase
     .from("tasks")
