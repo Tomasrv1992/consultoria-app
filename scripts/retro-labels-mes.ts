@@ -2,8 +2,13 @@
 // label "Procesado" pero NO tienen el label de mes (porque fueron procesados
 // antes de que la feature existiera).
 //
-// Usa el header Date del email como aproximación de fecha de emisión
-// (suele coincidir con el mes; si hay alguna en cross-month, mover a mano).
+// ⚠️ LIMITACIÓN: usa el header Date del email como aproximación de fecha de
+// emisión. Para emails que llegaron DIRECTAMENTE del proveedor, suele coincidir
+// con el mes de emisión. Pero para emails REENVIADOS (ej: vía Apps Script desde
+// otro Gmail), el header Date es la fecha del FORWARD (hoy), no de la factura
+// original — y el label quedaría incorrecto. En ese caso, el pipeline normal
+// (procesar-facturas-pipeline.ts) sí parsea el XML y aplica el label correcto.
+// Si necesitas re-correr este script y hay reenviados, mejor parsear XML.
 //
 // Uso: npx tsx --env-file=.env.local scripts/retro-labels-mes.ts
 
