@@ -76,9 +76,9 @@ Como Supabase ahora tiene `miro_row_id` poblado, el matching post-edición es ex
 
 ---
 
-## Embeds en Miro (opcional, no en uso)
+## Embeds en Miro (live, con edición)
 
-Cada cliente tiene una página de embed disponible (read-only, refresh cada 30s):
+Cada cliente tiene una página de embed editable (refresh cada 30s + edición vía token):
 
 ```
 https://consultoria-ea.netlify.app/embed/{clientId}/plan?token=embed-consultoria-a7x9k2m5p3
@@ -86,9 +86,22 @@ https://consultoria-ea.netlify.app/embed/{clientId}/plan?token=embed-consultoria
 
 Donde `{clientId}` es: `client-cygnuss` · `client-dentilandia` · `client-acautos` · `client-paulina` · `c5`
 
-Para insertar uno: en Miro → barra izquierda → "+" → "Embed" → pegar URL → seleccionar opción "Insert as embed" (no "Insert as link").
+**Acciones soportadas:**
+- ☐ Completar tarea (checkbox)
+- Menú ⋯: cambiar estado (En curso ↔ Iniciativa), cambiar responsable (con autocomplete), borrar tarea (con confirmación)
+- "+ Nueva tarea" en cada módulo (mínimo viable: título + módulo)
 
-Decisión actual: **no se usan en producción** porque son read-only y la edición durante reuniones se hace en `data_table`. Quedan disponibles si en el futuro se quiere un panel-resumen con % de progreso siempre actualizado.
+**Para insertar uno:** en Miro → barra izquierda → "+" → "Embed" → pegar URL → seleccionar opción "Insert as embed" (no "Insert as link").
+
+**Auth:** el token URL autoriza tanto reads como writes. Si en algún momento se sospecha filtración, rotar `EMBED_SECRET` en Netlify y re-insertar embeds.
+
+**Variable crítica:** `SUPABASE_SERVICE_ROLE_KEY` debe estar configurada en Netlify (no exponer al cliente — solo se usa server-side después de validar token). El factory en `src/lib/supabase/admin.ts` la lee y bypassa RLS para writes vía token.
+
+**Acciones NO soportadas (intencional):** cambiar prioridad, cambiar fecha límite, editar título, deshacer post-borrado. Si se necesitan, ver spec `docs/superpowers/specs/2026-04-30-embed-edicion-tareas-design.md` §2.
+
+**Tests:**
+- Unit: `npm test` corre 6 tests de `checkAuth` (Vitest)
+- Aceptación post-deploy: `bash scripts/test-endpoints.sh` (6 tests con curl contra Netlify)
 
 ---
 
