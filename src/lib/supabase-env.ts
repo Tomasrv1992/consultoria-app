@@ -6,11 +6,16 @@ export const SUPABASE_URL = "https://gbulutnlacwjzqsrxoku.supabase.co";
 export const SUPABASE_ANON_KEY =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdidWx1dG5sYWN3anpxc3J4b2t1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0MzY4OTksImV4cCI6MjA5MjAxMjg5OX0.bd4g33wH7LGf23oBIuyvtrjbSmAVxcL6ntUW0qDi8XE";
 
-// Public shared secret for embed URLs. Not a real secret — just deters random URL guessing.
-export const EMBED_SECRET_FALLBACK = "embed-consultoria-a7x9k2m5p3";
-
+// EMBED_SECRET must come from env. No fallback — a hardcoded fallback would
+// defeat token rotation (rotating in Netlify would just fall back to source).
 export function getEmbedSecret(): string {
-  return process.env.EMBED_SECRET || EMBED_SECRET_FALLBACK;
+  const v = process.env.EMBED_SECRET;
+  if (!v) {
+    throw new Error(
+      "EMBED_SECRET no configurado. Agregalo en .env.local y Netlify env vars."
+    );
+  }
+  return v;
 }
 
 export function getSupabaseServerConfig(): {
