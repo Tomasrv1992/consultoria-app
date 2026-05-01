@@ -246,6 +246,20 @@ async function markEmailProcessed(gmail: any, messageId: string, labelId: string
   });
 }
 
+/**
+ * Aplica un label "Facturas/YYYY-MM" al mensaje (lo crea si no existe).
+ * Gmail soporta labels anidados con `/` — quedan agrupados visualmente bajo "Facturas/".
+ */
+async function applyMonthLabel(gmail: any, messageId: string, year: number, month: number) {
+  const labelName = `Facturas/${year}-${String(month).padStart(2, "0")}`;
+  const labelId = await getOrCreateLabel(gmail, labelName);
+  await gmail.users.messages.modify({
+    userId: "me",
+    id: messageId,
+    requestBody: { addLabelIds: [labelId] },
+  });
+}
+
 // ===== ZIP & XML =====
 
 function extractZip(zipPath: string) {
@@ -490,14 +504,19 @@ async function processOne(
   }
   if (!data) return { skip: true, reason: "no-es-factura-dian", subject };
 
+  // Calcular year/month una sola vez — usado para Drive folder, Gmail label y dup-check return
+  const issue = data.fecha ? new Date(data.fecha) : new Date();
+  const year = issue.getFullYear();
+  const month = issue.getMonth() + 1;
+
   const sheetRows = await loadSheetRows();
   if (isDuplicate(sheetRows, data.numero, data.nit)) {
     await markEmailProcessed(gmail, messageId, labelId);
+    await applyMonthLabel(gmail, messageId, year, month);
     return { dup: true, motivo: `${data.proveedor} ${data.numero} (ya en Sheet)`, subject };
   }
 
-  const issue = data.fecha ? new Date(data.fecha) : new Date();
-  const folderId = await getOrCreateMonthFolder(drive, g.driveFolderId, issue.getFullYear(), issue.getMonth() + 1);
+  const folderId = await getOrCreateMonthFolder(drive, g.driveFolderId, year, month);
 
   let driveLink = "";
   const baseName = `${data.fecha || "sin-fecha"}_${data.proveedor.slice(0, 40)}_${data.numero || data.cufe.slice(0, 8)}`
@@ -516,6 +535,7 @@ async function processOne(
   const newRow = await appendToSheet(sheets, g.sheetId, tabRange, row);
   pushToCache(newRow);
   await markEmailProcessed(gmail, messageId, labelId);
+  await applyMonthLabel(gmail, messageId, year, month);
 
   return { ok: true, ...row };
 }
