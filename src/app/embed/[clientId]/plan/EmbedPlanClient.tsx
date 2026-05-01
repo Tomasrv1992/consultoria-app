@@ -1,9 +1,19 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { MiroTask } from "@/lib/types";
 import { HistoricalCounts, EMPTY_HISTORICAL } from "@/lib/miro-historico";
 import { computeProgressFromMiro } from "@/lib/miro-progress";
+import { TaskRow } from "./components/TaskRow";
+import { NewTaskInline } from "./components/NewTaskInline";
+import { DeleteConfirmModal } from "./components/DeleteConfirmModal";
+import {
+  completeTask,
+  patchTask,
+  deleteTask,
+  createTask,
+  fetchResponsables,
+} from "./lib/embed-api";
 
 const REFRESH_MS = 30_000;
 
@@ -20,15 +30,6 @@ const ESTADO_ORDER: Record<string, number> = {
   Completada: 2,
 };
 
-function priorityTone(prioridad: string | undefined): string | null {
-  if (!prioridad) return null;
-  if (prioridad === "Inmediato")
-    return "bg-red-50 text-red-700 border-red-100";
-  if (prioridad === "Alta")
-    return "bg-amber-50 text-amber-700 border-amber-100";
-  return null;
-}
-
 export function EmbedPlanClient({
   clientId,
   token,
@@ -37,44 +38,142 @@ export function EmbedPlanClient({
   token: string;
 }) {
   const [tasks, setTasks] = useState<MiroTask[]>([]);
-  const [historical, setHistorical] =
-    useState<HistoricalCounts>(EMPTY_HISTORICAL);
+  const [historical, setHistorical] = useState<HistoricalCounts>(EMPTY_HISTORICAL);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
   const [updatedAt, setUpdatedAt] = useState<Date | null>(null);
+  const [pendingTaskIds, setPendingTaskIds] = useState<Set<string>>(new Set());
+  const [responsableSuggestions, setResponsableSuggestions] = useState<string[]>([]);
+  const [creatingFor, setCreatingFor] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<MiroTask | null>(null);
+  const [deleting, setDeleting] = useState(false);
+
+  const apiOpts = useMemo(() => ({ token, clientId }), [token, clientId]);
+  const cancelledRef = useRef(false);
+
+  const fetchTasks = useCallback(async () => {
+    try {
+      const res = await fetch(
+        `/api/tasks?clientId=${encodeURIComponent(clientId)}&embedToken=${encodeURIComponent(token)}`
+      );
+      const data = await res.json();
+      if (cancelledRef.current) return;
+      if (!res.ok) {
+        setLoadError(data.error || "Error al cargar");
+      } else {
+        setTasks(data.tasks || []);
+        setHistorical(data.historical || EMPTY_HISTORICAL);
+        setLoadError(null);
+        setUpdatedAt(new Date());
+      }
+    } catch (e) {
+      if (!cancelledRef.current) setLoadError(`Error: ${(e as Error).message}`);
+    } finally {
+      if (!cancelledRef.current) setLoading(false);
+    }
+  }, [clientId, token]);
 
   useEffect(() => {
-    let cancelled = false;
-    const fetchOnce = async () => {
-      try {
-        const res = await fetch(
-          `/api/tasks?clientId=${encodeURIComponent(
-            clientId
-          )}&embedToken=${encodeURIComponent(token)}`
-        );
-        const data = await res.json();
-        if (cancelled) return;
-        if (!res.ok) {
-          setError(data.error || "Error al cargar");
-        } else {
-          setTasks(data.tasks || []);
-          setHistorical(data.historical || EMPTY_HISTORICAL);
-          setError(null);
-          setUpdatedAt(new Date());
-        }
-      } catch (e) {
-        if (!cancelled) setError(`Error: ${(e as Error).message}`);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    };
-    fetchOnce();
-    const iv = setInterval(fetchOnce, REFRESH_MS);
+    cancelledRef.current = false;
+    fetchTasks();
+    const iv = setInterval(fetchTasks, REFRESH_MS);
     return () => {
-      cancelled = true;
+      cancelledRef.current = true;
       clearInterval(iv);
     };
-  }, [clientId, token]);
+  }, [fetchTasks]);
+
+  const refreshResponsables = useCallback(async () => {
+    const list = await fetchResponsables(apiOpts);
+    setResponsableSuggestions(list);
+  }, [apiOpts]);
+
+  useEffect(() => {
+    refreshResponsables();
+  }, [refreshResponsables]);
+
+  function setPending(id: string, pending: boolean) {
+    setPendingTaskIds((prev) => {
+      const next = new Set(prev);
+      if (pending) next.add(id);
+      else next.delete(id);
+      return next;
+    });
+  }
+
+  async function handleComplete(taskId: string) {
+    setPending(taskId, true);
+    const original = tasks.find((t) => t.id === taskId);
+    setTasks((prev) =>
+      prev.map((t) => (t.id === taskId ? { ...t, estado: "Completada" } : t))
+    );
+    try {
+      await completeTask(taskId, apiOpts);
+      await fetchTasks();
+    } catch (err) {
+      setActionError((err as Error).message);
+      if (original) {
+        setTasks((prev) => prev.map((t) => (t.id === taskId ? original : t)));
+      }
+    } finally {
+      setPending(taskId, false);
+    }
+  }
+
+  async function handleChangeEstado(taskId: string, estado: string) {
+    setPending(taskId, true);
+    const original = tasks.find((t) => t.id === taskId);
+    setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, estado } : t)));
+    try {
+      await patchTask(taskId, { estado }, apiOpts);
+      await fetchTasks();
+    } catch (err) {
+      setActionError((err as Error).message);
+      if (original) setTasks((prev) => prev.map((t) => (t.id === taskId ? original : t)));
+    } finally {
+      setPending(taskId, false);
+    }
+  }
+
+  async function handleChangeResponsable(taskId: string, responsable: string) {
+    setPending(taskId, true);
+    const original = tasks.find((t) => t.id === taskId);
+    setTasks((prev) =>
+      prev.map((t) => (t.id === taskId ? { ...t, responsable } : t))
+    );
+    try {
+      await patchTask(taskId, { responsable }, apiOpts);
+      await refreshResponsables();
+      await fetchTasks();
+    } catch (err) {
+      setActionError((err as Error).message);
+      if (original) setTasks((prev) => prev.map((t) => (t.id === taskId ? original : t)));
+    } finally {
+      setPending(taskId, false);
+    }
+  }
+
+  async function handleConfirmDelete() {
+    if (!confirmDelete?.id) return;
+    setDeleting(true);
+    try {
+      await deleteTask(confirmDelete.id, apiOpts);
+      const deletedId = confirmDelete.id;
+      setTasks((prev) => prev.filter((t) => t.id !== deletedId));
+      setConfirmDelete(null);
+    } catch (err) {
+      setActionError((err as Error).message);
+    } finally {
+      setDeleting(false);
+    }
+  }
+
+  async function handleCreate(data: { titulo: string; modulo: string }) {
+    await createTask({ ...data, clientId }, apiOpts);
+    setCreatingFor(null);
+    await fetchTasks();
+  }
 
   const activeTasks = useMemo(
     () => tasks.filter((t) => t.estado !== "Completada"),
@@ -84,7 +183,9 @@ export function EmbedPlanClient({
   const grouped = useMemo(() => {
     const out: Record<string, MiroTask[]> = {};
     for (const t of activeTasks) {
-      (out[t.modulo || "Sin módulo"] ||= []).push(t);
+      const key = t.modulo || "Sin módulo";
+      if (!out[key]) out[key] = [];
+      out[key].push(t);
     }
     for (const key of Object.keys(out)) {
       out[key].sort((a, b) => {
@@ -127,7 +228,7 @@ export function EmbedPlanClient({
     );
   }
 
-  if (error) {
+  if (loadError) {
     return (
       <div className="p-4">
         <div className="bg-red-50 border border-red-100 rounded-card p-3 flex items-start gap-2">
@@ -152,7 +253,7 @@ export function EmbedPlanClient({
               No pudimos cargar el plan
             </p>
             <p className="text-[11px] text-red-600 mt-0.5 break-words">
-              {error}
+              {loadError}
             </p>
           </div>
         </div>
@@ -164,6 +265,19 @@ export function EmbedPlanClient({
 
   return (
     <div className="p-4 bg-transparent animate-[fadeIn_200ms_ease-out]">
+      {actionError && (
+        <div className="mb-3 bg-red-50 border border-red-100 rounded-card p-2.5 flex items-start justify-between gap-2">
+          <p className="text-[11px] text-red-700">{actionError}</p>
+          <button
+            type="button"
+            onClick={() => setActionError(null)}
+            className="text-[11px] text-red-700 hover:underline shrink-0"
+          >
+            Cerrar
+          </button>
+        </div>
+      )}
+
       <div className="grid grid-cols-2 gap-3 mb-4">
         {progress.map((p) => (
           <div
@@ -201,24 +315,25 @@ export function EmbedPlanClient({
         ))}
       </div>
 
-      {!hasActive ? (
+      {!hasActive && !creatingFor ? (
         <div className="bg-white/90 border border-line rounded-card p-6 text-center">
-          <p className="text-[13px] font-medium text-ink">
-            Todo al día por ahora
-          </p>
+          <p className="text-[13px] font-medium text-ink">Todo al día por ahora</p>
           <p className="text-[11px] text-muted mt-1">
             No hay tareas activas en este momento.
           </p>
+          <button
+            type="button"
+            onClick={() => setCreatingFor("Gestión interna")}
+            className="mt-3 text-[11px] px-3 py-1 text-teal-700 hover:bg-teal-50 rounded-chip"
+          >
+            + Nueva tarea
+          </button>
         </div>
       ) : (
         <div className="space-y-3">
           {Object.entries(grouped).map(([modulo, items]) => {
-            const enCurso = items.filter(
-              (t) => t.estado === "En curso"
-            ).length;
-            const iniciativas = items.filter(
-              (t) => t.estado === "Iniciativa"
-            ).length;
+            const enCurso = items.filter((t) => t.estado === "En curso").length;
+            const iniciativas = items.filter((t) => t.estado === "Iniciativa").length;
             return (
               <div
                 key={modulo}
@@ -241,47 +356,56 @@ export function EmbedPlanClient({
                         {iniciativas}
                       </span>
                     )}
+                    <button
+                      type="button"
+                      onClick={() => setCreatingFor(modulo)}
+                      className="text-[11px] px-2 py-0.5 text-teal-700 hover:bg-teal-50 rounded-chip"
+                    >
+                      + Nueva
+                    </button>
                   </div>
                 </div>
-                <ul className="space-y-1.5">
-                  {items.map((t) => {
-                    const tone = priorityTone(t.prioridad);
-                    return (
-                      <li
-                        key={t.id}
-                        className="flex items-start gap-2 text-[12px] leading-snug"
-                      >
-                        <span
-                          className="mt-1.5 w-1.5 h-1.5 rounded-full shrink-0"
-                          style={{
-                            backgroundColor:
-                              t.estado === "En curso" ? "#0D7C5F" : "#D1D5DB",
-                          }}
-                          aria-hidden="true"
-                        />
-                        <div className="min-w-0 flex-1">
-                          <p className="text-ink">{t.titulo}</p>
-                          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[10px] text-muted mt-0.5">
-                            {t.responsable && <span>{t.responsable}</span>}
-                            {t.fecha && t.fecha !== "Por definir" && (
-                              <span className="tabular-nums">· {t.fecha}</span>
-                            )}
-                            {tone && t.prioridad && (
-                              <span
-                                className={`inline-flex items-center px-1.5 py-[1px] rounded-chip border text-[10px] font-medium ${tone}`}
-                              >
-                                {t.prioridad}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      </li>
-                    );
-                  })}
+
+                {creatingFor === modulo && (
+                  <div className="mb-2">
+                    <NewTaskInline
+                      defaultModulo={modulo}
+                      onCreate={handleCreate}
+                      onCancel={() => setCreatingFor(null)}
+                    />
+                  </div>
+                )}
+
+                <ul className="space-y-1">
+                  {items.map((t) => (
+                    <TaskRow
+                      key={t.id}
+                      task={t}
+                      pending={t.id ? pendingTaskIds.has(t.id) : false}
+                      responsableSuggestions={responsableSuggestions}
+                      onComplete={() => t.id && handleComplete(t.id)}
+                      onChangeEstado={(e) => t.id && handleChangeEstado(t.id, e)}
+                      onChangeResponsable={(r) => t.id && handleChangeResponsable(t.id, r)}
+                      onDeleteRequest={() => setConfirmDelete(t)}
+                    />
+                  ))}
                 </ul>
               </div>
             );
           })}
+
+          {creatingFor && !grouped[creatingFor] && (
+            <div className="bg-white/90 backdrop-blur-sm border border-line rounded-card p-3">
+              <h2 className="text-[11px] uppercase tracking-label font-medium text-ink mb-2">
+                {creatingFor}
+              </h2>
+              <NewTaskInline
+                defaultModulo={creatingFor}
+                onCreate={handleCreate}
+                onCancel={() => setCreatingFor(null)}
+              />
+            </div>
+          )}
         </div>
       )}
 
@@ -289,6 +413,15 @@ export function EmbedPlanClient({
         <p className="text-[10px] text-muted mt-3 text-right tabular-nums">
           Actualizado {updatedAt.toLocaleTimeString("es-CO")}
         </p>
+      )}
+
+      {confirmDelete && (
+        <DeleteConfirmModal
+          taskTitle={confirmDelete.titulo}
+          pending={deleting}
+          onConfirm={handleConfirmDelete}
+          onCancel={() => setConfirmDelete(null)}
+        />
       )}
     </div>
   );
