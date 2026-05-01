@@ -93,9 +93,15 @@ Donde `{clientId}` es: `client-cygnuss` · `client-dentilandia` · `client-acaut
 
 **Para insertar uno:** en Miro → barra izquierda → "+" → "Embed" → pegar URL → seleccionar opción "Insert as embed" (no "Insert as link").
 
-**Auth:** el token URL autoriza tanto reads como writes. Si en algún momento se sospecha filtración, rotar `EMBED_SECRET` en Netlify y re-insertar embeds.
+**Auth:** el token URL autoriza tanto reads como writes. Si en algún momento se sospecha filtración, rotar `EMBED_SECRET` en Netlify y re-insertar embeds. **La rotación funciona** porque no hay fallback hardcoded — si la env var queda vacía, el server tira `EMBED_SECRET no configurado`.
 
-**Variable crítica:** `SUPABASE_SERVICE_ROLE_KEY` debe estar configurada en Netlify (no exponer al cliente — solo se usa server-side después de validar token). El factory en `src/lib/supabase/admin.ts` la lee y bypassa RLS para writes vía token.
+**Cross-client write guard:** todo write vía token (PATCH/DELETE/complete) **valida que la tarea pertenezca al `clientId` enviado en query**. Aunque alguien con acceso a un board obtenga el token, no puede modificar tareas de otro cliente desde ese board.
+
+**Variables críticas en Netlify:**
+- `EMBED_SECRET=embed-consultoria-a7x9k2m5p3` — token que autoriza el embed
+- `SUPABASE_SERVICE_ROLE_KEY` — key de Supabase que bypassa RLS (usada server-side solo después de validar token; nunca exponer al cliente)
+
+Para dev local: ambas deben estar en `.env.local` también, sino el dev server tira error claro al primer request.
 
 **Acciones NO soportadas (intencional):** cambiar prioridad, cambiar fecha límite, editar título, deshacer post-borrado. Si se necesitan, ver spec `docs/superpowers/specs/2026-04-30-embed-edicion-tareas-design.md` §2.
 
