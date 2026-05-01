@@ -14,13 +14,6 @@ interface Props {
   onDeleteRequest: () => void;
 }
 
-function priorityTone(prioridad: string | undefined): string | null {
-  if (!prioridad) return null;
-  if (prioridad === "Inmediato") return "bg-red-50 text-red-700 border-red-100";
-  if (prioridad === "Alta") return "bg-amber-50 text-amber-700 border-amber-100";
-  return null;
-}
-
 export function TaskRow({
   task,
   pending,
@@ -31,7 +24,6 @@ export function TaskRow({
   onDeleteRequest,
 }: Props) {
   const [menuOpen, setMenuOpen] = useState(false);
-  const tone = priorityTone(task.prioridad);
 
   return (
     <li className="flex items-start gap-2 text-[12px] leading-snug py-1 px-1 -mx-1 rounded hover:bg-gray-50/50 group">
@@ -51,11 +43,6 @@ export function TaskRow({
           {task.responsable && <span>{task.responsable}</span>}
           {task.fecha && task.fecha !== "Por definir" && (
             <span className="tabular-nums">· {task.fecha}</span>
-          )}
-          {tone && task.prioridad && (
-            <span className={`inline-flex items-center px-1.5 py-[1px] rounded-chip border text-[10px] font-medium ${tone}`}>
-              {task.prioridad}
-            </span>
           )}
         </div>
       </div>

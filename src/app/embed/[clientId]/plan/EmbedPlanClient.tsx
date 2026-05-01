@@ -17,18 +17,14 @@ import {
 
 const REFRESH_MS = 30_000;
 
-const PRIORITY_ORDER: Record<string, number> = {
-  Inmediato: 0,
-  Alta: 1,
-  Media: 2,
-  Baja: 3,
-};
-
 const ESTADO_ORDER: Record<string, number> = {
   "En curso": 0,
   Iniciativa: 1,
   Completada: 2,
 };
+
+type MainTab = "resumen" | "plan";
+type ModuleTab = "encurso" | "iniciativa";
 
 export function EmbedPlanClient({
   clientId,
@@ -48,6 +44,8 @@ export function EmbedPlanClient({
   const [creatingFor, setCreatingFor] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<MiroTask | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [mainTab, setMainTab] = useState<MainTab>("resumen");
+  const [moduleTabs, setModuleTabs] = useState<Record<string, ModuleTab>>({});
 
   const apiOpts = useMemo(() => ({ token, clientId }), [token, clientId]);
   const cancelledRef = useRef(false);
@@ -100,6 +98,14 @@ export function EmbedPlanClient({
       else next.delete(id);
       return next;
     });
+  }
+
+  function getModuleTab(modulo: string): ModuleTab {
+    return moduleTabs[modulo] ?? "encurso";
+  }
+
+  function setModuleTab(modulo: string, tab: ModuleTab) {
+    setModuleTabs((prev) => ({ ...prev, [modulo]: tab }));
   }
 
   async function handleComplete(taskId: string) {
@@ -192,9 +198,7 @@ export function EmbedPlanClient({
         const estA = ESTADO_ORDER[a.estado] ?? 99;
         const estB = ESTADO_ORDER[b.estado] ?? 99;
         if (estA !== estB) return estA - estB;
-        const prA = PRIORITY_ORDER[a.prioridad ?? ""] ?? 99;
-        const prB = PRIORITY_ORDER[b.prioridad ?? ""] ?? 99;
-        return prA - prB;
+        return a.titulo.localeCompare(b.titulo);
       });
     }
     return out;
@@ -278,135 +282,194 @@ export function EmbedPlanClient({
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-3 mb-4">
-        {progress.map((p) => (
-          <div
-            key={p.category}
-            className="bg-white/90 backdrop-blur-sm border border-line rounded-card p-3"
-          >
-            <div className="flex items-center justify-between gap-2">
-              <div className="text-[10px] uppercase tracking-label font-medium text-muted truncate">
-                {p.label}
-              </div>
-              <div className="text-[10px] text-muted tabular-nums shrink-0">
-                {p.completed}/{p.total}
-              </div>
-            </div>
-            <div className="mt-2 flex items-baseline gap-1">
-              <span className="text-[22px] font-semibold text-ink tabular-nums leading-none">
-                {p.percentage}
-              </span>
-              <span className="text-[12px] text-muted">%</span>
-            </div>
-            <div
-              className="h-1 bg-line rounded-full mt-2 overflow-hidden"
-              role="progressbar"
-              aria-valuenow={p.percentage}
-              aria-valuemin={0}
-              aria-valuemax={100}
-              aria-label={`${p.label}: ${p.percentage}%`}
-            >
-              <div
-                className="h-full bg-teal-600 transition-[width] duration-500"
-                style={{ width: `${p.percentage}%` }}
-              />
-            </div>
-          </div>
-        ))}
+      {/* Tab principal: Resumen vs Plan de trabajo */}
+      <div className="flex gap-1 mb-4 bg-white/60 border border-line rounded-chip p-0.5" role="tablist">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={mainTab === "resumen"}
+          onClick={() => setMainTab("resumen")}
+          className={`flex-1 text-[11px] uppercase tracking-label font-medium px-3 py-1.5 rounded-chip transition-colors ${
+            mainTab === "resumen"
+              ? "bg-teal-600 text-white"
+              : "text-muted hover:text-ink"
+          }`}
+        >
+          Resumen
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={mainTab === "plan"}
+          onClick={() => setMainTab("plan")}
+          className={`flex-1 text-[11px] uppercase tracking-label font-medium px-3 py-1.5 rounded-chip transition-colors ${
+            mainTab === "plan"
+              ? "bg-teal-600 text-white"
+              : "text-muted hover:text-ink"
+          }`}
+        >
+          Plan de trabajo
+        </button>
       </div>
 
-      {!hasActive && !creatingFor ? (
-        <div className="bg-white/90 border border-line rounded-card p-6 text-center">
-          <p className="text-[13px] font-medium text-ink">Todo al día por ahora</p>
-          <p className="text-[11px] text-muted mt-1">
-            No hay tareas activas en este momento.
-          </p>
-          <button
-            type="button"
-            onClick={() => setCreatingFor("Gestión interna")}
-            className="mt-3 text-[11px] px-3 py-1 text-teal-700 hover:bg-teal-50 rounded-chip"
-          >
-            + Nueva tarea
-          </button>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {Object.entries(grouped).map(([modulo, items]) => {
-            const enCurso = items.filter((t) => t.estado === "En curso").length;
-            const iniciativas = items.filter((t) => t.estado === "Iniciativa").length;
-            return (
-              <div
-                key={modulo}
-                className="bg-white/90 backdrop-blur-sm border border-line rounded-card p-3"
-              >
-                <div className="flex items-center justify-between mb-2 gap-2">
-                  <h2 className="text-[11px] uppercase tracking-label font-medium text-ink truncate">
-                    {modulo}
-                  </h2>
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    {enCurso > 0 && (
-                      <span className="inline-flex items-center gap-1 text-[10px] tabular-nums text-teal-700">
-                        <span className="w-1.5 h-1.5 rounded-full bg-teal-600" />
-                        {enCurso}
-                      </span>
-                    )}
-                    {iniciativas > 0 && (
-                      <span className="inline-flex items-center gap-1 text-[10px] tabular-nums text-muted">
-                        <span className="w-1.5 h-1.5 rounded-full bg-gray-300" />
-                        {iniciativas}
-                      </span>
-                    )}
-                    <button
-                      type="button"
-                      onClick={() => setCreatingFor(modulo)}
-                      className="text-[11px] px-2 py-0.5 text-teal-700 hover:bg-teal-50 rounded-chip"
-                    >
-                      + Nueva
-                    </button>
-                  </div>
+      {mainTab === "resumen" && (
+        <div className="grid grid-cols-2 gap-3">
+          {progress.map((p) => (
+            <div
+              key={p.category}
+              className="bg-white/90 backdrop-blur-sm border border-line rounded-card p-3"
+            >
+              <div className="flex items-center justify-between gap-2">
+                <div className="text-[10px] uppercase tracking-label font-medium text-muted truncate">
+                  {p.label}
                 </div>
-
-                {creatingFor === modulo && (
-                  <div className="mb-2">
-                    <NewTaskInline
-                      defaultModulo={modulo}
-                      onCreate={handleCreate}
-                      onCancel={() => setCreatingFor(null)}
-                    />
-                  </div>
-                )}
-
-                <ul className="space-y-1">
-                  {items.map((t) => (
-                    <TaskRow
-                      key={t.id}
-                      task={t}
-                      pending={t.id ? pendingTaskIds.has(t.id) : false}
-                      responsableSuggestions={responsableSuggestions}
-                      onComplete={() => t.id && handleComplete(t.id)}
-                      onChangeEstado={(e) => t.id && handleChangeEstado(t.id, e)}
-                      onChangeResponsable={(r) => t.id && handleChangeResponsable(t.id, r)}
-                      onDeleteRequest={() => setConfirmDelete(t)}
-                    />
-                  ))}
-                </ul>
+                <div className="text-[10px] text-muted tabular-nums shrink-0">
+                  {p.completed}/{p.total}
+                </div>
               </div>
-            );
-          })}
+              <div className="mt-2 flex items-baseline gap-1">
+                <span className="text-[22px] font-semibold text-ink tabular-nums leading-none">
+                  {p.percentage}
+                </span>
+                <span className="text-[12px] text-muted">%</span>
+              </div>
+              <div
+                className="h-1 bg-line rounded-full mt-2 overflow-hidden"
+                role="progressbar"
+                aria-valuenow={p.percentage}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-label={`${p.label}: ${p.percentage}%`}
+              >
+                <div
+                  className="h-full bg-teal-600 transition-[width] duration-500"
+                  style={{ width: `${p.percentage}%` }}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
-          {creatingFor && !grouped[creatingFor] && (
-            <div className="bg-white/90 backdrop-blur-sm border border-line rounded-card p-3">
-              <h2 className="text-[11px] uppercase tracking-label font-medium text-ink mb-2">
-                {creatingFor}
-              </h2>
-              <NewTaskInline
-                defaultModulo={creatingFor}
-                onCreate={handleCreate}
-                onCancel={() => setCreatingFor(null)}
-              />
+      {mainTab === "plan" && (
+        <>
+          {!hasActive && !creatingFor ? (
+            <div className="bg-white/90 border border-line rounded-card p-6 text-center">
+              <p className="text-[13px] font-medium text-ink">Todo al día por ahora</p>
+              <p className="text-[11px] text-muted mt-1">
+                No hay tareas activas en este momento.
+              </p>
+              <button
+                type="button"
+                onClick={() => setCreatingFor("Gestión interna")}
+                className="mt-3 text-[11px] px-3 py-1 text-teal-700 hover:bg-teal-50 rounded-chip"
+              >
+                + Nueva tarea
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {Object.entries(grouped).map(([modulo, items]) => {
+                const enCurso = items.filter((t) => t.estado === "En curso");
+                const iniciativas = items.filter((t) => t.estado === "Iniciativa");
+                const tab = getModuleTab(modulo);
+                const visible = tab === "encurso" ? enCurso : iniciativas;
+                return (
+                  <div
+                    key={modulo}
+                    className="bg-white/90 backdrop-blur-sm border border-line rounded-card p-3"
+                  >
+                    <div className="flex items-center justify-between mb-2 gap-2">
+                      <h2 className="text-[11px] uppercase tracking-label font-medium text-ink truncate">
+                        {modulo}
+                      </h2>
+                      <button
+                        type="button"
+                        onClick={() => setCreatingFor(modulo)}
+                        className="text-[11px] px-2 py-0.5 text-teal-700 hover:bg-teal-50 rounded-chip shrink-0"
+                      >
+                        + Nueva
+                      </button>
+                    </div>
+
+                    <div className="flex gap-1 mb-2 border-b border-line" role="tablist">
+                      <button
+                        type="button"
+                        role="tab"
+                        aria-selected={tab === "encurso"}
+                        onClick={() => setModuleTab(modulo, "encurso")}
+                        className={`text-[11px] px-2 py-1 -mb-px border-b-2 transition-colors ${
+                          tab === "encurso"
+                            ? "border-teal-600 text-ink font-medium"
+                            : "border-transparent text-muted hover:text-ink"
+                        }`}
+                      >
+                        En curso <span className="tabular-nums text-muted">({enCurso.length})</span>
+                      </button>
+                      <button
+                        type="button"
+                        role="tab"
+                        aria-selected={tab === "iniciativa"}
+                        onClick={() => setModuleTab(modulo, "iniciativa")}
+                        className={`text-[11px] px-2 py-1 -mb-px border-b-2 transition-colors ${
+                          tab === "iniciativa"
+                            ? "border-teal-600 text-ink font-medium"
+                            : "border-transparent text-muted hover:text-ink"
+                        }`}
+                      >
+                        Iniciativa <span className="tabular-nums text-muted">({iniciativas.length})</span>
+                      </button>
+                    </div>
+
+                    {creatingFor === modulo && (
+                      <div className="mb-2">
+                        <NewTaskInline
+                          defaultModulo={modulo}
+                          onCreate={handleCreate}
+                          onCancel={() => setCreatingFor(null)}
+                        />
+                      </div>
+                    )}
+
+                    {visible.length === 0 ? (
+                      <p className="text-[11px] text-muted italic py-2">
+                        Sin tareas {tab === "encurso" ? "en curso" : "iniciativa"} en este módulo.
+                      </p>
+                    ) : (
+                      <ul className="space-y-1">
+                        {visible.map((t) => (
+                          <TaskRow
+                            key={t.id}
+                            task={t}
+                            pending={t.id ? pendingTaskIds.has(t.id) : false}
+                            responsableSuggestions={responsableSuggestions}
+                            onComplete={() => t.id && handleComplete(t.id)}
+                            onChangeEstado={(e) => t.id && handleChangeEstado(t.id, e)}
+                            onChangeResponsable={(r) => t.id && handleChangeResponsable(t.id, r)}
+                            onDeleteRequest={() => setConfirmDelete(t)}
+                          />
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                );
+              })}
+
+              {creatingFor && !grouped[creatingFor] && (
+                <div className="bg-white/90 backdrop-blur-sm border border-line rounded-card p-3">
+                  <h2 className="text-[11px] uppercase tracking-label font-medium text-ink mb-2">
+                    {creatingFor}
+                  </h2>
+                  <NewTaskInline
+                    defaultModulo={creatingFor}
+                    onCreate={handleCreate}
+                    onCancel={() => setCreatingFor(null)}
+                  />
+                </div>
+              )}
             </div>
           )}
-        </div>
+        </>
       )}
 
       {updatedAt && (
