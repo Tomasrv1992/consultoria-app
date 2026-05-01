@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { getSupabaseAdmin } from "@/lib/supabase/admin";
+import { checkAuth } from "@/lib/auth-embed";
 
 export const dynamic = "force-dynamic";
 
@@ -7,11 +9,8 @@ export async function POST(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const supabase = createServerSupabaseClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) {
+  const auth = await checkAuth(request);
+  if (!auth.ok) {
     return NextResponse.json(
       { ok: false, error: "No autorizado" },
       { status: 401 }
@@ -19,15 +18,18 @@ export async function POST(
   }
 
   const taskId = params.id;
-  const body = await request.json().catch(() => null);
-  const completedBy = (body?.completedBy as string | undefined) ?? null;
-
   if (!taskId) {
     return NextResponse.json(
       { ok: false, error: "taskId requerido" },
       { status: 400 }
     );
   }
+
+  const body = await request.json().catch(() => null);
+  const completedBy = (body?.completedBy as string | undefined) ?? null;
+
+  const supabase =
+    auth.via === "session" ? createServerSupabaseClient() : getSupabaseAdmin();
 
   const { data, error } = await supabase
     .from("tasks")
