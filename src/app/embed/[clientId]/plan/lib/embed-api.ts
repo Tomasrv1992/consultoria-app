@@ -61,8 +61,16 @@ export async function createTask(
     body: JSON.stringify({ clientId: task.clientId, tasks: [{ titulo: task.titulo, modulo: task.modulo }] }),
   });
   if (!res.ok) throw new Error(await safeError(res, "Error creando tarea"));
-  const data = (await res.json()) as { ids?: string[] };
-  return { id: data.ids?.[0] ?? "" };
+  const data = (await res.json()) as {
+    ids?: string[];
+    errors?: { index: number; reason: string }[];
+  };
+  const id = data.ids?.[0];
+  if (!id) {
+    const reason = data.errors?.[0]?.reason || "el servidor no devolvió un id";
+    throw new Error(`Tarea no creada: ${reason}`);
+  }
+  return { id };
 }
 
 export async function fetchResponsables(opts: ApiOptions): Promise<string[]> {

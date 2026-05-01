@@ -7,6 +7,7 @@ interface Props {
   estado: string;
   responsable: string | null;
   responsableSuggestions: string[];
+  pending?: boolean;
   onChangeEstado: (estado: string) => void;
   onChangeResponsable: (resp: string) => void;
   onDeleteRequest: () => void;
@@ -19,6 +20,7 @@ export function TaskMenu({
   estado,
   responsable,
   responsableSuggestions,
+  pending,
   onChangeEstado,
   onChangeResponsable,
   onDeleteRequest,
@@ -42,16 +44,20 @@ export function TaskMenu({
       ref={ref}
       className="absolute right-0 top-full mt-1 bg-white border border-line rounded-card shadow-lg z-20 w-56 p-2"
     >
-      <div className="space-y-2">
+      {pending && (
+        <p className="text-[10px] text-muted italic mb-2">Guardando cambio...</p>
+      )}
+      <div className={`space-y-2 ${pending ? "opacity-50 pointer-events-none" : ""}`} aria-disabled={pending}>
         <div>
           <label className="text-[10px] uppercase tracking-label text-muted">Estado</label>
           <select
             value={estado}
+            disabled={pending}
             onChange={(e) => {
               onChangeEstado(e.target.value);
               onClose();
             }}
-            className="w-full text-[12px] px-2 py-1 border border-line rounded-chip outline-none mt-1"
+            className="w-full text-[12px] px-2 py-1 border border-line rounded-chip outline-none mt-1 disabled:opacity-50"
           >
             {ESTADOS.map((e) => (
               <option key={e} value={e}>
@@ -77,8 +83,9 @@ export function TaskMenu({
           ) : (
             <button
               type="button"
+              disabled={pending}
               onClick={() => setEditingResp(true)}
-              className="w-full text-left text-[12px] px-2 py-1 border border-line rounded-chip hover:bg-gray-50"
+              className="w-full text-left text-[12px] px-2 py-1 border border-line rounded-chip hover:bg-gray-50 disabled:opacity-50"
             >
               {responsable || "(sin asignar)"}
             </button>
@@ -87,11 +94,12 @@ export function TaskMenu({
 
         <button
           type="button"
+          disabled={pending}
           onClick={() => {
             onDeleteRequest();
             onClose();
           }}
-          className="w-full text-left text-[12px] px-2 py-1.5 text-red-600 hover:bg-red-50 rounded-chip flex items-center gap-2"
+          className="w-full text-left text-[12px] px-2 py-1.5 text-red-600 hover:bg-red-50 rounded-chip flex items-center gap-2 disabled:opacity-50"
         >
           <span>🗑️</span>
           <span>Borrar tarea</span>

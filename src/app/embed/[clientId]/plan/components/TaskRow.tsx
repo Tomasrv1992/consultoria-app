@@ -74,6 +74,7 @@ export function TaskRow({
             estado={task.estado}
             responsable={task.responsable || null}
             responsableSuggestions={responsableSuggestions}
+            pending={pending}
             onChangeEstado={onChangeEstado}
             onChangeResponsable={onChangeResponsable}
             onDeleteRequest={onDeleteRequest}
