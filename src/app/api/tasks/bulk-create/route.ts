@@ -3,6 +3,8 @@ import { MIRO_BOARDS } from "@/lib/clients-config";
 import { moduloToCategory } from "@/lib/miro-progress";
 import type { ModuleCategory } from "@/lib/types";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { getSupabaseAdmin } from "@/lib/supabase/admin";
+import { checkAuth } from "@/lib/auth-embed";
 
 export const dynamic = "force-dynamic";
 
@@ -34,16 +36,15 @@ interface InsertRow {
 const VALID_ESTADOS = new Set(["En curso", "Iniciativa", "Completada"]);
 
 export async function POST(request: NextRequest) {
-  const supabase = createServerSupabaseClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) {
+  const auth = await checkAuth(request);
+  if (!auth.ok) {
     return NextResponse.json(
       { ok: false, error: "No autorizado" },
       { status: 401 }
     );
   }
+  const supabase =
+    auth.via === "session" ? createServerSupabaseClient() : getSupabaseAdmin();
 
   const body = await request.json().catch(() => null);
   const clientId = body?.clientId as string | undefined;
