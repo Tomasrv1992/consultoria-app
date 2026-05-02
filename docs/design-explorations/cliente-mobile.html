@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Cygnuss · Estrategia en Acción</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Plus+Jakarta+Sans:wght@300..700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f0eadb;
+      --paper: #f7f2e6;
+      --paper-soft: #faf7ed;
+      --ink: #1a1612;
+      --ink-soft: #3d342d;
+      --muted: #8a7f73;
+      --muted-soft: #b6ab9c;
+      --hairline: #ddd4be;
+      --hairline-soft: #ebe4d2;
+      --vermillion: #c43c1d;
+      --mercadeo: #a85d2e;
+      --operaciones: #2d4a6f;
+      --gestion: #5e6b3e;
+      --ingresos: #ad7f2e;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      background: #100d0a;
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      color: var(--ink);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+    }
+
+    .stage {
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 48px 24px;
+      background:
+        radial-gradient(ellipse at 30% 0%, #2a221c 0%, #15110d 50%, #0a0805 100%);
+    }
+
+    .device {
+      width: 390px;
+      max-width: 100%;
+      background: var(--bg);
+      position: relative;
+      overflow: hidden;
+      border-radius: 36px;
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.04),
+        0 30px 80px -20px rgba(0,0,0,0.6),
+        0 8px 30px -10px rgba(0,0,0,0.4);
+    }
+
+    /* paper grain */
+    .device::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.6 0'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.5'/></svg>");
+      opacity: 0.06;
+      pointer-events: none;
+      mix-blend-mode: multiply;
+      z-index: 1;
+    }
+
+    @media (max-width: 480px) {
+      .stage { padding: 0; background: var(--bg); }
+      .device { border-radius: 0; box-shadow: none; min-height: 100vh; }
+    }
+
+    /* Status bar */
+    .status {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 26px 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--ink);
+      letter-spacing: 0.02em;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* Top nav row */
+    .topnav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 22px 24px 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      position: relative;
+      z-index: 2;
+    }
+
+    .topnav a { color: inherit; text-decoration: none; cursor: pointer; }
+    .topnav a:hover { color: var(--ink); }
+    .topnav .back::before { content: '←  '; opacity: 0.5; }
+
+    /* Hero */
+    .hero {
+      padding: 18px 24px 26px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .client-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .meta-num {
+      font-family: 'Fraunces', serif;
+      font-style: italic;
+      font-weight: 300;
+      font-size: 14px;
+      letter-spacing: 0;
+      text-transform: none;
+      color: var(--ink);
+    }
+
+    .client-name {
+      font-family: 'Fraunces', serif;
+      font-style: italic;
+      font-weight: 350;
+      font-size: 60px;
+      line-height: 0.92;
+      letter-spacing: -0.025em;
+      color: var(--ink);
+      font-variation-settings: "opsz" 144;
+      margin-bottom: 4px;
+    }
+
+    .client-tagline {
+      font-family: 'Fraunces', serif;
+      font-style: italic;
+      font-weight: 300;
+      font-size: 17px;
+      line-height: 1.3;
+      letter-spacing: -0.01em;
+      color: var(--ink-soft);
+      margin-top: 2px;
+      max-width: 280px;
+    }
+
+    .client-stats {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      margin-top: 22px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .stat strong {
+      color: var(--ink);
+      font-weight: 600;
+      font-size: 12px;
+      letter-spacing: 0;
+    }
+
+    .stat.alert strong { color: var(--vermillion); }
+
+    .stat-sep { color: var(--hairline); user-select: none; }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 28px;
+      padding: 0 24px;
+      border-top: 1px solid var(--hairline);
+      position: relative;
+      z-index: 2;
+    }
+
+    .tab {
+      padding: 14px 0 13px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--muted);
+      cursor: pointer;
+      letter-spacing: -0.005em;
+      position: relative;
+      display: flex;
+      align-items: baseline;
+      gap: 5px;
+    }
+
+    .tab.active {
+      color: var(--ink);
+      font-weight: 600;
+    }
+
+    .tab.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--ink);
+    }
+
+    .tab-count {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--muted-soft);
+      letter-spacing: 0;
+    }
+
+    .tab.active .tab-count { color: var(--muted); }
+
+    /* Filters */
+    .filters-wrap {
+      border-top: 1px solid var(--hairline);
+      background: var(--paper);
+      position: relative;
+      z-index: 2;
+    }
+
+    .filters {
+      display: flex;
+      gap: 18px;
+      padding: 14px 24px 13px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .filters::-webkit-scrollbar { display: none; }
+
+    .filter {
+      color: var(--muted);
+      white-space: nowrap;
+      padding-bottom: 2px;
+      border-bottom: 1px solid transparent;
+      cursor: pointer;
+      transition: color 180ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .filter:hover { color: var(--ink-soft); }
+
+    .filter.active {
+      color: var(--ink);
+      border-bottom-color: var(--ink);
+    }
+
+    /* Section header */
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 22px 24px 10px;
+      border-top: 1px solid var(--hairline);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      position: relative;
+      z-index: 2;
+    }
+
+    .section-head .count {
+      color: var(--ink);
+      font-weight: 600;
+    }
+
+    .section-head .sort {
+      font-weight: 500;
+      color: var(--muted-soft);
+      cursor: pointer;
+    }
+
+    .section-head .sort::after { content: '  ↕'; opacity: 0.6; }
+
+    /* Task list */
+    .list {
+      position: relative;
+      z-index: 2;
+    }
+
+    .task {
+      display: grid;
+      grid-template-columns: 56px 1fr;
+      gap: 18px;
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--hairline-soft);
+      cursor: pointer;
+      transition: background 200ms cubic-bezier(0.22, 1, 0.36, 1);
+      position: relative;
+    }
+
+    .task:hover { background: var(--paper-soft); }
+
+    .task-date {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      padding-top: 3px;
+      text-transform: uppercase;
+      line-height: 1.4;
+    }
+
+    .task-date .day {
+      font-family: 'Fraunces', serif;
+      font-style: italic;
+      font-weight: 400;
+      font-size: 22px;
+      letter-spacing: -0.02em;
+      text-transform: none;
+      color: var(--ink);
+      display: block;
+      line-height: 1;
+      margin-bottom: 3px;
+    }
+
+    .task.overdue .task-date .day { color: var(--vermillion); }
+
+    .task.overdue::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: var(--vermillion);
+    }
+
+    .overdue-mark {
+      display: inline-block;
+      font-size: 9px;
+      letter-spacing: 0.18em;
+      color: var(--vermillion);
+      font-weight: 600;
+      margin-top: 4px;
+    }
+
+    .task-body {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .task-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 14.5px;
+      font-weight: 500;
+      line-height: 1.38;
+      letter-spacing: -0.012em;
+      color: var(--ink);
+    }
+
+    .task-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9.5px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      flex-wrap: wrap;
+    }
+
+    .cat {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      color: inherit;
+    }
+
+    .cat-letter {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--cat);
+      color: var(--paper);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Fraunces', serif;
+      font-style: italic;
+      font-weight: 500;
+      font-size: 12px;
+      letter-spacing: 0;
+      text-transform: none;
+      flex-shrink: 0;
+      line-height: 1;
+      padding-bottom: 1px;
+    }
+
+    .cat.mercadeo { --cat: var(--mercadeo); }
+    .cat.operaciones { --cat: var(--operaciones); }
+    .cat.gestion { --cat: var(--gestion); }
+    .cat.ingresos { --cat: var(--ingresos); }
+
+    .meta-sep { color: var(--muted-soft); }
+
+    .priority { color: var(--ink-soft); font-weight: 600; }
+    .priority.alta { color: var(--vermillion); }
+
+    /* Footer */
+    .footer {
+      padding: 24px 24px 38px;
+      border-top: 1px solid var(--hairline);
+      background: var(--paper);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      z-index: 2;
+    }
+
+    .new-task {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ink);
+      cursor: pointer;
+    }
+
+    .new-task::before {
+      content: '+';
+      font-family: 'Fraunces', serif;
+      font-style: italic;
+      font-size: 28px;
+      font-weight: 300;
+      line-height: 1;
+      color: var(--vermillion);
+      transform: translateY(-2px);
+    }
+
+    .footer-mark {
+      font-family: 'Fraunces', serif;
+      font-style: italic;
+      font-weight: 300;
+      font-size: 13px;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="stage">
+    <article class="device">
+      <div class="status">
+        <span>9:41</span>
+        <span>100</span>
+      </div>
+
+      <nav class="topnav">
+        <a class="back" href="#">Clientes</a>
+        <a href="#">Menú</a>
+      </nav>
+
+      <header class="hero">
+        <div class="client-meta">
+          <span class="meta-num">№ 03</span>
+          <span>Estrategia en Acción</span>
+        </div>
+        <h1 class="client-name">Cygnuss</h1>
+        <p class="client-tagline">Cliente desde febrero 2024 — sector tecnología B2B.</p>
+        <div class="client-stats">
+          <span class="stat"><strong>12</strong> activas</span>
+          <span class="stat-sep">·</span>
+          <span class="stat alert"><strong>4</strong> vencidas</span>
+          <span class="stat-sep">·</span>
+          <span class="stat"><strong>27</strong> históricas</span>
+        </div>
+      </header>
+
+      <div class="tabs">
+        <div class="tab active">Tareas <span class="tab-count">12</span></div>
+        <div class="tab">Minutas <span class="tab-count">04</span></div>
+        <div class="tab">Miro</div>
+      </div>
+
+      <div class="filters-wrap">
+        <div class="filters">
+          <div class="filter active">Todas</div>
+          <div class="filter">Mercadeo</div>
+          <div class="filter">Operaciones</div>
+          <div class="filter">Gestión</div>
+          <div class="filter">Ingresos</div>
+        </div>
+      </div>
+
+      <div class="section-head">
+        <span><span class="count">12</span> tareas · ordenadas por fecha</span>
+        <span class="sort">Filtros</span>
+      </div>
+
+      <div class="list">
+        <article class="task overdue">
+          <div class="task-date">
+            <span class="day">03</span>
+            May
+            <div class="overdue-mark">Vencida</div>
+          </div>
+          <div class="task-body">
+            <div class="task-title">Cerrar contrato laboral del nuevo coordinador comercial.</div>
+            <div class="task-meta">
+              <span class="cat gestion"><span class="cat-letter">G</span>Gestión</span>
+              <span class="meta-sep">·</span>
+              <span>Tomás</span>
+              <span class="meta-sep">·</span>
+              <span class="priority alta">Alta</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="task">
+          <div class="task-date">
+            <span class="day">05</span>
+            May
+          </div>
+          <div class="task-body">
+            <div class="task-title">Lanzar campaña Instagram para el producto Septiembre.</div>
+            <div class="task-meta">
+              <span class="cat mercadeo"><span class="cat-letter">M</span>Mercadeo</span>
+              <span class="meta-sep">·</span>
+              <span>Andrea</span>
+              <span class="meta-sep">·</span>
+              <span class="priority alta">Alta</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="task">
+          <div class="task-date">
+            <span class="day">08</span>
+            May
+          </div>
+          <div class="task-body">
+            <div class="task-title">Revisar inventario de bodega y proyectar reorden de Q3.</div>
+            <div class="task-meta">
+              <span class="cat operaciones"><span class="cat-letter">O</span>Operaciones</span>
+              <span class="meta-sep">·</span>
+              <span>Daniel</span>
+              <span class="meta-sep">·</span>
+              <span class="priority">Media</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="task">
+          <div class="task-date">
+            <span class="day">10</span>
+            May
+          </div>
+          <div class="task-body">
+            <div class="task-title">Generar y enviar cuenta de cobro de abril 2026.</div>
+            <div class="task-meta">
+              <span class="cat ingresos"><span class="cat-letter">I</span>Ingresos</span>
+              <span class="meta-sep">·</span>
+              <span>Andrea</span>
+              <span class="meta-sep">·</span>
+              <span class="priority">Media</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="task">
+          <div class="task-date">
+            <span class="day">15</span>
+            May
+          </div>
+          <div class="task-body">
+            <div class="task-title">Brief para diseñador del catálogo Q3 con las nuevas referencias.</div>
+            <div class="task-meta">
+              <span class="cat mercadeo"><span class="cat-letter">M</span>Mercadeo</span>
+              <span class="meta-sep">·</span>
+              <span>Andrea</span>
+              <span class="meta-sep">·</span>
+              <span class="priority">Baja</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="task">
+          <div class="task-date">
+            <span class="day">22</span>
+            May
+          </div>
+          <div class="task-body">
+            <div class="task-title">Reunión trimestral de revisión con junta directiva.</div>
+            <div class="task-meta">
+              <span class="cat gestion"><span class="cat-letter">G</span>Gestión</span>
+              <span class="meta-sep">·</span>
+              <span>Tomás</span>
+              <span class="meta-sep">·</span>
+              <span class="priority">Media</span>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <footer class="footer">
+        <div class="new-task">Nueva tarea</div>
+        <span class="footer-mark">— Tomás</span>
+      </footer>
+    </article>
+  </div>
+</body>
+</html>

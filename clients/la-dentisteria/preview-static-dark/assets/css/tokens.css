@@ -1,0 +1,32 @@
+/* Design token aliases — La Dentisteria
+ * Source of truth: theme.json (which generates --wp--preset--* CSS vars).
+ * This file aliases those into shorter, semantic names for use in main.css and patterns.
+ * Edit theme.json to change values; this file does NOT redeclare hex codes.
+ */
+:root {
+  --beige:        var(--wp--preset--color--beige);
+  --beige-deep:   var(--wp--preset--color--beige-deep);
+  --teal:         var(--wp--preset--color--teal);
+  --teal-deep:    var(--wp--preset--color--teal-deep);
+  --ink:          var(--wp--preset--color--ink);
+  --ink-soft:     var(--wp--preset--color--ink-soft);
+  --line:         var(--wp--preset--color--line);
+  --gold-accent:  var(--wp--preset--color--gold-accent);
+
+  --font-serif:   var(--wp--preset--font-family--serif);
+  --font-sans:    var(--wp--preset--font-family--sans);
+
+  --content-max:  1180px;
+  --wide-max:     1320px;
+
+  --space-xs:     0.5rem;
+  --space-sm:     1rem;
+  --space-md:     1.5rem;
+  --space-lg:     2.5rem;
+  --space-xl:     4rem;
+  --space-xxl:    6rem;
+
+  /* Third-party brand colors (not part of theme.json palette) */
+  --wa-green:      #25D366;
+  --wa-green-deep: #128C7E;
+}

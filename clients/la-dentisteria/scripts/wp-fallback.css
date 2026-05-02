@@ -1,0 +1,257 @@
+/* WordPress block-library + theme.json shim for STATIC PREVIEW only.
+ * Replicates the CSS that WordPress auto-generates from theme.json + block
+ * library at runtime. Do NOT use this file in the actual WP install — there
+ * the variables come from theme.json directly.
+ *
+ * Sourced from: wp-theme/theme.json
+ */
+
+/* === theme.json: settings.color.palette → --wp--preset--color--<slug> === */
+/* === theme.json: settings.typography.fontFamilies → --wp--preset--font-family--<slug> === */
+/* === theme.json: settings.typography.fontSizes → --wp--preset--font-size--<slug> === */
+:root {
+  --wp--preset--color--beige:        #F1E8DA;
+  --wp--preset--color--beige-deep:   #E8DCC4;
+  --wp--preset--color--teal:         #0E6B6B;
+  --wp--preset--color--teal-deep:    #114848;
+  --wp--preset--color--ink:          #1a1a1a;
+  --wp--preset--color--ink-soft:     #5a5a5a;
+  --wp--preset--color--line:         #d8ccb6;
+  --wp--preset--color--gold-accent:  #E8C9A0;
+
+  --wp--preset--font-family--serif:  'DM Serif Display', Georgia, serif;
+  --wp--preset--font-family--sans:   'Inter Tight', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  --wp--preset--font-size--small:    13px;
+  --wp--preset--font-size--medium:   16px;
+  --wp--preset--font-size--large:    24px;
+  --wp--preset--font-size--xlarge:   44px;
+  --wp--preset--font-size--display:  76px;
+}
+
+/* === theme.json: styles.color + styles.typography (body global) === */
+html, body {
+  margin: 0;
+  padding: 0;
+}
+body {
+  background: var(--wp--preset--color--beige);
+  color: var(--wp--preset--color--ink);
+  font-family: var(--wp--preset--font-family--sans);
+  font-size: var(--wp--preset--font-size--medium);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* === theme.json: styles.elements.h1/h2/h3 === */
+h1 {
+  font-family: var(--wp--preset--font-family--serif);
+  font-size: clamp(44px, 6vw, 76px);
+  line-height: 1.0;
+  letter-spacing: -0.02em;
+  font-weight: 400;
+  margin: 0 0 0.5em;
+}
+h2 {
+  font-family: var(--wp--preset--font-family--serif);
+  font-size: clamp(28px, 4vw, 44px);
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  font-weight: 400;
+  margin: 0 0 0.5em;
+}
+h3 {
+  font-family: var(--wp--preset--font-family--serif);
+  font-size: 24px;
+  font-weight: 400;
+  margin: 0 0 0.5em;
+}
+h4, h5, h6 {
+  font-family: var(--wp--preset--font-family--sans);
+  font-weight: 600;
+  margin: 0 0 0.5em;
+}
+
+p {
+  margin: 0 0 1em;
+}
+a {
+  color: var(--wp--preset--color--teal);
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+/* === has-<slug>-color + has-<slug>-background-color === */
+.has-text-color { /* sentinel, overridden by has-X-color */ }
+.has-background { /* sentinel, overridden by has-X-background-color */ }
+
+.has-beige-color        { color: var(--wp--preset--color--beige); }
+.has-beige-deep-color   { color: var(--wp--preset--color--beige-deep); }
+.has-teal-color         { color: var(--wp--preset--color--teal); }
+.has-teal-deep-color    { color: var(--wp--preset--color--teal-deep); }
+.has-ink-color          { color: var(--wp--preset--color--ink); }
+.has-ink-soft-color     { color: var(--wp--preset--color--ink-soft); }
+.has-line-color         { color: var(--wp--preset--color--line); }
+.has-gold-accent-color  { color: var(--wp--preset--color--gold-accent); }
+
+.has-beige-background-color        { background-color: var(--wp--preset--color--beige); }
+.has-beige-deep-background-color   { background-color: var(--wp--preset--color--beige-deep); }
+.has-teal-background-color         { background-color: var(--wp--preset--color--teal); }
+.has-teal-deep-background-color    { background-color: var(--wp--preset--color--teal-deep); }
+.has-ink-background-color          { background-color: var(--wp--preset--color--ink); }
+.has-ink-soft-background-color     { background-color: var(--wp--preset--color--ink-soft); }
+.has-line-background-color         { background-color: var(--wp--preset--color--line); }
+.has-gold-accent-background-color  { background-color: var(--wp--preset--color--gold-accent); }
+
+.has-small-font-size   { font-size: var(--wp--preset--font-size--small); }
+.has-medium-font-size  { font-size: var(--wp--preset--font-size--medium); }
+.has-large-font-size   { font-size: var(--wp--preset--font-size--large); }
+.has-xlarge-font-size  { font-size: var(--wp--preset--font-size--xlarge); }
+.has-display-font-size { font-size: var(--wp--preset--font-size--display); }
+
+.has-text-align-center { text-align: center; }
+.has-text-align-left   { text-align: left; }
+.has-text-align-right  { text-align: right; }
+
+/* === Block library minimal styles === */
+
+/* wp-block-group: container */
+.wp-block-group {
+  box-sizing: border-box;
+}
+
+/* wp-block-columns + wp-block-column: flexbox layout */
+.wp-block-columns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  margin: 0 0 1.5em;
+}
+.wp-block-columns > .wp-block-column {
+  flex: 1;
+  min-width: 0;
+  box-sizing: border-box;
+}
+.wp-block-columns.are-vertically-aligned-center { align-items: center; }
+.wp-block-columns.are-vertically-aligned-top    { align-items: flex-start; }
+.wp-block-columns.are-vertically-aligned-bottom { align-items: flex-end; }
+.wp-block-column.is-vertically-aligned-center { align-self: center; }
+.wp-block-column.is-vertically-aligned-top    { align-self: flex-start; }
+.wp-block-column.is-vertically-aligned-bottom { align-self: flex-end; }
+
+@media (max-width: 600px) {
+  .wp-block-columns { flex-direction: column; }
+}
+
+/* wp-block-buttons: button group */
+.wp-block-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75em;
+  margin: 0 0 1em;
+}
+
+/* wp-block-button + wp-block-button__link + wp-element-button: theme.json elements.button */
+.wp-block-button {
+  display: inline-block;
+}
+.wp-block-button__link,
+.wp-element-button {
+  display: inline-block;
+  background: var(--wp--preset--color--teal);
+  color: var(--wp--preset--color--beige);
+  padding: 14px 28px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--wp--preset--font-family--sans);
+  line-height: 1;
+  transition: background 0.15s, transform 0.15s;
+}
+.wp-block-button__link:hover,
+.wp-element-button:hover {
+  background: var(--wp--preset--color--teal-deep);
+  text-decoration: none;
+}
+
+/* wp-block-list: lists */
+.wp-block-list {
+  margin: 0 0 1em;
+  padding-left: 1.25em;
+}
+.wp-block-list li {
+  margin: 0 0 0.25em;
+}
+
+/* wp-block-separator: hr */
+.wp-block-separator {
+  border: none;
+  border-top: 1px solid var(--wp--preset--color--line);
+  margin: 2em 0;
+}
+
+/* wp-block-heading: legacy compatibility */
+h1.wp-block-heading,
+h2.wp-block-heading,
+h3.wp-block-heading,
+h4.wp-block-heading,
+h5.wp-block-heading,
+h6.wp-block-heading {
+  /* inherits from element selectors */
+}
+
+/* Layout type "constrained" → centers content with max-width */
+.wp-block-group.is-layout-constrained,
+.wp-block-group[data-layout="constrained"] {
+  max-width: 1180px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Default spacing adjustments */
+.wp-block-group > * + * { margin-top: 0.75em; }
+section.wp-block-group > * + * { margin-top: 0; }
+
+/* Reset some button display for the block-button containers */
+.wp-block-buttons > .wp-block-button {
+  display: inline-block;
+}
+
+/* === Mobile responsive overrides === */
+@media (max-width: 720px) {
+  .site-header {
+    flex-direction: column !important;
+    gap: 12px !important;
+    padding-top: 14px !important;
+    padding-bottom: 14px !important;
+  }
+  .site-header .main-nav {
+    gap: 10px !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    font-size: 10px !important;
+  }
+  .site-header img {
+    height: 40px !important;
+  }
+  /* Service hub: stack to 1 column */
+  .servicios-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .site-header .main-nav a:not(.nav-cta) {
+    /* Compact nav on very small screens */
+    font-size: 9px !important;
+  }
+  .secondary-service h3 { font-size: 16px !important; }
+}

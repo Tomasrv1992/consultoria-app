@@ -61,15 +61,16 @@ async function main() {
     ["2026-12", "Diciembre", 12],
   ];
 
+  // ⚠️ Locale es-CO usa `;` como separador de argumentos en vez de `,`.
   const monthRows = months.map(([code, name, m]) => {
-    const start = `DATE(2026,${m},1)`;
-    const end = `EOMONTH(DATE(2026,${m},1),0)`;
+    const start = `DATE(2026;${m};1)`;
+    const end = `EOMONTH(DATE(2026;${m};1);0)`;
     return [
       name as string,
-      `=COUNTIFS(${src}!A:A,">="&${start},${src}!A:A,"<="&${end})`,
-      `=SUMIFS(${src}!E:E,${src}!A:A,">="&${start},${src}!A:A,"<="&${end})`,
-      `=SUMIFS(${src}!F:F,${src}!A:A,">="&${start},${src}!A:A,"<="&${end})`,
-      `=SUMIFS(${src}!G:G,${src}!A:A,">="&${start},${src}!A:A,"<="&${end})`,
+      `=COUNTIFS(${src}!A:A;">="&${start};${src}!A:A;"<="&${end})`,
+      `=SUMIFS(${src}!E:E;${src}!A:A;">="&${start};${src}!A:A;"<="&${end})`,
+      `=SUMIFS(${src}!F:F;${src}!A:A;">="&${start};${src}!A:A;"<="&${end})`,
+      `=SUMIFS(${src}!G:G;${src}!A:A;">="&${start};${src}!A:A;"<="&${end})`,
     ];
   });
 
@@ -81,7 +82,7 @@ async function main() {
     ["📊 KPIs Anuales", "", "", "", ""],                                                                          // 4
     ["Total facturas",       `=COUNTA(${src}!B2:B)`, "", "", ""],                                                 // 5
     ["Total gastado",        `=SUM(${src}!G:G)`, "", "", ""],                                                      // 6
-    ["Promedio por factura", `=IFERROR(AVERAGE(${src}!G2:G),0)`, "", "", ""],                                      // 7
+    ["Promedio por factura", `=IFERROR(AVERAGE(${src}!G2:G);0)`, "", "", ""],                                      // 7
     ["IVA acumulado",        `=SUM(${src}!F:F)`, "", "", ""],                                                      // 8
     ["Subtotal acumulado",   `=SUM(${src}!E:E)`, "", "", ""],                                                      // 9
     ["", "", "", "", ""],                                                                                          // 10
@@ -92,7 +93,7 @@ async function main() {
     ["", "", "", "", ""],                                                                                          // 26
     ["🏆 Top 10 proveedores", "", "", "", ""],                                                                    // 27
     ["Proveedor", "# Facturas", "Total", "", ""],                                                                  // 28 — headers
-    [`=IFERROR(QUERY(${src}!B:G,"select B, count(B), sum(G) where B is not null and B<>'Proveedor' group by B order by sum(G) desc limit 10 label B '', count(B) '', sum(G) ''",0),"sin datos")`, "", "", "", ""], // 29 — la query expande hacia abajo
+    [`=IFERROR(QUERY(${src}!B:G;"select B, count(B), sum(G) where B is not null and B<>'Proveedor' group by B order by sum(G) desc limit 10 label B '', count(B) '', sum(G) ''";0);"sin datos")`, "", "", "", ""], // 29 — la query expande hacia abajo
   ];
 
   // 3. Escribir todo de una vez
