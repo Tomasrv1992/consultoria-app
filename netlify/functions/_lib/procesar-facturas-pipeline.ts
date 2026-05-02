@@ -51,6 +51,54 @@ export interface InvoiceData {
 export interface ProcessedRow extends InvoiceData {
   driveLink: string;
   subject: string;
+  categoria: string;
+  cuentaPyg: string;
+}
+
+// ===== Categorización =====
+import reglasCategoria from "./categorizacion-reglas.json" with { type: "json" };
+
+interface ReglaCategoria {
+  proveedor?: string;
+  categoria: string;
+  cuenta_pyg: string;
+}
+interface ReglaKeyword {
+  patron: string;
+  categoria: string;
+  cuenta_pyg: string;
+}
+
+/**
+ * Asigna categoría + cuenta PYG a una factura.
+ * Lookup: 1) por NIT exacto → 2) por keyword en concepto → 3) default.
+ */
+function categorizar(data: { nit: string; concepto: string }): { categoria: string; cuentaPyg: string } {
+  // 1. NIT exacto
+  const nitNorm = String(data.nit || "").replace(/\D+/g, "");
+  const reglasPorNit = (reglasCategoria as any).reglas_por_nit as Record<string, ReglaCategoria>;
+  if (reglasPorNit[nitNorm]) {
+    return { categoria: reglasPorNit[nitNorm].categoria, cuentaPyg: reglasPorNit[nitNorm].cuenta_pyg };
+  }
+
+  // 2. Keyword en concepto
+  const keywords = (reglasCategoria as any).reglas_por_keyword_concepto as ReglaKeyword[];
+  const concepto = data.concepto || "";
+  for (const k of keywords) {
+    try {
+      if (new RegExp(k.patron).test(concepto)) {
+        return { categoria: k.categoria, cuentaPyg: k.cuenta_pyg };
+      }
+    } catch {
+      /* regex inválida en config — ignorar regla */
+    }
+  }
+
+  // 3. Default
+  return {
+    categoria: (reglasCategoria as any).default.categoria,
+    cuentaPyg: (reglasCategoria as any).default.cuenta_pyg,
+  };
 }
 
 export interface SkippedRow {
@@ -140,7 +188,7 @@ export async function run(cfg: PipelineConfig): Promise<PipelineResult> {
     if (sheetRowsCache) return sheetRowsCache;
     const res = await sheets.spreadsheets.values.get({
       spreadsheetId: g.sheetId,
-      range: `${tabRange}!A:I`,
+      range: `${tabRange}!A:K`,
     });
     sheetRowsCache = res.data.values || [];
     return sheetRowsCache;
@@ -452,13 +500,13 @@ async function appendToSheet(
 ): Promise<any[]> {
   await sheets.spreadsheets.values.append({
     spreadsheetId: sheetId,
-    range: `${tabRange}!A:I`,
+    range: `${tabRange}!A:K`,
     valueInputOption: "USER_ENTERED",
     requestBody: {
-      values: [[d.fecha, d.proveedor, d.nit, d.numero, d.subtotal, d.iva, d.total, d.concepto, d.driveLink]],
+      values: [[d.fecha, d.proveedor, d.nit, d.numero, d.subtotal, d.iva, d.total, d.concepto, d.driveLink, d.categoria, d.cuentaPyg]],
     },
   });
-  return [d.fecha, d.proveedor, d.nit, d.numero, d.subtotal, d.iva, d.total, d.concepto, d.driveLink];
+  return [d.fecha, d.proveedor, d.nit, d.numero, d.subtotal, d.iva, d.total, d.concepto, d.driveLink, d.categoria, d.cuentaPyg];
 }
 
 // ===== Pipeline per email =====
@@ -544,7 +592,8 @@ async function processOne(
     await uploadFile(drive, x, folderId, `${baseName}__${path.basename(x)}`);
   }
 
-  const row: ProcessedRow = { ...data, driveLink, subject };
+  const { categoria, cuentaPyg } = categorizar({ nit: data.nit, concepto: data.concepto });
+  const row: ProcessedRow = { ...data, driveLink, subject, categoria, cuentaPyg };
   const newRow = await appendToSheet(sheets, g.sheetId, tabRange, row);
   pushToCache(newRow);
   await markEmailProcessed(gmail, messageId, labelId);

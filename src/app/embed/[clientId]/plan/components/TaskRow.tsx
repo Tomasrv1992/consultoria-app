@@ -14,6 +14,15 @@ interface Props {
   onDeleteRequest: () => void;
 }
 
+function isOverdue(fecha: string | undefined): boolean {
+  if (!fecha) return false;
+  if (fecha === "Por definir") return false;
+  // intenta parsear; si no se puede, no marcar
+  const t = Date.parse(fecha);
+  if (Number.isNaN(t)) return false;
+  return t < Date.now();
+}
+
 export function TaskRow({
   task,
   pending,
@@ -24,25 +33,33 @@ export function TaskRow({
   onDeleteRequest,
 }: Props) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const overdue = isOverdue(task.fecha);
 
   return (
-    <li className="flex items-start gap-2 text-[12px] leading-snug py-1 px-1 -mx-1 rounded hover:bg-gray-50/50 group">
+    <li className="grid grid-cols-[16px_1fr_auto_18px] gap-2.5 py-2.5 items-start group">
       <button
         type="button"
         onClick={onComplete}
         disabled={pending}
         aria-label="Completar tarea"
-        className="mt-0.5 w-4 h-4 rounded border border-line hover:border-teal-600 flex items-center justify-center disabled:opacity-50 shrink-0"
+        className="mt-0.5 w-3.5 h-3.5 rounded-[3px] border-[1.5px] border-line hover:border-teal-600 bg-surface flex items-center justify-center disabled:opacity-50 transition-colors shrink-0"
       >
-        {pending && <span className="w-2 h-2 rounded-full bg-teal-300 animate-pulse" />}
+        {pending && <span className="w-1.5 h-1.5 rounded-full bg-teal-600 animate-pulse" />}
       </button>
 
       <div className="min-w-0 flex-1">
-        <p className="text-ink">{task.titulo}</p>
-        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[10px] text-muted mt-0.5">
-          {task.responsable && <span>{task.responsable}</span>}
+        <p className="text-[13px] font-medium text-ink leading-snug">{task.titulo}</p>
+        <div className="flex flex-wrap items-center gap-1.5 text-[11px] text-muted mt-0.5">
+          {task.responsable && (
+            <span className="text-chipink font-medium">{task.responsable}</span>
+          )}
           {task.fecha && task.fecha !== "Por definir" && (
-            <span className="tabular-nums">· {task.fecha}</span>
+            <>
+              {task.responsable && <span className="text-line" aria-hidden="true">·</span>}
+              <span className={`tabular-nums ${overdue ? "text-danger font-semibold" : ""}`}>
+                {task.fecha}
+              </span>
+            </>
           )}
         </div>
       </div>
@@ -52,7 +69,7 @@ export function TaskRow({
           type="button"
           onClick={() => setMenuOpen((v) => !v)}
           aria-label="Más opciones"
-          className="opacity-0 group-hover:opacity-100 focus:opacity-100 px-1.5 py-0.5 text-muted hover:text-ink rounded shrink-0"
+          className="opacity-0 group-hover:opacity-100 focus:opacity-100 w-[18px] h-[18px] inline-flex items-center justify-center text-muted hover:text-ink hover:bg-chip rounded-chip transition-all shrink-0"
         >
           ⋯
         </button>
@@ -69,6 +86,7 @@ export function TaskRow({
           />
         )}
       </div>
+      <span aria-hidden="true" />
     </li>
   );
 }

@@ -27,7 +27,7 @@ async function main() {
           addSheet: {
             properties: {
               title: TAB_NAME,
-              gridProperties: { rowCount: 50, columnCount: 8, frozenRowCount: 1 },
+              gridProperties: { rowCount: 100, columnCount: 8, frozenRowCount: 1 },
               tabColor: { red: 0.2, green: 0.5, blue: 0.9 },
             },
           },
@@ -91,9 +91,20 @@ async function main() {
     ...monthRows,                                                                                                  // 13-24
     ["TOTAL", `=SUM(B13:B24)`, `=SUM(C13:C24)`, `=SUM(D13:D24)`, `=SUM(E13:E24)`],                                // 25
     ["", "", "", "", ""],                                                                                          // 26
-    ["🏆 Top 10 proveedores", "", "", "", ""],                                                                    // 27
-    ["Proveedor", "# Facturas", "Total", "", ""],                                                                  // 28 — headers
-    [`=IFERROR(QUERY(${src}!B:G;"select B, count(B), sum(G) where B is not null and B<>'Proveedor' group by B order by sum(G) desc limit 10 label B '', count(B) '', sum(G) ''";0);"sin datos")`, "", "", "", ""], // 29 — la query expande hacia abajo
+    ["💼 Por Cuenta PYG (PUC)", "", "", "", ""],                                                                   // 27 — sección para contador
+    ["Cuenta PYG", "# Facturas", "Total", "", ""],                                                                 // 28 — headers
+    // 29-43: query PYG (15 filas — caben hasta 15 cuentas distintas)
+    [`=IFERROR(QUERY(${src}!A:K;"select K, count(K), sum(G) where K is not null and K<>'' and K<>'Cuenta PYG' group by K order by sum(G) desc label K '', count(K) '', sum(G) ''";1);"sin datos")`, "", "", "", ""],
+    ...Array(14).fill(["", "", "", "", ""]),                                                                       // 30-43 (espacio para que QUERY expanda)
+    ["", "", "", "", ""],                                                                                          // 44 — gap
+    ["🏷️ Por Categoría", "", "", "", ""],                                                                          // 45
+    ["Categoría", "# Facturas", "Total", "", ""],                                                                  // 46 — headers
+    [`=IFERROR(QUERY(${src}!A:K;"select J, count(J), sum(G) where J is not null and J<>'' and J<>'Categoría' group by J order by sum(G) desc label J '', count(J) '', sum(G) ''";1);"sin datos")`, "", "", "", ""], // 47
+    ...Array(14).fill(["", "", "", "", ""]),                                                                       // 48-61
+    ["", "", "", "", ""],                                                                                          // 62
+    ["🏆 Top 10 proveedores", "", "", "", ""],                                                                    // 63
+    ["Proveedor", "# Facturas", "Total", "", ""],                                                                  // 64
+    [`=IFERROR(QUERY(${src}!B:G;"select B, count(B), sum(G) where B is not null and B<>'Proveedor' group by B order by sum(G) desc limit 10 label B '', count(B) '', sum(G) ''";0);"sin datos")`, "", "", "", ""], // 65
   ];
 
   // 3. Escribir todo de una vez
@@ -150,8 +161,8 @@ async function main() {
             fields: "userEnteredFormat(textFormat,horizontalAlignment)",
           },
         },
-        // Sección headers (filas 4, 11, 27) — bold + fondo gris claro
-        ...[3, 10, 26].map((row) => ({
+        // Sección headers (filas 4, 11, 27, 45, 63) — bold + fondo gris claro
+        ...[3, 10, 26, 44, 62].map((row) => ({
           repeatCell: {
             range: { sheetId, startRowIndex: row, endRowIndex: row + 1, startColumnIndex: 0, endColumnIndex: 5 },
             cell: {
@@ -239,10 +250,10 @@ async function main() {
             fields: "userEnteredFormat(backgroundColor,textFormat)",
           },
         },
-        // Headers Top 10 (fila 28)
-        {
+        // Headers de tablas (filas 28: Cuenta PYG, 46: Categoría, 64: Top 10)
+        ...[27, 45, 63].map((row) => ({
           repeatCell: {
-            range: { sheetId, startRowIndex: 27, endRowIndex: 28, startColumnIndex: 0, endColumnIndex: 3 },
+            range: { sheetId, startRowIndex: row, endRowIndex: row + 1, startColumnIndex: 0, endColumnIndex: 3 },
             cell: {
               userEnteredFormat: {
                 backgroundColor: { red: 0.85, green: 0.85, blue: 0.95 },
@@ -252,18 +263,19 @@ async function main() {
             },
             fields: "userEnteredFormat(backgroundColor,textFormat,horizontalAlignment)",
           },
-        },
-        // Top 10 cuerpo: # facturas (col B) número, total (col C) currency
+        })),
+        // Cuerpos de las 3 tablas (PYG 29-43, Categoría 47-61, Top 10 65-75):
+        // # facturas → number, total → currency
         {
           repeatCell: {
-            range: { sheetId, startRowIndex: 28, endRowIndex: 39, startColumnIndex: 1, endColumnIndex: 2 },
+            range: { sheetId, startRowIndex: 28, endRowIndex: 80, startColumnIndex: 1, endColumnIndex: 2 },
             cell: { userEnteredFormat: { numberFormat: { type: "NUMBER", pattern: "#,##0" }, horizontalAlignment: "CENTER" } },
             fields: "userEnteredFormat(numberFormat,horizontalAlignment)",
           },
         },
         {
           repeatCell: {
-            range: { sheetId, startRowIndex: 28, endRowIndex: 39, startColumnIndex: 2, endColumnIndex: 3 },
+            range: { sheetId, startRowIndex: 28, endRowIndex: 80, startColumnIndex: 2, endColumnIndex: 3 },
             cell: { userEnteredFormat: { numberFormat: { type: "CURRENCY", pattern: "\"$\"#,##0" } } },
             fields: "userEnteredFormat.numberFormat",
           },
