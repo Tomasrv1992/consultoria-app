@@ -4,10 +4,10 @@ import { useEffect, useState, useCallback, useMemo } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { useData } from "@/lib/data-context";
-import { MinuteCard } from "@/components/MinuteCard";
+import { MeetingCard } from "@/components/MeetingCard";
 import { ProgressBar } from "@/components/ProgressBar";
 import { AppShell } from "@/components/AppShell";
-import { MiroTask } from "@/lib/types";
+import { Meeting, MiroTask } from "@/lib/types";
 import { CLIENT_METRICS, Metric } from "@/lib/client-metrics";
 import {
   getCachedMiroSnapshot,
@@ -40,7 +40,7 @@ export default function ClientDetailPage() {
   const clientId = params.id as string;
   const router = useRouter();
   const { user, profile, loading } = useAuth();
-  const { getClient, getClientMinutes } = useData();
+  const { getClient } = useData();
 
   const [activeTab, setActiveTab] = useState<Tab>("plan");
   const [expandedModule, setExpandedModule] = useState<string | null>(null);
@@ -49,6 +49,27 @@ export default function ClientDetailPage() {
   const [miroLoading, setMiroLoading] = useState(false);
   const [miroError, setMiroError] = useState<string | null>(null);
   const [miroFetched, setMiroFetched] = useState(false);
+  const [meetings, setMeetings] = useState<Meeting[]>([]);
+  const [meetingsLoading, setMeetingsLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    setMeetingsLoading(true);
+    fetch(`/api/meetings?clientId=${encodeURIComponent(clientId)}`)
+      .then((r) => (r.ok ? r.json() : { meetings: [] }))
+      .then((d) => {
+        if (!cancelled) {
+          setMeetings(d.meetings || []);
+          setMeetingsLoading(false);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setMeetingsLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [clientId]);
 
   const fetchMiroTasksCb = useCallback(async () => {
     const cached = getCachedMiroSnapshot(clientId);
@@ -125,7 +146,6 @@ export default function ClientDetailPage() {
     return null;
   }
 
-  const minutes = getClientMinutes(clientId);
   const metrics = CLIENT_METRICS[clientId];
 
   const tabDefs: { key: Tab; label: string }[] = [
@@ -171,8 +191,17 @@ export default function ClientDetailPage() {
 
         {activeTab === "minutas" && (
           <div className="space-y-3">
-            {minutes.length > 0 ? (
-              minutes.map((m) => <MinuteCard key={m.id} minute={m} />)
+            {meetingsLoading ? (
+              <div className="space-y-3" aria-label="Cargando minutas">
+                {[0, 1, 2].map((i) => (
+                  <div
+                    key={i}
+                    className="bg-surface border border-line rounded-card h-16 shadow-card animate-pulse"
+                  />
+                ))}
+              </div>
+            ) : meetings.length > 0 ? (
+              meetings.map((m) => <MeetingCard key={m.id} meeting={m} />)
             ) : (
               <EmptyState text="Sin minutas registradas" />
             )}

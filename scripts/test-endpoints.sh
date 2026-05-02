@@ -52,5 +52,21 @@ echo "===> Test 10: complete con token pero sin clientId -> 400 (cross-client gu
 STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST "$BASE/api/tasks/$FAKE_TASK/complete?embedToken=$TOKEN")
 [ "$STATUS" = "400" ] && echo "  OK 400" || { echo "  FAIL esperaba 400, recibi $STATUS"; exit 1; }
 
+echo "===> Test 11: GET /api/meetings sin token -> 401"
+STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$BASE/api/meetings?clientId=$CLIENT_ID")
+[ "$STATUS" = "401" ] && echo "  OK 401" || { echo "  FAIL esperaba 401, recibi $STATUS"; exit 1; }
+
+echo "===> Test 12: GET /api/meetings con token -> 200 + array"
+RESP=$(curl -s "$BASE/api/meetings?clientId=$CLIENT_ID&embedToken=$TOKEN")
+echo "$RESP" | grep -q '"meetings":\[' && echo "  OK formato" || { echo "  FAIL formato inesperado: $RESP"; exit 1; }
+
+echo "===> Test 13: POST /api/meetings sin token -> 401"
+STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST "$BASE/api/meetings" -H "Content-Type: application/json" -d '{}')
+[ "$STATUS" = "401" ] && echo "  OK 401" || { echo "  FAIL esperaba 401, recibi $STATUS"; exit 1; }
+
+echo "===> Test 14: PATCH /api/meetings/:id sin auth -> 401"
+STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X PATCH "$BASE/api/meetings/$FAKE_TASK" -H "Content-Type: application/json" -d '{}')
+[ "$STATUS" = "401" ] && echo "  OK 401" || { echo "  FAIL esperaba 401, recibi $STATUS"; exit 1; }
+
 echo
 echo "===> Todos los tests de aceptacion pasaron"
