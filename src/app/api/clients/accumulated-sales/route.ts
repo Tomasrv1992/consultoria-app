@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { checkAuth } from "@/lib/auth-embed";
 
 export const dynamic = "force-dynamic";
 
@@ -7,13 +7,10 @@ export const dynamic = "force-dynamic";
 // La fuente es la env var server-only CLIENT_ACCUMULATED_SALES_JSON,
 // un JSON con forma: {"client-<slug>": <monto>, ...}.
 // Si el cliente no está en el mapa o la env var no existe, retorna null.
-// Requiere sesión autenticada para evitar exposición pública.
+// Acepta tanto sesión Supabase como embedToken (mismo modelo que /api/tasks).
 export async function GET(request: NextRequest) {
-  const supabase = createServerSupabaseClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) {
+  const auth = await checkAuth(request);
+  if (!auth.ok) {
     return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
 

@@ -7,6 +7,8 @@ import { computeProgressFromMiro, miroTotals } from "@/lib/miro-progress";
 import { TaskRow } from "./components/TaskRow";
 import { NewTaskInline } from "./components/NewTaskInline";
 import { DeleteConfirmModal } from "./components/DeleteConfirmModal";
+import { IndicatorsPanel } from "./components/IndicatorsPanel";
+import { CLIENT_METRICS } from "@/lib/client-metrics";
 import {
   completeTask,
   patchTask,
@@ -30,7 +32,7 @@ const PRIORITY_ORDER: Record<string, number> = {
   Baja: 3,
 };
 
-type MainTab = "resumen" | "plan";
+type MainTab = "resumen" | "plan" | "indicadores";
 type ModuleTab = "encurso" | "iniciativa";
 
 const CLIENT_LABEL: Record<string, string> = {
@@ -334,6 +336,19 @@ export function EmbedPlanClient({
           >
             Plan de trabajo
           </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={mainTab === "indicadores"}
+            onClick={() => setMainTab("indicadores")}
+            className={`flex-1 px-3 py-1.5 text-[13px] rounded-chip transition-all ${
+              mainTab === "indicadores"
+                ? "bg-surface text-ink font-semibold shadow-card"
+                : "text-muted hover:text-ink font-medium"
+            }`}
+          >
+            Indicadores
+          </button>
         </nav>
 
         {/* RESUMEN PANEL */}
@@ -511,6 +526,17 @@ export function EmbedPlanClient({
                 )}
               </div>
             )}
+          </section>
+        )}
+
+        {/* INDICADORES PANEL */}
+        {mainTab === "indicadores" && (
+          <section>
+            <IndicatorsPanel
+              metrics={CLIENT_METRICS[clientId]}
+              clientId={clientId}
+              token={token}
+            />
           </section>
         )}
 
