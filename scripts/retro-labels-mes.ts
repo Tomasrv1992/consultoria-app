@@ -69,9 +69,8 @@ async function main() {
 
     // Skip si ya tiene algún label Facturas/*
     const labels = full.data.labelIds || [];
-    const hasMonthLabel = labels.some((id) =>
-      [...existingMonthLabels.values()].includes(id)
-    );
+    const monthLabelIdsSet = new Set(Array.from(existingMonthLabels.values()));
+    const hasMonthLabel = labels.some((id) => monthLabelIdsSet.has(id));
     if (hasMonthLabel) {
       alreadyHadLabel++;
       continue;

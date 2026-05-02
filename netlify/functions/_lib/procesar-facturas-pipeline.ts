@@ -247,8 +247,13 @@ async function markEmailProcessed(gmail: any, messageId: string, labelId: string
 }
 
 /**
- * Aplica un label "Facturas/YYYY-MM" al mensaje (lo crea si no existe).
- * Gmail soporta labels anidados con `/` — quedan agrupados visualmente bajo "Facturas/".
+ * Aplica un label "Facturas/YYYY-MM" al mensaje (lo crea si no existe) Y archiva
+ * el correo (remueve INBOX). Gmail soporta labels anidados con `/` — quedan
+ * agrupados visualmente bajo "Facturas/".
+ *
+ * Razón del archive: si la factura ya está organizada en su carpeta de mes,
+ * no tiene sentido que siga ocupando espacio en la bandeja principal. Sigue
+ * accesible vía el label.
  */
 async function applyMonthLabel(gmail: any, messageId: string, year: number, month: number) {
   const labelName = `Facturas/${year}-${String(month).padStart(2, "0")}`;
@@ -256,7 +261,10 @@ async function applyMonthLabel(gmail: any, messageId: string, year: number, mont
   await gmail.users.messages.modify({
     userId: "me",
     id: messageId,
-    requestBody: { addLabelIds: [labelId] },
+    requestBody: {
+      addLabelIds: [labelId],
+      removeLabelIds: ["INBOX"], // archivar — sale de la bandeja, queda en el label
+    },
   });
 }
 
@@ -485,10 +493,15 @@ async function processOne(
   try {
     extracted = extractZip(zipPath);
   } catch (e: any) {
-    throw new Error("ZIP corrupto: " + e.message);
+    // ZIPs con password / corruptos no son facturas DIAN procesables — skip silencioso
+    // (típicamente: HC clínica, documentos personales, archivos de otra naturaleza)
+    return { skip: true, reason: `zip-no-procesable: ${e.message}`, subject };
   }
   const { pdfPath, xmlPaths } = extracted;
-  if (!xmlPaths.length) throw new Error("ZIP sin XML");
+  if (!xmlPaths.length) {
+    // ZIP sin XML = no es factura electrónica DIAN — skip silencioso (no error)
+    return { skip: true, reason: "zip-sin-xml", subject };
+  }
 
   let data: InvoiceData | null = null;
   for (const x of xmlPaths) {
