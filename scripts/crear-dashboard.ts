@@ -1,12 +1,17 @@
-// One-off: crea pestaña "Dashboard" en el spreadsheet de gastos.
-// Métricas vivas (fórmulas) que se actualizan solas cuando llegan facturas nuevas.
+// Crea/actualiza pestaña "Dashboard" con métricas vivas que agregan entre las
+// 12 pestañas-mes (Enero..Diciembre). Estructura del Sheet por mes:
+//   A=N°, B=Fecha, C=Proveedor, D=NIT, E=N°Factura, F=Subtotal, G=IVA,
+//   H=Total, I=Concepto, J=Link PDF, K=Categoría, L=Cuenta PYG
 //
 // Uso: npx tsx --env-file=.env.local scripts/crear-dashboard.ts
 
 import { google } from "googleapis";
 
 const TAB_NAME = "Dashboard";
-const SOURCE_TAB = "Gastos 2026";
+const MESES = [
+  "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+  "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
+];
 
 async function main() {
   const auth = new google.auth.OAuth2(process.env.GOOGLE_CLIENT_ID, process.env.GOOGLE_CLIENT_SECRET);
@@ -14,7 +19,7 @@ async function main() {
   const sheets = google.sheets({ version: "v4", auth });
   const spreadsheetId = process.env.INVOICES_SHEET_ID!;
 
-  // 1. Crear (o reusar) el tab Dashboard
+  // 1. Crear (o reusar) tab Dashboard
   const meta = await sheets.spreadsheets.get({ spreadsheetId });
   const tabs = meta.data.sheets || [];
   let tab = tabs.find((s) => s.properties?.title === TAB_NAME);
@@ -39,89 +44,75 @@ async function main() {
     tab = { properties: newSheet };
     console.log(`✓ Tab "${TAB_NAME}" creado`);
   } else {
-    console.log(`- Tab "${TAB_NAME}" ya existía, se sobreescribirán contenidos`);
+    console.log(`- Tab "${TAB_NAME}" ya existía, sobrescribiendo`);
   }
   const sheetId = tab.properties!.sheetId!;
 
-  const src = `'${SOURCE_TAB}'`;
+  // Helpers para fórmulas
+  // Suma de col H (Total) entre todas las pestañas-mes
+  const sumAllMonths = (col: string) => MESES.map((m) => `SUM('${m}'!${col}:${col})`).join("+");
+  // Count de col A (N°) entre todas las pestañas-mes
+  const countAllMonths = (col: string) =>
+    MESES.map((m) => `COUNTA('${m}'!${col}2:${col})`).join("+");
+  // Vstack para QUERY: { Enero!A2:L; Febrero!A2:L; ... } — separador es-CO usa `;` para
+  // arrays verticales y `\` para arrays horizontales.
+  const vstackData = `{${MESES.map((m) => `'${m}'!A2:L`).join(";")}}`;
 
-  // 2. Construir contenido (fórmulas vivas)
-  const months = [
-    ["2026-01", "Enero",   1],
-    ["2026-02", "Febrero", 2],
-    ["2026-03", "Marzo",   3],
-    ["2026-04", "Abril",   4],
-    ["2026-05", "Mayo",    5],
-    ["2026-06", "Junio",   6],
-    ["2026-07", "Julio",   7],
-    ["2026-08", "Agosto",  8],
-    ["2026-09", "Septiembre", 9],
-    ["2026-10", "Octubre", 10],
-    ["2026-11", "Noviembre", 11],
-    ["2026-12", "Diciembre", 12],
-  ];
+  // Filas del Sheet
+  const monthRows = MESES.map((m) => [
+    m,
+    `=COUNTA('${m}'!A2:A)`,
+    `=SUM('${m}'!F:F)`,
+    `=SUM('${m}'!G:G)`,
+    `=SUM('${m}'!H:H)`,
+  ]);
 
-  // ⚠️ Locale es-CO usa `;` como separador de argumentos en vez de `,`.
-  const monthRows = months.map(([code, name, m]) => {
-    const start = `DATE(2026;${m};1)`;
-    const end = `EOMONTH(DATE(2026;${m};1);0)`;
-    return [
-      name as string,
-      `=COUNTIFS(${src}!A:A;">="&${start};${src}!A:A;"<="&${end})`,
-      `=SUMIFS(${src}!E:E;${src}!A:A;">="&${start};${src}!A:A;"<="&${end})`,
-      `=SUMIFS(${src}!F:F;${src}!A:A;">="&${start};${src}!A:A;"<="&${end})`,
-      `=SUMIFS(${src}!G:G;${src}!A:A;">="&${start};${src}!A:A;"<="&${end})`,
-    ];
-  });
-
-  // Filas del Sheet — todas explícitas para mantener layout legible
   const rows: any[][] = [
-    ["DASHBOARD GASTOS 2026", "", "", "", ""],                                                                  // 1
-    ["Actualizado en vivo desde el tab \"Gastos 2026\"", "", "", "", ""],                                        // 2
-    ["", "", "", "", ""],                                                                                          // 3
-    ["📊 KPIs Anuales", "", "", "", ""],                                                                          // 4
-    ["Total facturas",       `=COUNTA(${src}!B2:B)`, "", "", ""],                                                 // 5
-    ["Total gastado",        `=SUM(${src}!G:G)`, "", "", ""],                                                      // 6
-    ["Promedio por factura", `=IFERROR(AVERAGE(${src}!G2:G);0)`, "", "", ""],                                      // 7
-    ["IVA acumulado",        `=SUM(${src}!F:F)`, "", "", ""],                                                      // 8
-    ["Subtotal acumulado",   `=SUM(${src}!E:E)`, "", "", ""],                                                      // 9
-    ["", "", "", "", ""],                                                                                          // 10
-    ["📅 Gastos por mes", "", "", "", ""],                                                                         // 11
-    ["Mes", "# Facturas", "Subtotal", "IVA", "Total"],                                                             // 12 — headers
-    ...monthRows,                                                                                                  // 13-24
-    ["TOTAL", `=SUM(B13:B24)`, `=SUM(C13:C24)`, `=SUM(D13:D24)`, `=SUM(E13:E24)`],                                // 25
-    ["", "", "", "", ""],                                                                                          // 26
-    ["💼 Por Cuenta PYG (PUC)", "", "", "", ""],                                                                   // 27 — sección para contador
-    ["Cuenta PYG", "# Facturas", "Total", "", ""],                                                                 // 28 — headers
-    // 29-43: query PYG (15 filas — caben hasta 15 cuentas distintas)
-    [`=IFERROR(QUERY(${src}!A:K;"select K, count(K), sum(G) where K is not null and K<>'' and K<>'Cuenta PYG' group by K order by sum(G) desc label K '', count(K) '', sum(G) ''";1);"sin datos")`, "", "", "", ""],
-    ...Array(14).fill(["", "", "", "", ""]),                                                                       // 30-43 (espacio para que QUERY expanda)
-    ["", "", "", "", ""],                                                                                          // 44 — gap
-    ["🏷️ Por Categoría", "", "", "", ""],                                                                          // 45
-    ["Categoría", "# Facturas", "Total", "", ""],                                                                  // 46 — headers
-    [`=IFERROR(QUERY(${src}!A:K;"select J, count(J), sum(G) where J is not null and J<>'' and J<>'Categoría' group by J order by sum(G) desc label J '', count(J) '', sum(G) ''";1);"sin datos")`, "", "", "", ""], // 47
-    ...Array(14).fill(["", "", "", "", ""]),                                                                       // 48-61
-    ["", "", "", "", ""],                                                                                          // 62
-    ["🏆 Top 10 proveedores", "", "", "", ""],                                                                    // 63
-    ["Proveedor", "# Facturas", "Total", "", ""],                                                                  // 64
-    [`=IFERROR(QUERY(${src}!B:G;"select B, count(B), sum(G) where B is not null and B<>'Proveedor' group by B order by sum(G) desc limit 10 label B '', count(B) '', sum(G) ''";0);"sin datos")`, "", "", "", ""], // 65
+    ["DASHBOARD GASTOS 2026", "", "", "", ""],                                                    // 1
+    ["Actualizado en vivo desde las 12 pestañas mensuales", "", "", "", ""],                       // 2
+    ["", "", "", "", ""],                                                                            // 3
+    ["📊 KPIs Anuales", "", "", "", ""],                                                            // 4
+    ["Total facturas",       `=${countAllMonths("A")}`, "", "", ""],                                // 5
+    ["Total gastado",        `=${sumAllMonths("H")}`, "", "", ""],                                  // 6
+    ["Promedio por factura", `=IFERROR(B6/B5;0)`, "", "", ""],                                       // 7
+    ["IVA acumulado",        `=${sumAllMonths("G")}`, "", "", ""],                                   // 8
+    ["Subtotal acumulado",   `=${sumAllMonths("F")}`, "", "", ""],                                   // 9
+    ["", "", "", "", ""],                                                                            // 10
+    ["📅 Gastos por mes", "", "", "", ""],                                                          // 11
+    ["Mes", "# Facturas", "Subtotal", "IVA", "Total"],                                              // 12
+    ...monthRows,                                                                                    // 13-24
+    ["TOTAL", `=SUM(B13:B24)`, `=SUM(C13:C24)`, `=SUM(D13:D24)`, `=SUM(E13:E24)`],                  // 25
+    ["", "", "", "", ""],                                                                            // 26
+    ["💼 Por Cuenta PYG (PUC)", "", "", "", ""],                                                    // 27
+    ["Cuenta PYG", "# Facturas", "Total", "", ""],                                                  // 28
+    [`=IFERROR(QUERY(${vstackData};"select Col12, count(Col12), sum(Col8) where Col12 is not null and Col12<>'' group by Col12 order by sum(Col8) desc label Col12 '', count(Col12) '', sum(Col8) ''";0);"sin datos")`, "", "", "", ""],
+    ...Array(14).fill(["", "", "", "", ""]),                                                         // 30-43
+    ["", "", "", "", ""],                                                                            // 44
+    ["🏷️ Por Categoría", "", "", "", ""],                                                           // 45
+    ["Categoría", "# Facturas", "Total", "", ""],                                                   // 46
+    [`=IFERROR(QUERY(${vstackData};"select Col11, count(Col11), sum(Col8) where Col11 is not null and Col11<>'' group by Col11 order by sum(Col8) desc label Col11 '', count(Col11) '', sum(Col8) ''";0);"sin datos")`, "", "", "", ""],
+    ...Array(14).fill(["", "", "", "", ""]),                                                         // 48-61
+    ["", "", "", "", ""],                                                                            // 62
+    ["🏆 Top 10 proveedores", "", "", "", ""],                                                     // 63
+    ["Proveedor", "# Facturas", "Total", "", ""],                                                   // 64
+    [`=IFERROR(QUERY(${vstackData};"select Col3, count(Col3), sum(Col8) where Col3 is not null and Col3<>'' group by Col3 order by sum(Col8) desc limit 10 label Col3 '', count(Col3) '', sum(Col8) ''";0);"sin datos")`, "", "", "", ""],
   ];
 
-  // 3. Escribir todo de una vez
+  // 3. Escribir
   await sheets.spreadsheets.values.update({
     spreadsheetId,
     range: `'${TAB_NAME}'!A1`,
     valueInputOption: "USER_ENTERED",
     requestBody: { values: rows },
   });
-  console.log(`✓ ${rows.length} filas de contenido escritas`);
+  console.log(`✓ ${rows.length} filas escritas`);
 
-  // 4. Formato visual
+  // 4. Formato (igual al previo, ajustado a las nuevas posiciones)
   await sheets.spreadsheets.batchUpdate({
     spreadsheetId,
     requestBody: {
       requests: [
-        // Título principal (fila 1) — merged + bold + grande + fondo azul
+        // Título
         {
           mergeCells: {
             range: { sheetId, startRowIndex: 0, endRowIndex: 1, startColumnIndex: 0, endColumnIndex: 5 },
@@ -142,7 +133,7 @@ async function main() {
             fields: "userEnteredFormat(backgroundColor,textFormat,horizontalAlignment,verticalAlignment)",
           },
         },
-        // Subtítulo fila 2 — italic gris
+        // Subtítulo
         {
           mergeCells: {
             range: { sheetId, startRowIndex: 1, endRowIndex: 2, startColumnIndex: 0, endColumnIndex: 5 },
@@ -161,7 +152,7 @@ async function main() {
             fields: "userEnteredFormat(textFormat,horizontalAlignment)",
           },
         },
-        // Sección headers (filas 4, 11, 27, 45, 63) — bold + fondo gris claro
+        // Sección headers
         ...[3, 10, 26, 44, 62].map((row) => ({
           repeatCell: {
             range: { sheetId, startRowIndex: row, endRowIndex: row + 1, startColumnIndex: 0, endColumnIndex: 5 },
@@ -174,7 +165,7 @@ async function main() {
             fields: "userEnteredFormat(backgroundColor,textFormat)",
           },
         })),
-        // KPIs labels (filas 5-9 col A) — bold
+        // KPIs labels
         {
           repeatCell: {
             range: { sheetId, startRowIndex: 4, endRowIndex: 9, startColumnIndex: 0, endColumnIndex: 1 },
@@ -182,7 +173,7 @@ async function main() {
             fields: "userEnteredFormat.textFormat",
           },
         },
-        // KPIs values (filas 5-9 col B) — currency excepto fila 5
+        // KPIs values currency
         {
           repeatCell: {
             range: { sheetId, startRowIndex: 5, endRowIndex: 9, startColumnIndex: 1, endColumnIndex: 2 },
@@ -195,7 +186,7 @@ async function main() {
             fields: "userEnteredFormat(numberFormat,textFormat)",
           },
         },
-        // Total facturas (fila 5 col B) — número entero, no currency
+        // Total facturas (entero)
         {
           repeatCell: {
             range: { sheetId, startRowIndex: 4, endRowIndex: 5, startColumnIndex: 1, endColumnIndex: 2 },
@@ -208,7 +199,7 @@ async function main() {
             fields: "userEnteredFormat(numberFormat,textFormat)",
           },
         },
-        // Headers tabla mensual (fila 12) — bold + fondo
+        // Headers tabla mensual
         {
           repeatCell: {
             range: { sheetId, startRowIndex: 11, endRowIndex: 12, startColumnIndex: 0, endColumnIndex: 5 },
@@ -222,7 +213,7 @@ async function main() {
             fields: "userEnteredFormat(backgroundColor,textFormat,horizontalAlignment)",
           },
         },
-        // Tabla mensual: # facturas → number, montos → currency
+        // Tabla mensual: # facturas number, montos currency
         {
           repeatCell: {
             range: { sheetId, startRowIndex: 12, endRowIndex: 25, startColumnIndex: 1, endColumnIndex: 2 },
@@ -237,7 +228,7 @@ async function main() {
             fields: "userEnteredFormat.numberFormat",
           },
         },
-        // Fila TOTAL (fila 25) — bold + fondo destacado
+        // Fila TOTAL destacada
         {
           repeatCell: {
             range: { sheetId, startRowIndex: 24, endRowIndex: 25, startColumnIndex: 0, endColumnIndex: 5 },
@@ -250,7 +241,7 @@ async function main() {
             fields: "userEnteredFormat(backgroundColor,textFormat)",
           },
         },
-        // Headers de tablas (filas 28: Cuenta PYG, 46: Categoría, 64: Top 10)
+        // Headers de las 3 tablas QUERY
         ...[27, 45, 63].map((row) => ({
           repeatCell: {
             range: { sheetId, startRowIndex: row, endRowIndex: row + 1, startColumnIndex: 0, endColumnIndex: 3 },
@@ -264,8 +255,7 @@ async function main() {
             fields: "userEnteredFormat(backgroundColor,textFormat,horizontalAlignment)",
           },
         })),
-        // Cuerpos de las 3 tablas (PYG 29-43, Categoría 47-61, Top 10 65-75):
-        // # facturas → number, total → currency
+        // Cuerpos QUERY: # facturas number, total currency
         {
           repeatCell: {
             range: { sheetId, startRowIndex: 28, endRowIndex: 80, startColumnIndex: 1, endColumnIndex: 2 },
@@ -280,7 +270,7 @@ async function main() {
             fields: "userEnteredFormat.numberFormat",
           },
         },
-        // Anchos de columnas
+        // Anchos
         {
           updateDimensionProperties: {
             range: { sheetId, dimension: "COLUMNS", startIndex: 0, endIndex: 1 },
@@ -295,7 +285,7 @@ async function main() {
             fields: "pixelSize",
           },
         },
-        // Alto de la fila título
+        // Alto título
         {
           updateDimensionProperties: {
             range: { sheetId, dimension: "ROWS", startIndex: 0, endIndex: 1 },
@@ -311,7 +301,4 @@ async function main() {
   console.log(`\n✅ Dashboard listo: https://docs.google.com/spreadsheets/d/${spreadsheetId}/edit#gid=${sheetId}`);
 }
 
-main().catch((e) => {
-  console.error("ERROR:", e.message);
-  process.exit(1);
-});
+main().catch((e) => { console.error("ERROR:", e.message, e.stack); process.exit(1); });
