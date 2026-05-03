@@ -68,5 +68,25 @@ echo "===> Test 14: PATCH /api/meetings/:id sin auth -> 401"
 STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X PATCH "$BASE/api/meetings/$FAKE_TASK" -H "Content-Type: application/json" -d '{}')
 [ "$STATUS" = "401" ] && echo "  OK 401" || { echo "  FAIL esperaba 401, recibi $STATUS"; exit 1; }
 
+echo "===> Test 15: GET /api/fathom/transcript sin token -> 401"
+STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$BASE/api/fathom/transcript?clientId=$CLIENT_ID")
+[ "$STATUS" = "401" ] && echo "  OK 401" || { echo "  FAIL esperaba 401, recibi $STATUS"; exit 1; }
+
+echo "===> Test 16: GET /api/fathom/transcript con token sin clientId -> 400"
+STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$BASE/api/fathom/transcript?embedToken=$TOKEN")
+[ "$STATUS" = "400" ] && echo "  OK 400" || { echo "  FAIL esperaba 400, recibi $STATUS"; exit 1; }
+
+echo "===> Test 17: GET /api/fathom/transcript con token + clientId -> 200 + array"
+RESP=$(curl -s "$BASE/api/fathom/transcript?clientId=$CLIENT_ID&embedToken=$TOKEN")
+echo "$RESP" | grep -q '"transcripts":\[' && echo "  OK formato" || { echo "  FAIL formato inesperado: $RESP"; exit 1; }
+
+echo "===> Test 18: PATCH /api/fathom/mark-processed sin auth -> 401"
+STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X PATCH "$BASE/api/fathom/mark-processed" -H "Content-Type: application/json" -d '{}')
+[ "$STATUS" = "401" ] && echo "  OK 401" || { echo "  FAIL esperaba 401, recibi $STATUS"; exit 1; }
+
+echo "===> Test 19: PATCH /api/fathom/mark-processed con token sin body -> 400"
+STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X PATCH "$BASE/api/fathom/mark-processed?embedToken=$TOKEN" -H "Content-Type: application/json" -d '{}')
+[ "$STATUS" = "400" ] && echo "  OK 400" || { echo "  FAIL esperaba 400, recibi $STATUS"; exit 1; }
+
 echo
 echo "===> Todos los tests de aceptacion pasaron"

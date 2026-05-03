@@ -14,6 +14,13 @@ import path from "node:path";
 import { google } from "googleapis";
 import AdmZip from "adm-zip";
 import { XMLParser } from "fast-xml-parser";
+import {
+  getOrCreateLabel,
+  findEmailsByQuery,
+  getMessageFull,
+  getHeader,
+  markEmailProcessed,
+} from "./gmail-shared.js";
 
 // ===== Tipos =====
 
@@ -162,7 +169,7 @@ export async function run(cfg: PipelineConfig): Promise<PipelineResult> {
 
   const labelId = await getOrCreateLabel(gmail, PROCESSED_LABEL);
 
-  let emails = await findInvoiceEmails(gmail, searchQuery);
+  let emails = await findEmailsByQuery(gmail, searchQuery);
   if (limit != null && limit > 0) emails = emails.slice(0, limit);
 
   if (dryRun) {
@@ -327,43 +334,7 @@ async function getOrCreateMonthTab(sheets: any, sheetId: string, month: number):
   return tabName;
 }
 
-// ===== Gmail helpers =====
-
-async function getOrCreateLabel(gmail: any, name: string): Promise<string> {
-  const list = await gmail.users.labels.list({ userId: "me" });
-  const found = list.data.labels?.find((l: any) => l.name === name);
-  if (found) return found.id;
-  const created = await gmail.users.labels.create({
-    userId: "me",
-    requestBody: { name, labelListVisibility: "labelShow", messageListVisibility: "show" },
-  });
-  return created.data.id;
-}
-
-async function findInvoiceEmails(gmail: any, query: string) {
-  const out: any[] = [];
-  let pageToken: string | undefined;
-  do {
-    const res = await gmail.users.messages.list({
-      userId: "me",
-      q: query,
-      maxResults: 100,
-      pageToken,
-    });
-    if (res.data.messages) out.push(...res.data.messages);
-    pageToken = res.data.nextPageToken ?? undefined;
-  } while (pageToken);
-  return out;
-}
-
-async function getMessageFull(gmail: any, messageId: string) {
-  const res = await gmail.users.messages.get({ userId: "me", id: messageId, format: "full" });
-  return res.data;
-}
-
-function getHeader(msg: any, name: string): string | null {
-  return msg.payload?.headers?.find((h: any) => h.name.toLowerCase() === name.toLowerCase())?.value ?? null;
-}
+// ===== Gmail helpers (genéricos en _lib/gmail-shared.ts) =====
 
 function findZipParts(payload: any) {
   const out: Array<{ filename: string; attachmentId: string }> = [];
@@ -404,14 +375,6 @@ async function downloadAttachment(gmail: any, messageId: string, attachmentId: s
   const tmpPath = path.join(os.tmpdir(), `factura-${Date.now()}-${safeName}`);
   fs.writeFileSync(tmpPath, buf);
   return tmpPath;
-}
-
-async function markEmailProcessed(gmail: any, messageId: string, labelId: string) {
-  await gmail.users.messages.modify({
-    userId: "me",
-    id: messageId,
-    requestBody: { addLabelIds: [labelId] },
-  });
 }
 
 /**
