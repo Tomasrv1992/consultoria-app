@@ -12,8 +12,7 @@ const MESES = [
   "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
 ];
 
-function buildFileBaseName(month: number, n: number, proveedor: string, subIdx?: number): string {
-  const mesName = MESES[month - 1] ?? `Mes${month}`;
+function buildFileBaseName(n: number, proveedor: string, subIdx?: number): string {
   const N = subIdx != null ? `${n}.${subIdx}` : `${n}`;
   const provClean = String(proveedor || "Sin Proveedor")
     .toLowerCase()
@@ -21,7 +20,7 @@ function buildFileBaseName(month: number, n: number, proveedor: string, subIdx?:
     .replace(/[\\/:*?"<>|]/g, "-")
     .slice(0, 60)
     .trim();
-  return `${mesName} ${N}. ${provClean}`;
+  return `${N}. ${provClean}`;
 }
 
 async function main() {
@@ -105,19 +104,20 @@ async function main() {
 
       const folderFiles = filesByFolder.get(folderIdFound)!;
       const pdfFile = folderFiles.get(pdfId)!;
-      // Buscar XMLs hermanos: tienen el patrón "{N}.{idx}.xml" actualmente, o ya el nuevo formato
+      // Buscar XMLs hermanos: aceptamos varios patrones legacy.
       const xmlSiblings = Array.from(folderFiles.values()).filter((f) => {
         const name = String(f.name ?? "");
         if (!/\.xml$/i.test(name)) return false;
-        // Patrón actual: "{N}.{idx}.xml" — empieza con "{N}."
-        // O patrón nuevo: "{Mes} {N}.{idx}. ..." — empieza con "{monthName} {N}."
-        return name.startsWith(`${N}.`) || name.startsWith(`${monthName} ${N}.`);
+        // Patrón v1 ("{N}.{idx}.xml"), v2 ("{Mes} {N}.{idx}. ...xml"), o v3 nuevo ("{N}.{idx}. ...xml")
+        return (
+          name.startsWith(`${N}.`) ||
+          name.startsWith(`${monthName} ${N}.`)
+        );
       });
-      // Sort por sub-índice para preservar orden
       xmlSiblings.sort((a, b) => String(a.name).localeCompare(String(b.name)));
 
-      // Rename PDF
-      const newPdfName = `${buildFileBaseName(m, N, proveedor)}.pdf`;
+      // Rename PDF — sin mes en el filename (mes ya está en la carpeta padre)
+      const newPdfName = `${buildFileBaseName(N, proveedor)}.pdf`;
       try {
         if (pdfFile.name !== newPdfName) {
           await drive.files.update({ fileId: pdfId, requestBody: { name: newPdfName } });
@@ -128,7 +128,7 @@ async function main() {
 
       // Rename XMLs
       for (let j = 0; j < xmlSiblings.length; j++) {
-        const newXmlName = `${buildFileBaseName(m, N, proveedor, j + 1)}.xml`;
+        const newXmlName = `${buildFileBaseName(N, proveedor, j + 1)}.xml`;
         try {
           if (xmlSiblings[j].name !== newXmlName) {
             await drive.files.update({ fileId: xmlSiblings[j].id, requestBody: { name: newXmlName } });
