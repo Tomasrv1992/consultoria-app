@@ -1,6 +1,11 @@
 -- Migración: tabla `meetings` para persistir minutas post-reunión
 -- y la relación con tareas creadas/completadas/actualizadas en esa reunión.
 -- Spec: docs/superpowers/specs/2026-05-02-procesar-reunion-flow-design.md
+--
+-- RLS: mismo patrón que `tasks` (migración 001). La tabla `profiles`
+-- todavía no existe, así que las policies no la referencian. Defensa
+-- en profundidad: SELECT abierto a anon (la API valida con embedToken),
+-- writes solo authenticated (la API usa service_role para bypassear).
 
 CREATE TABLE meetings (
   id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -31,30 +36,21 @@ CREATE INDEX idx_meetings_pending_sync
 
 ALTER TABLE meetings ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY meetings_select_own ON meetings FOR SELECT
-  USING (
-    auth.role() = 'service_role'
-    OR EXISTS (
-      SELECT 1 FROM profiles p
-      WHERE p.id = auth.uid()
-        AND (p.role = 'consultant' OR p.client_id::text = meetings.client_id)
-    )
-  );
+-- SELECT abierto a anon (los GET de la API validan embedToken antes de consultar).
+CREATE POLICY meetings_select_anon ON meetings
+  FOR SELECT
+  TO anon, authenticated
+  USING (true);
 
-CREATE POLICY meetings_insert_consultant ON meetings FOR INSERT
-  WITH CHECK (
-    auth.role() = 'service_role'
-    OR EXISTS (
-      SELECT 1 FROM profiles p
-      WHERE p.id = auth.uid() AND p.role = 'consultant'
-    )
-  );
+-- Writes: solo usuarios autenticados. La API usa service_role para bypassear
+-- cuando el caller llega vía embedToken.
+CREATE POLICY meetings_insert_authenticated ON meetings
+  FOR INSERT
+  TO authenticated
+  WITH CHECK (true);
 
-CREATE POLICY meetings_update_consultant ON meetings FOR UPDATE
-  USING (
-    auth.role() = 'service_role'
-    OR EXISTS (
-      SELECT 1 FROM profiles p
-      WHERE p.id = auth.uid() AND p.role = 'consultant'
-    )
-  );
+CREATE POLICY meetings_update_authenticated ON meetings
+  FOR UPDATE
+  TO authenticated
+  USING (true)
+  WITH CHECK (true);
