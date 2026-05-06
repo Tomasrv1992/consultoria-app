@@ -1,13 +1,14 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { MiroTask } from "@/lib/types";
+import { MiroTask, Meeting } from "@/lib/types";
 import { HistoricalCounts, EMPTY_HISTORICAL } from "@/lib/miro-historico";
 import { computeProgressFromMiro, miroTotals } from "@/lib/miro-progress";
 import { TaskRow } from "./components/TaskRow";
 import { NewTaskInline } from "./components/NewTaskInline";
 import { DeleteConfirmModal } from "./components/DeleteConfirmModal";
 import { IndicatorsPanel } from "./components/IndicatorsPanel";
+import { MeetingCard } from "@/components/MeetingCard";
 import { CLIENT_METRICS } from "@/lib/client-metrics";
 import {
   completeTask,
@@ -32,7 +33,7 @@ const PRIORITY_ORDER: Record<string, number> = {
   Baja: 3,
 };
 
-type MainTab = "resumen" | "plan" | "indicadores";
+type MainTab = "resumen" | "plan" | "indicadores" | "minutas";
 type ModuleTab = "encurso" | "iniciativa";
 
 const CLIENT_LABEL: Record<string, string> = {
@@ -63,6 +64,8 @@ export function EmbedPlanClient({
   const [deleting, setDeleting] = useState(false);
   const [mainTab, setMainTab] = useState<MainTab>("resumen");
   const [moduleTabs, setModuleTabs] = useState<Record<string, ModuleTab>>({});
+  const [meetings, setMeetings] = useState<Meeting[]>([]);
+  const [meetingsLoading, setMeetingsLoading] = useState(true);
 
   const apiOpts = useMemo(() => ({ token, clientId }), [token, clientId]);
   const cancelledRef = useRef(false);
@@ -107,6 +110,27 @@ export function EmbedPlanClient({
   useEffect(() => {
     refreshResponsables();
   }, [refreshResponsables]);
+
+  useEffect(() => {
+    let cancelled = false;
+    setMeetingsLoading(true);
+    fetch(
+      `/api/meetings?clientId=${encodeURIComponent(clientId)}&embedToken=${encodeURIComponent(token)}`
+    )
+      .then((r) => (r.ok ? r.json() : { meetings: [] }))
+      .then((d: { meetings?: Meeting[] }) => {
+        if (!cancelled) setMeetings(d.meetings || []);
+      })
+      .catch(() => {
+        if (!cancelled) setMeetings([]);
+      })
+      .finally(() => {
+        if (!cancelled) setMeetingsLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [clientId, token]);
 
   function setPending(id: string, pending: boolean) {
     setPendingTaskIds((prev) => {
@@ -168,6 +192,23 @@ export function EmbedPlanClient({
     try {
       await patchTask(taskId, { responsable }, apiOpts);
       await refreshResponsables();
+      await fetchTasks();
+    } catch (err) {
+      setActionError((err as Error).message);
+      if (original) setTasks((prev) => prev.map((t) => (t.id === taskId ? original : t)));
+    } finally {
+      setPending(taskId, false);
+    }
+  }
+
+  async function handleChangeTitulo(taskId: string, titulo: string) {
+    setPending(taskId, true);
+    const original = tasks.find((t) => t.id === taskId);
+    setTasks((prev) =>
+      prev.map((t) => (t.id === taskId ? { ...t, titulo } : t))
+    );
+    try {
+      await patchTask(taskId, { titulo }, apiOpts);
       await fetchTasks();
     } catch (err) {
       setActionError((err as Error).message);
@@ -349,6 +390,19 @@ export function EmbedPlanClient({
           >
             Indicadores
           </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={mainTab === "minutas"}
+            onClick={() => setMainTab("minutas")}
+            className={`flex-1 px-3 py-1.5 text-[13px] rounded-chip transition-all ${
+              mainTab === "minutas"
+                ? "bg-surface text-ink font-semibold shadow-card"
+                : "text-muted hover:text-ink font-medium"
+            }`}
+          >
+            Minutas
+          </button>
         </nav>
 
         {/* RESUMEN PANEL */}
@@ -503,6 +557,7 @@ export function EmbedPlanClient({
                               onComplete={() => t.id && handleComplete(t.id)}
                               onChangeEstado={(e) => t.id && handleChangeEstado(t.id, e)}
                               onChangeResponsable={(r) => t.id && handleChangeResponsable(t.id, r)}
+                              onChangeTitulo={(titulo) => t.id && handleChangeTitulo(t.id, titulo)}
                               onDeleteRequest={() => setConfirmDelete(t)}
                             />
                           ))}
@@ -537,6 +592,37 @@ export function EmbedPlanClient({
               clientId={clientId}
               token={token}
             />
+          </section>
+        )}
+
+        {/* MINUTAS PANEL */}
+        {mainTab === "minutas" && (
+          <section>
+            {meetingsLoading ? (
+              <div className="space-y-3">
+                {[0, 1].map((i) => (
+                  <div
+                    key={i}
+                    className="bg-surface border border-line rounded-card h-[68px] shadow-card animate-pulse"
+                  />
+                ))}
+              </div>
+            ) : meetings.length === 0 ? (
+              <div className="bg-surface border border-line rounded-card p-6 text-center shadow-card">
+                <p className="text-[14px] font-semibold text-ink">
+                  Sin minutas todavía
+                </p>
+                <p className="text-[12px] text-muted mt-1">
+                  Las minutas aparecen acá después de procesar cada reunión.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {meetings.map((m) => (
+                  <MeetingCard key={m.id} meeting={m} />
+                ))}
+              </div>
+            )}
           </section>
         )}
 

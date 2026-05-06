@@ -29,7 +29,11 @@ export async function completeTask(
 
 export async function patchTask(
   taskId: string,
-  patch: { estado?: string; responsable?: string | null },
+  patch: {
+    estado?: string;
+    responsable?: string | null;
+    titulo?: string;
+  },
   opts: ApiOptions
 ): Promise<void> {
   const url = `${API_BASE}/${encodeURIComponent(taskId)}?${tokenAndClient(opts)}`;
