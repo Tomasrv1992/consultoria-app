@@ -18,6 +18,7 @@ export const CLIENT_METRICS: Record<string, Metric[]> = {
         { month: "Ene", value: 56417000 },
         { month: "Feb", value: 59975940 },
         { month: "Mar", value: 56384050 },
+        { month: "Abr", value: 51681511 },
       ],
     },
     {
@@ -28,6 +29,7 @@ export const CLIENT_METRICS: Record<string, Metric[]> = {
         { month: "Ene", value: 57 },
         { month: "Feb", value: 61 },
         { month: "Mar", value: 68 },
+        { month: "Abr", value: 63 },
       ],
     },
     {
@@ -38,6 +40,7 @@ export const CLIENT_METRICS: Record<string, Metric[]> = {
         { month: "Ene", value: 68 },
         { month: "Feb", value: 71 },
         { month: "Mar", value: 79 },
+        { month: "Abr", value: 62 },
       ],
     },
     {
@@ -48,6 +51,7 @@ export const CLIENT_METRICS: Record<string, Metric[]> = {
         { month: "Ene", value: 121 },
         { month: "Feb", value: 145 },
         { month: "Mar", value: 120 },
+        { month: "Abr", value: 99 },
       ],
     },
     {
@@ -58,6 +62,7 @@ export const CLIENT_METRICS: Record<string, Metric[]> = {
         { month: "Ene", value: 28 },
         { month: "Feb", value: 28 },
         { month: "Mar", value: 21 },
+        { month: "Abr", value: 13 },
       ],
       threshold: { max: 25 },
     },
@@ -89,6 +94,7 @@ export const CLIENT_METRICS: Record<string, Metric[]> = {
         { month: "Ene", value: 166428820 },
         { month: "Feb", value: 202189183 },
         { month: "Mar", value: 216502174 },
+        { month: "Abr", value: 202595124 },
       ],
     },
     {
@@ -99,6 +105,7 @@ export const CLIENT_METRICS: Record<string, Metric[]> = {
         { month: "Ene", value: 978 },
         { month: "Feb", value: 1075 },
         { month: "Mar", value: 1052 },
+        { month: "Abr", value: 1018 },
       ],
     },
     {
@@ -109,6 +116,7 @@ export const CLIENT_METRICS: Record<string, Metric[]> = {
         { month: "Ene", value: 166 },
         { month: "Feb", value: 124 },
         { month: "Mar", value: 127 },
+        { month: "Abr", value: 90 },
       ],
     },
     {
@@ -119,6 +127,7 @@ export const CLIENT_METRICS: Record<string, Metric[]> = {
         { month: "Ene", value: 107173 },
         { month: "Feb", value: 188083 },
         { month: "Mar", value: 205801 },
+        { month: "Abr", value: 199013 },
       ],
     },
   ],
