@@ -41,6 +41,11 @@ export default async (req: Request) => {
   );
 };
 
-export const config: Config = {
-  schedule: "0 12 * * *", // 7am Bogotá (UTC-5). Cron es UTC.
-};
+// DESACTIVADO 2026-05-08: el cron de facturación migró a equipodegentes-cron
+// (sitio dedicado con multi-tenant). Esta function queda en el repo por si
+// alguna vez necesitamos invocarla manual, pero ya no corre en automático.
+// Si querés reactivarlo: descomentá el bloque y push.
+//
+// export const config: Config = {
+//   schedule: "0 12 * * *", // 7am Bogotá (UTC-5). Cron es UTC.
+// };
