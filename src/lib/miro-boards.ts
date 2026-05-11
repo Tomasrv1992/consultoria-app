@@ -42,4 +42,8 @@ export const MIRO_BOARDS: Record<string, MiroBoard> = {
     completadaOptionId: "completada",
     historicoDocId: "3458764668106891278",
   },
+  "client-operatto": {
+    boardId: "uXjVHZAFHOU=",
+    widgetId: "",
+  },
 };

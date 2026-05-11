@@ -36,6 +36,13 @@ export const MOCK_USERS: Record<string, UserProfile> = {
     full_name: "Lativo",
     client_id: "c5",
   },
+  "operatto@equipodegentes.co": {
+    id: "user-operatto",
+    email: "operatto@equipodegentes.co",
+    role: "client",
+    full_name: "Operatto",
+    client_id: "client-operatto",
+  },
 };
 
 export const MOCK_PASSWORDS: Record<string, string> = {
@@ -98,6 +105,17 @@ export const MOCK_CLIENTS: Client[] = [
     contact_email: "cliente@lativo.co",
     created_at: "2026-04-13",
     proxima_reunion: "2026-04-15",
+  },
+  {
+    id: "client-operatto",
+    name: "Operatto",
+    industry: "Producto propio",
+    brand: "estrategia",
+    color: "#0D7C5F",
+    health: "green",
+    contact_name: "Tomás",
+    contact_email: "operatto@equipodegentes.co",
+    created_at: "2026-05-11",
   },
 ];
 

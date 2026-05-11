@@ -11,6 +11,7 @@ const CLIENT_NAMES: Record<string, string> = {
   "client-acautos": "AC Autos",
   "client-paulina": "Paulina Zarrabe",
   c5: "Lativo",
+  "client-operatto": "Operatto",
 };
 
 export default function Image({ params }: { params: { clientId: string } }) {

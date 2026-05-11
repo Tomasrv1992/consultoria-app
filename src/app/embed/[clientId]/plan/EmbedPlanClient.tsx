@@ -42,6 +42,7 @@ const CLIENT_LABEL: Record<string, string> = {
   "client-acautos": "AC Autos",
   "client-paulina": "Paulina Zarrabe",
   c5: "Lativo",
+  "client-operatto": "Operatto",
 };
 
 export function EmbedPlanClient({

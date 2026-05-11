@@ -14,6 +14,7 @@ export const FATHOM_CLIENT_ALIASES: Record<string, string[]> = {
   "client-acautos": ["AC Autos", "ac autos", "AcAutos", "Mateo Mejía", "Mateo Mejia"],
   "client-dentilandia": ["Dentilandia", "dentilandia", "Clara Villa", "Lina Mesa"],
   "client-paulina": ["Paulina Calle", "Paulina", "paulina"],
+  "client-operatto": ["Operatto", "operatto"],
 };
 
 /**
