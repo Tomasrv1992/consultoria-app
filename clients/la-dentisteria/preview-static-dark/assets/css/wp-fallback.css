@@ -1,0 +1,285 @@
+/* DARK / FOREST GREEN VARIANT — La Dentisteria static preview only.
+ *
+ * Same slot names as the beige variant (so block markup like
+ * "has-beige-background-color" still works), but mapped to dark/green hex
+ * values. Editorial-minimalista nocturno: clínica boutique de noche.
+ *
+ * Tradeoff: a few patterns originally designed for light bg get explicit
+ * overrides at the bottom (footer, internacional banner) because the slot
+ * semantics flip in dark mode.
+ */
+
+:root {
+  /* Re-mapped palette: original "light" slots now point to dark colors,
+   * "dark" slots now point to light colors. Usage in patterns stays
+   * consistent (beige = body bg, ink = body text, teal = accent). */
+  --wp--preset--color--beige:        #0E1814;  /* deep forest, body bg */
+  --wp--preset--color--beige-deep:   #16231C;  /* slightly lighter, alt sections */
+  --wp--preset--color--teal:         #7BA88E;  /* sage green, accent / buttons */
+  --wp--preset--color--teal-deep:    #4A6B58;  /* deep sage, banner bg */
+  --wp--preset--color--ink:          #E8DCC4;  /* cream, body text */
+  --wp--preset--color--ink-soft:     #9CAB99;  /* muted sage, secondary text */
+  --wp--preset--color--line:         #2A3A30;  /* subtle dark border */
+  --wp--preset--color--gold-accent:  #D4B582;  /* warm pop for international banner */
+
+  --wp--preset--font-family--serif:  'DM Serif Display', Georgia, serif;
+  --wp--preset--font-family--sans:   'Inter Tight', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  --wp--preset--font-size--small:    13px;
+  --wp--preset--font-size--medium:   16px;
+  --wp--preset--font-size--large:    24px;
+  --wp--preset--font-size--xlarge:   44px;
+  --wp--preset--font-size--display:  76px;
+}
+
+/* Body global */
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--wp--preset--color--beige);
+  color: var(--wp--preset--color--ink);
+  font-family: var(--wp--preset--font-family--sans);
+  font-size: var(--wp--preset--font-size--medium);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Headings */
+h1 {
+  font-family: var(--wp--preset--font-family--serif);
+  font-size: clamp(44px, 6vw, 76px);
+  line-height: 1.0;
+  letter-spacing: -0.02em;
+  font-weight: 400;
+  margin: 0 0 0.5em;
+}
+h2 {
+  font-family: var(--wp--preset--font-family--serif);
+  font-size: clamp(28px, 4vw, 44px);
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  font-weight: 400;
+  margin: 0 0 0.5em;
+}
+h3 {
+  font-family: var(--wp--preset--font-family--serif);
+  font-size: 24px;
+  font-weight: 400;
+  margin: 0 0 0.5em;
+}
+h4, h5, h6 {
+  font-family: var(--wp--preset--font-family--sans);
+  font-weight: 600;
+  margin: 0 0 0.5em;
+}
+
+p { margin: 0 0 1em; }
+a {
+  color: var(--wp--preset--color--teal);
+  text-decoration: none;
+}
+a:hover { text-decoration: underline; }
+
+/* has-X-color / has-X-background-color */
+.has-beige-color        { color: var(--wp--preset--color--beige); }
+.has-beige-deep-color   { color: var(--wp--preset--color--beige-deep); }
+.has-teal-color         { color: var(--wp--preset--color--teal); }
+.has-teal-deep-color    { color: var(--wp--preset--color--teal-deep); }
+.has-ink-color          { color: var(--wp--preset--color--ink); }
+.has-ink-soft-color     { color: var(--wp--preset--color--ink-soft); }
+.has-line-color         { color: var(--wp--preset--color--line); }
+.has-gold-accent-color  { color: var(--wp--preset--color--gold-accent); }
+
+.has-beige-background-color        { background-color: var(--wp--preset--color--beige); }
+.has-beige-deep-background-color   { background-color: var(--wp--preset--color--beige-deep); }
+.has-teal-background-color         { background-color: var(--wp--preset--color--teal); }
+.has-teal-deep-background-color    { background-color: var(--wp--preset--color--teal-deep); }
+.has-ink-background-color          { background-color: var(--wp--preset--color--ink); }
+.has-ink-soft-background-color     { background-color: var(--wp--preset--color--ink-soft); }
+.has-line-background-color         { background-color: var(--wp--preset--color--line); }
+.has-gold-accent-background-color  { background-color: var(--wp--preset--color--gold-accent); }
+
+.has-small-font-size   { font-size: var(--wp--preset--font-size--small); }
+.has-medium-font-size  { font-size: var(--wp--preset--font-size--medium); }
+.has-large-font-size   { font-size: var(--wp--preset--font-size--large); }
+.has-xlarge-font-size  { font-size: var(--wp--preset--font-size--xlarge); }
+.has-display-font-size { font-size: var(--wp--preset--font-size--display); }
+
+.has-text-align-center { text-align: center; }
+.has-text-align-left   { text-align: left; }
+.has-text-align-right  { text-align: right; }
+
+/* Block library */
+.wp-block-group { box-sizing: border-box; }
+
+.wp-block-columns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  margin: 0 0 1.5em;
+}
+.wp-block-columns > .wp-block-column {
+  flex: 1;
+  min-width: 0;
+  box-sizing: border-box;
+}
+.wp-block-columns.are-vertically-aligned-center { align-items: center; }
+.wp-block-column.is-vertically-aligned-center { align-self: center; }
+
+@media (max-width: 600px) {
+  .wp-block-columns { flex-direction: column; }
+}
+
+.wp-block-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75em;
+  margin: 0 0 1em;
+}
+
+.wp-block-button { display: inline-block; }
+.wp-block-button__link,
+.wp-element-button {
+  display: inline-block;
+  background: var(--wp--preset--color--teal);
+  color: var(--wp--preset--color--beige);  /* dark text on sage button */
+  padding: 14px 28px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--wp--preset--font-family--sans);
+  line-height: 1;
+  transition: background 0.15s, transform 0.15s;
+}
+.wp-block-button__link:hover,
+.wp-element-button:hover {
+  background: var(--wp--preset--color--teal-deep);
+  color: var(--wp--preset--color--ink);
+  text-decoration: none;
+}
+
+.wp-block-list {
+  margin: 0 0 1em;
+  padding-left: 1.25em;
+}
+.wp-block-list li { margin: 0 0 0.25em; }
+
+.wp-block-separator {
+  border: none;
+  border-top: 1px solid var(--wp--preset--color--line);
+  margin: 2em 0;
+}
+
+.wp-block-group.is-layout-constrained {
+  max-width: 1180px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* === Dark variant overrides ===
+ * Some patterns hardcode color slots that don't translate cleanly.
+ * We pin the visual semantics here. */
+
+/* Footer: keep visually distinct (slightly darker than body) */
+.site-footer.has-ink-background-color {
+  background-color: #060B08;
+  color: var(--wp--preset--color--ink);
+}
+.site-footer .footer-list a:hover { color: var(--wp--preset--color--gold-accent); }
+
+/* Servicio cards: white→dark surface */
+.servicio-card {
+  background: var(--wp--preset--color--beige-deep) !important;
+  border-color: var(--wp--preset--color--line) !important;
+}
+.servicio-card .servicio-num,
+.servicio-card .servicio-more a { color: var(--wp--preset--color--teal) !important; }
+.servicio-card h3 { color: var(--wp--preset--color--ink); }
+.servicio-card p { color: var(--wp--preset--color--ink-soft); }
+
+/* Blog cards (in blog-teaser pattern): white→dark surface */
+.blog-card {
+  background: var(--wp--preset--color--beige-deep) !important;
+  border-color: var(--wp--preset--color--line) !important;
+}
+.blog-card h3 a { color: var(--wp--preset--color--ink); }
+.blog-card p { color: var(--wp--preset--color--ink-soft); }
+
+/* Blog card thumb gradient — keep but desaturate to fit dark mood */
+.blog-card-thumb {
+  background: linear-gradient(135deg, #4A6B58 0%, #1A2820 100%) !important;
+}
+
+/* Testimonio placeholder cards */
+.testimonio.testimonio-placeholder {
+  background: transparent !important;
+  border-color: var(--wp--preset--color--line) !important;
+}
+
+/* Internacional banner: keep dramatic — invert to gold-accent on darkest */
+.internacional-section.has-teal-deep-background-color {
+  background-color: #06100B;
+}
+.internacional-section .wp-block-button__link {
+  background-color: var(--wp--preset--color--gold-accent) !important;
+  color: var(--wp--preset--color--beige) !important;
+}
+
+/* Pilares section uses beige-deep (now slightly lighter than body) */
+/* Keep as-is, contrast is gentle but readable */
+
+/* Buttons in hero/CTA on body bg: ensure visible */
+.hero .wp-block-button__link,
+.cta-final-section .wp-block-button__link {
+  /* Already styled correctly above */
+}
+
+/* Section labels (uppercase teal): stay on accent for visual rhythm */
+.section-label { color: var(--wp--preset--color--teal); }
+
+/* Smile curve below headlines: now sage on dark */
+.smile-curve { border-bottom-color: var(--wp--preset--color--teal); }
+
+/* Servicio hero on dark */
+.servicio-hero.has-beige-background-color {
+  background-color: var(--wp--preset--color--beige);
+}
+
+/* === Mobile responsive overrides === */
+@media (max-width: 720px) {
+  .site-header {
+    flex-direction: column !important;
+    gap: 12px !important;
+    padding-top: 14px !important;
+    padding-bottom: 14px !important;
+  }
+  .site-header .main-nav {
+    gap: 10px !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    font-size: 10px !important;
+  }
+  .site-header img {
+    height: 40px !important;
+  }
+  .servicios-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .site-header .main-nav a:not(.nav-cta) {
+    font-size: 9px !important;
+  }
+  .secondary-service h3 { font-size: 16px !important; }
+}
+
+/* Secondary services list on dark */
+.secondary-service {
+  border-top-color: var(--wp--preset--color--line) !important;
+}

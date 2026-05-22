@@ -1,0 +1,407 @@
+[
+  {
+    "rowId": "be209a0d-b283-4a2b-8e59-22149a46f3fa",
+    "titulo": "Coordinar con Santiago logística medición riesgo psicosocial (sede rem...)",
+    "estado": "En curso",
+    "responsable": "Jorge",
+    "prioridad": "Media",
+    "area": "Gestión interna",
+    "fecha_limite": "Por definir"
+  },
+  {
+    "rowId": "4da8c594-390a-4830-b731-ed7e2115177e",
+    "titulo": "Revisar formatos auditoría interna con Cirley — briefing doctores — co...",
+    "estado": "En curso",
+    "responsable": "Jorge",
+    "prioridad": "Alta",
+    "area": "Gestión interna",
+    "fecha_limite": "Abr 22 2026"
+  },
+  {
+    "rowId": "e4731c0d-a748-4c7f-9516-4542d97252fb",
+    "titulo": "Compartir acceso curso automatización con Lina",
+    "estado": "En curso",
+    "responsable": "Tomás",
+    "prioridad": "Alta",
+    "area": "Gestión interna",
+    "fecha_limite": "Abr 16 2026"
+  },
+  {
+    "rowId": "896a01aa-03b2-4700-af19-15f661375e16",
+    "titulo": "Implementar política: usar gotas reveladoras en todas las valoraciones",
+    "estado": "En curso",
+    "responsable": "Jorge",
+    "prioridad": "Alta",
+    "area": "Operaciones",
+    "fecha_limite": "Por definir"
+  },
+  {
+    "rowId": "e392054c-0ad8-41fa-bab8-ccf2c1e01f69",
+    "titulo": "Presentar estrategia integral marketing incl. Instagram Stories",
+    "estado": "En curso",
+    "responsable": "Jorge",
+    "prioridad": "Alta",
+    "area": "Mercadeo",
+    "fecha_limite": "Abr 30 2026"
+  },
+  {
+    "rowId": "b3217e81-97bc-4403-b1da-69f4fb3e249e",
+    "titulo": "Diseñar campaña reseñas Google Business — meta 50/mes + Confirmar kit ...",
+    "estado": "En curso",
+    "responsable": "Jorge",
+    "prioridad": "Alta",
+    "area": "Mercadeo",
+    "fecha_limite": "Abr 30 2026"
+  },
+  {
+    "rowId": "43f0d4a7-f97a-4857-9610-22555231516f",
+    "titulo": "Coordinar con Dr. Álvaro cita presencial UGPP (Medellín) con radicado",
+    "estado": "En curso",
+    "responsable": "Lina",
+    "prioridad": "Alta",
+    "area": "Gestión interna",
+    "fecha_limite": "Por definir"
+  },
+  {
+    "rowId": "ed913de8-cadd-4b6a-92ba-52401d4de233",
+    "titulo": "Recalcular costos horas extra por salario e IBC",
+    "estado": "En curso",
+    "responsable": "Lina",
+    "prioridad": "Alta",
+    "area": "Gestión interna",
+    "fecha_limite": "Abr 16 2026"
+  },
+  {
+    "rowId": "b9e48ef0-58b8-4e12-8e0e-d0299d689830",
+    "titulo": "Confirmar comité virtual 22 abril con Carlos a las 11AM",
+    "estado": "En curso",
+    "responsable": "Jorge",
+    "prioridad": "Alta",
+    "area": "Gestión interna",
+    "fecha_limite": "Abr 16 2026"
+  },
+  {
+    "rowId": "e66c9cf2-081b-410e-80f3-893667b1f171",
+    "titulo": "Asamblea: Enviar bitácora de diferencias EF firmados vs excel",
+    "estado": "Iniciativa",
+    "responsable": "Lina",
+    "prioridad": "Alta",
+    "area": "Contabilidad",
+    "fecha_limite": "Por definir"
+  },
+  {
+    "rowId": "6a33a6d6-bea2-43f5-82e0-19490ac4ae74",
+    "titulo": "Reunirse con Melisa (Américas) — plan de mejora recepción",
+    "estado": "En curso",
+    "responsable": "Jorge",
+    "prioridad": "Alta",
+    "area": "Gestión interna",
+    "fecha_limite": "Abr 16 2026"
+  },
+  {
+    "rowId": "ff1667da-7617-4094-96f7-71bbcd785cb3",
+    "titulo": "Renovación de marca Provimarca — pendiente firma Dra. Clara",
+    "estado": "En curso",
+    "responsable": "Jorge",
+    "prioridad": "Alta",
+    "area": "Mercadeo",
+    "fecha_limite": "Por definir"
+  },
+  {
+    "rowId": "fa12ed90-653a-4205-9fbb-2c81c8c2e68e",
+    "titulo": "Gestionar NIT para Cloud — correcta contabilización",
+    "estado": "En curso",
+    "responsable": "Lina",
+    "prioridad": "Alta",
+    "area": "Gestión interna",
+    "fecha_limite": "Por definir"
+  },
+  {
+    "rowId": "cbac465d-633b-482d-acad-0228434bd809",
+    "titulo": "Porta retratos — crear imágenes, videos y demás de porta retratos de las marcas",
+    "estado": "Iniciativa",
+    "responsable": "Jorge",
+    "prioridad": "Media",
+    "area": "Mercadeo",
+    "fecha_limite": "15/05/2026"
+  },
+  {
+    "rowId": "0501c30a-75d8-456b-a848-eb5515201ac8",
+    "titulo": "Documentar preguntas comunes de interrupción con respuestas para auxiliar",
+    "estado": "En curso",
+    "responsable": "Jorge",
+    "prioridad": "Media",
+    "area": "Gestión interna",
+    "fecha_limite": "Por definir"
+  },
+  {
+    "rowId": "574d9b87-64d3-4da2-8315-501680e337da",
+    "titulo": "Iniciar seguimientos semanales con el equipo — próxima semana",
+    "estado": "En curso",
+    "responsable": "Jorge",
+    "prioridad": "Alta",
+    "area": "Gestión interna",
+    "fecha_limite": "Abr 22 2026"
+  },
+  {
+    "rowId": "1bb8f9c7-7996-4c10-a116-edcc58a90539",
+    "titulo": "Crear campaña para recaudar reseñas de Google Business",
+    "estado": "En curso",
+    "responsable": "Jorge",
+    "prioridad": "Alta",
+    "area": "Mercadeo",
+    "fecha_limite": "29/04/2026"
+  },
+  {
+    "rowId": "b229de36-b96a-4bb9-a4ec-b8c51eb07761",
+    "titulo": "Asegurar que doctoras marquen y entreguen tarjetas a pacientes nuevos",
+    "estado": "En curso",
+    "responsable": "Jorge",
+    "prioridad": "Alta",
+    "area": "Operaciones",
+    "fecha_limite": "Por definir"
+  },
+  {
+    "rowId": "fc510c5a-6c8b-4660-9b73-caa288535376",
+    "titulo": "Batas de las doctoras — cotización a 105.000",
+    "estado": "En curso",
+    "responsable": "Jorge",
+    "prioridad": "Baja",
+    "area": "Gestión interna",
+    "fecha_limite": "30/05/2026"
+  },
+  {
+    "rowId": "c9422382-19ef-47f1-8c77-bfbcca42634d",
+    "titulo": "Diseñar y arrancar CARDEX para Cuenta 2 desde enero 1 2026",
+    "estado": "En curso",
+    "responsable": "Lina",
+    "prioridad": "Alta",
+    "area": "Contabilidad",
+    "fecha_limite": "Abr 22 2026"
+  },
+  {
+    "rowId": "2dbfdab1-baa6-473f-a4b6-75ee81cc531b",
+    "titulo": "Enviar a Jorge template Miro parrilla de contenido",
+    "estado": "En curso",
+    "responsable": "Tomás",
+    "prioridad": "Alta",
+    "area": "Mercadeo",
+    "fecha_limite": "Abr 16 2026"
+  },
+  {
+    "rowId": "7c410269-6acc-4558-ab16-320e475b9dd3",
+    "titulo": "Pagar horas extras acumuladas marzo-abril al corte",
+    "estado": "En curso",
+    "responsable": "Jorge",
+    "prioridad": "Alta",
+    "area": "Gestión interna",
+    "fecha_limite": "Abr 30 2026"
+  },
+  {
+    "rowId": "e88e03b8-eae2-458a-82e2-a7b2446c76bb",
+    "titulo": "Agendar reunión IA con Eliana (Bituchat) y Tomás — Apr 16 11:00",
+    "estado": "En curso",
+    "responsable": "Jorge",
+    "prioridad": "Alta",
+    "area": "Gestión interna",
+    "fecha_limite": "Abr 16 2026"
+  },
+  {
+    "rowId": "875924c9-4382-4745-88c8-ed6707a06483",
+    "titulo": "Confirmar con Adriana logística y fecha carpintería domingo 19",
+    "estado": "En curso",
+    "responsable": "Clara",
+    "prioridad": "Alta",
+    "area": "Operaciones",
+    "fecha_limite": "Abr 16 2026"
+  },
+  {
+    "rowId": "85a48820-0444-4025-a7a7-c4a8bd097ea7",
+    "titulo": "Buscar un nuevo proveedor de redes sociales",
+    "estado": "En curso",
+    "responsable": "Jorge",
+    "prioridad": "Media",
+    "area": "Mercadeo",
+    "fecha_limite": "30/04/2026"
+  },
+  {
+    "rowId": "3312729e-7515-440a-a99a-d4e1dd183267",
+    "titulo": "Enviar tutoriales YouTube Claude/IA a Lina",
+    "estado": "En curso",
+    "responsable": "Tomás",
+    "prioridad": "Media",
+    "area": "Gestión interna",
+    "fecha_limite": "Abr 16 2026"
+  },
+  {
+    "rowId": "0a18353e-bd08-4784-80f6-57ccbfd727ba",
+    "titulo": "Aclarar con Martín alcance y costos contratos/otrosíes — informar al comité",
+    "estado": "En curso",
+    "responsable": "Lina",
+    "prioridad": "Alta",
+    "area": "Gestión interna",
+    "fecha_limite": "Abr 16 2026"
+  },
+  {
+    "rowId": "4ccbbb1c-4145-4f1a-8e6b-ba8a5c5346d8",
+    "titulo": "Definir color bolígrafos con Adriana — comprar — asignar mejor letra para pacientes",
+    "estado": "En curso",
+    "responsable": "Jorge / Clara",
+    "prioridad": "Media",
+    "area": "Operaciones",
+    "fecha_limite": "Por definir"
+  },
+  {
+    "rowId": "2ee696a2-5f15-454a-9a28-c33dd897167c",
+    "titulo": "Arreglos Dentilandia — carpintería mueble, pintura consultorio",
+    "estado": "En curso",
+    "responsable": "Jorge",
+    "prioridad": "Media",
+    "area": "Operaciones",
+    "fecha_limite": "Por definir"
+  },
+  {
+    "rowId": "d4a28a4f-92a1-432c-8da3-b10a4735e978",
+    "titulo": "Auditoría Instagram — crear parrilla de contenido — briefing Lucao",
+    "estado": "En curso",
+    "responsable": "Jorge",
+    "prioridad": "Alta",
+    "area": "Mercadeo",
+    "fecha_limite": "Abr 16 2026"
+  },
+  {
+    "rowId": "a759bc19-e860-488b-85e2-d6ca70f8b7d8",
+    "titulo": "Agregar Código contable y Concepto a informes financieros mensuales",
+    "estado": "En curso",
+    "responsable": "Lina",
+    "prioridad": "Alta",
+    "area": "Contabilidad",
+    "fecha_limite": "Por definir"
+  },
+  {
+    "rowId": "55e1fade-cdd4-462b-9760-48c63e9b9ce8",
+    "titulo": "Reanudar rotación semanal auxiliares recepción — consultorio",
+    "estado": "En curso",
+    "responsable": "Jorge",
+    "prioridad": "Alta",
+    "area": "Gestión interna",
+    "fecha_limite": "Por definir"
+  },
+  {
+    "rowId": "d00f5790-08f3-4f74-8830-b12e673a1b94",
+    "titulo": "Comprar audífono para reuniones",
+    "estado": "En curso",
+    "responsable": "Jorge",
+    "prioridad": "Baja",
+    "area": "Gestión interna",
+    "fecha_limite": "Por definir"
+  },
+  {
+    "rowId": "47fbf345-1075-4609-8a80-5325fead981d",
+    "titulo": "Solicitar factura electrónica a Dentilandia (3.5% retención) — pagar 5...",
+    "estado": "En curso",
+    "responsable": "Tomás",
+    "prioridad": "Alta",
+    "area": "Gestión interna",
+    "fecha_limite": "Abr 30 2026"
+  },
+  {
+    "rowId": "559bd4ab-0c8c-4e70-b78d-27f95369489c",
+    "titulo": "Confirmar comité presencial 6 de mayo — agendar",
+    "estado": "En curso",
+    "responsable": "Jorge",
+    "prioridad": "Alta",
+    "area": "Gestión interna",
+    "fecha_limite": "Por definir"
+  },
+  {
+    "rowId": "070e17eb-88c8-49fc-855f-37be1b5c6084",
+    "titulo": "Confirmar disponibilidad de video con proveedor Google Ads",
+    "estado": "En curso",
+    "responsable": "Jorge",
+    "prioridad": "Media",
+    "area": "Mercadeo",
+    "fecha_limite": "Por definir"
+  },
+  {
+    "rowId": "e260a5a2-d41f-40c0-b95f-0c886119ac90",
+    "titulo": "Instruir a Andrés que copie a Jorge/comité en reportes de auditoría",
+    "estado": "En curso",
+    "responsable": "Clara",
+    "prioridad": "Alta",
+    "area": "Gestión interna",
+    "fecha_limite": "Por definir"
+  },
+  {
+    "rowId": "7b742445-3692-43af-9a5b-98b53d910c8f",
+    "titulo": "Llamar a Santiago — correcciones video presentación (notas de Clara)",
+    "estado": "En curso",
+    "responsable": "Jorge",
+    "prioridad": "Alta",
+    "area": "Mercadeo",
+    "fecha_limite": "Abr 16 2026"
+  },
+  {
+    "rowId": "6b821609-dd75-44e7-b1c7-f9e12deb2db6",
+    "titulo": "Medición de riesgo psicosocial y clima organizacional",
+    "estado": "Iniciativa",
+    "responsable": "Jorge",
+    "prioridad": "Media",
+    "area": "Gestión interna",
+    "fecha_limite": "Mayo 30 2026"
+  },
+  {
+    "rowId": "0a32c845-8c76-4148-a2f4-dae1ae925166",
+    "titulo": "Equipo de trabajo — preguntas interrupción, comité asesor, clima organizacional",
+    "estado": "Iniciativa",
+    "responsable": "Jorge",
+    "prioridad": "Alta",
+    "area": "Gestión interna",
+    "fecha_limite": "Abr 8 2026"
+  },
+  {
+    "rowId": "f01c20e2-30cb-4f00-8b99-ec56957d6b8c",
+    "titulo": "Crear CDT virtual Bancolombia por 100M — dejar 27M en cuenta — cerrar...",
+    "estado": "En curso",
+    "responsable": "Jorge",
+    "prioridad": "Alta",
+    "area": "Ingresos",
+    "fecha_limite": "Abr 16 2026"
+  },
+  {
+    "rowId": "8e5e3ebd-27a4-4cf8-ae8d-5bf072a66ed9",
+    "titulo": "Confirmar a Luz (MAFRE) compra póliza contado — iniciar trámites",
+    "estado": "En curso",
+    "responsable": "Jorge",
+    "prioridad": "Alta",
+    "area": "Gestión interna",
+    "fecha_limite": "Abr 16 2026"
+  },
+  {
+    "rowId": "c6eab49a-199d-4016-9646-cff037a573ec",
+    "titulo": "Implementar horario 8:30 desde May 1 — reagendar citas 8AM — entrada 1...",
+    "estado": "En curso",
+    "responsable": "Jorge",
+    "prioridad": "Alta",
+    "area": "Gestión interna",
+    "fecha_limite": "May 1 2026"
+  },
+  {
+    "rowId": "cba18fe5-d795-44f7-a6b1-569415697ab1",
+    "titulo": "Conciliación libros oficiales — Carlos",
+    "estado": "Iniciativa",
+    "responsable": "Lina",
+    "prioridad": "Alta",
+    "area": "Gestión interna",
+    "fecha_limite": "Por definir"
+  },
+  {
+    "rowId": "89971c8c-73fb-4483-914e-4664295136c5",
+    "titulo": "Comprar USD 500 Apr 16 y USD 500 fin de abril",
+    "estado": "En curso",
+    "responsable": "Jorge",
+    "prioridad": "Alta",
+    "area": "Ingresos",
+    "fecha_limite": "Abr 16 2026"
+  }
+]

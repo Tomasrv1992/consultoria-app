@@ -1,0 +1,12 @@
+[
+  {"rowId":"b241b243-adc8-4010-9625-1b6c1600ab52","titulo":"Agendar reunión presencial Medellín (21 abril) con Tomás y Luli","modulo":"Gestión interna","responsable":"Mateo","prioridad":"Alta","fecha_limite":"Abr 21 2026","estado":"En curso"},
+  {"rowId":"187d99b9-19db-48d0-ba2c-6acbddd44358","titulo":"Reunirse con Luli (17 abril) — pauta/captación — definir plan ciclovía 3 meses con Tomás","modulo":"Mercadeo","responsable":"Mateo","prioridad":"Alta","fecha_limite":"Abr 17 2026","estado":"En curso"},
+  {"rowId":"f1e5dbc2-da55-4907-8948-8b766d087787","titulo":"Lanzar campaña 'Tráigame un carro y se lo compramos hoy'","modulo":"Mercadeo","responsable":"Mateo","prioridad":"Alta","fecha_limite":"Por definir","estado":"En curso"},
+  {"rowId":"65b2c4c4-9241-4781-83b9-356c4db796b1","titulo":"Definir y comunicar meta de captación mensual — 60 carros/mes","modulo":"Ingresos","responsable":"Mateo","prioridad":"Alta","fecha_limite":"Por definir","estado":"En curso"},
+  {"rowId":"c563b52b-c6df-489b-8be4-a9013f86f7c5","titulo":"Calcular y enviar a Mateo monto adeudado de factura","modulo":"Ingresos","responsable":"Tomás","prioridad":"Alta","fecha_limite":"Por definir","estado":"En curso"},
+  {"rowId":"1b5afc1b-a0d7-4685-9991-fb665b3dc0cf","titulo":"Definir formato de registro compras propias en PYG — luego registrar compras","modulo":"Ingresos","responsable":"Mateo","prioridad":"Alta","fecha_limite":"Por definir","estado":"En curso"},
+  {"rowId":"ec562531-f995-4308-bf39-c17d18c11785","titulo":"Revisar con Luli sitio web — decidir reforma o reasignar presupuesto","modulo":"Mercadeo","responsable":"Mateo","prioridad":"Alta","fecha_limite":"Por definir","estado":"En curso"},
+  {"rowId":"3c2c9df7-b7f5-4efd-8b29-91ee7c9c784d","titulo":"Pedir a Camilo investigar curso de estrategia/conversión — evaluar compra mes 2","modulo":"Gestión interna","responsable":"Mateo","prioridad":"Media","fecha_limite":"Por definir","estado":"En curso"},
+  {"rowId":"e13225dc-8e63-469e-8ea0-a48aa8402af3","titulo":"Pedir a Mercedes 2 proveedores para digitalizar contratos","modulo":"Operaciones","responsable":"Mateo","prioridad":"Media","fecha_limite":"Por definir","estado":"En curso"},
+  {"rowId":"8dde068d-38dc-42ac-b875-c88445360642","titulo":"Pedir a Luli plan mensual y cierre de pauta","modulo":"Mercadeo","responsable":"Mateo","prioridad":"Alta","fecha_limite":"Abr 17 2026","estado":"En curso"}
+]
