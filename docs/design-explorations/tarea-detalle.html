@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Tarea · Cygnuss</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Plus+Jakarta+Sans:wght@300..700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f0eadb;
+      --paper: #f7f2e6;
+      --paper-soft: #faf7ed;
+      --ink: #1a1612;
+      --ink-soft: #3d342d;
+      --muted: #8a7f73;
+      --muted-soft: #b6ab9c;
+      --hairline: #ddd4be;
+      --hairline-soft: #ebe4d2;
+      --vermillion: #c43c1d;
+      --gestion: #5e6b3e;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      background: #100d0a;
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      color: var(--ink);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+    }
+
+    .stage {
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 48px 24px;
+      background: radial-gradient(ellipse at 30% 0%, #2a221c 0%, #15110d 50%, #0a0805 100%);
+    }
+
+    .device {
+      width: 390px;
+      max-width: 100%;
+      background: var(--bg);
+      position: relative;
+      overflow: hidden;
+      border-radius: 36px;
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.04),
+        0 30px 80px -20px rgba(0,0,0,0.6),
+        0 8px 30px -10px rgba(0,0,0,0.4);
+    }
+
+    .device::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.6 0'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.5'/></svg>");
+      opacity: 0.06;
+      pointer-events: none;
+      mix-blend-mode: multiply;
+      z-index: 1;
+    }
+
+    @media (max-width: 480px) {
+      .stage { padding: 0; background: var(--bg); }
+      .device { border-radius: 0; box-shadow: none; min-height: 100vh; }
+    }
+
+    .status {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 26px 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--ink);
+      letter-spacing: 0.02em;
+      position: relative;
+      z-index: 2;
+    }
+
+    .topnav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 22px 24px 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      position: relative;
+      z-index: 2;
+    }
+
+    .topnav a { color: inherit; text-decoration: none; cursor: pointer; }
+    .topnav a:hover { color: var(--ink); }
+    .topnav .back::before { content: '←  '; opacity: 0.5; }
+
+    .lede {
+      padding: 22px 24px 12px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .lede-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 18px;
+    }
+
+    .lede-meta .cat-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      color: var(--gestion);
+      font-weight: 600;
+    }
+
+    .lede-meta .cat-letter {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--gestion);
+      color: var(--paper);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Fraunces', serif;
+      font-style: italic;
+      font-weight: 500;
+      font-size: 12px;
+      letter-spacing: 0;
+      text-transform: none;
+      flex-shrink: 0;
+      line-height: 1;
+      padding-bottom: 1px;
+    }
+
+    .lede-meta .alert-tag {
+      color: var(--vermillion);
+      font-weight: 600;
+    }
+
+    .lede-meta .meta-sep { color: var(--muted-soft); }
+
+    .lede-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 600;
+      font-size: 26px;
+      line-height: 1.2;
+      letter-spacing: -0.025em;
+      color: var(--ink);
+      margin-bottom: 14px;
+    }
+
+    .lede-deck {
+      font-family: 'Fraunces', serif;
+      font-style: italic;
+      font-weight: 350;
+      font-size: 16.5px;
+      line-height: 1.45;
+      letter-spacing: -0.005em;
+      color: var(--ink-soft);
+      margin-bottom: 4px;
+    }
+
+    .byline {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 18px 24px;
+      border-top: 1px solid var(--hairline);
+      border-bottom: 1px solid var(--hairline);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      position: relative;
+      z-index: 2;
+    }
+
+    .byline-name {
+      color: var(--ink);
+      font-weight: 600;
+    }
+
+    .byline-date {
+      color: var(--ink);
+      font-weight: 600;
+    }
+
+    .byline-date.alert { color: var(--vermillion); }
+
+    /* Body content */
+    .body {
+      padding: 24px 24px 24px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .body p {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 14.5px;
+      font-weight: 400;
+      line-height: 1.65;
+      color: var(--ink-soft);
+      letter-spacing: -0.005em;
+      margin-bottom: 14px;
+    }
+
+    .body p:last-child { margin-bottom: 0; }
+
+    .body p strong { color: var(--ink); font-weight: 600; }
+
+    /* Activity timeline */
+    .timeline-head {
+      padding: 22px 24px 0;
+      border-top: 1px solid var(--hairline);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      position: relative;
+      z-index: 2;
+    }
+
+    .timeline {
+      padding: 14px 24px 24px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .event {
+      display: grid;
+      grid-template-columns: 64px 1fr;
+      gap: 16px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--hairline-soft);
+      align-items: start;
+    }
+
+    .event:last-child { border-bottom: none; }
+
+    .event-date {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      text-transform: uppercase;
+      padding-top: 3px;
+    }
+
+    .event-date .day {
+      font-family: 'Fraunces', serif;
+      font-style: italic;
+      font-weight: 400;
+      font-size: 17px;
+      letter-spacing: -0.02em;
+      text-transform: none;
+      color: var(--ink);
+      display: block;
+      line-height: 1;
+      margin-bottom: 2px;
+    }
+
+    .event-text {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 13.5px;
+      font-weight: 400;
+      line-height: 1.5;
+      color: var(--ink-soft);
+      letter-spacing: -0.005em;
+    }
+
+    .event-text strong { color: var(--ink); font-weight: 600; }
+
+    .event-text em {
+      font-family: 'Fraunces', serif;
+      font-style: italic;
+      font-weight: 350;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    /* Bottom action bar */
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      border-top: 1px solid var(--hairline);
+      background: var(--paper);
+      position: relative;
+      z-index: 2;
+    }
+
+    .action {
+      padding: 22px 24px 32px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ink);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: background 200ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .action:hover { background: var(--paper-soft); }
+
+    .action.primary {
+      background: var(--ink);
+      color: var(--paper);
+    }
+
+    .action.primary:hover { background: #2a2520; }
+
+    .action::before {
+      font-family: 'Fraunces', serif;
+      font-style: italic;
+      font-size: 22px;
+      font-weight: 300;
+      line-height: 1;
+      transform: translateY(-2px);
+    }
+
+    .action.primary::before {
+      content: '✓';
+      color: var(--paper);
+      font-style: normal;
+      font-size: 16px;
+      transform: none;
+    }
+
+    .action.secondary::before {
+      content: '~';
+      color: var(--vermillion);
+    }
+  </style>
+</head>
+<body>
+  <div class="stage">
+    <article class="device">
+      <div class="status">
+        <span>9:41</span>
+        <span>100</span>
+      </div>
+
+      <nav class="topnav">
+        <a class="back" href="#">Cygnuss</a>
+        <a href="#">⋯</a>
+      </nav>
+
+      <header class="lede">
+        <div class="lede-meta">
+          <span class="cat-tag"><span class="cat-letter">G</span>Gestión interna</span>
+          <span class="meta-sep">·</span>
+          <span class="alert-tag">Alta · Vencida</span>
+        </div>
+        <h1 class="lede-title">Cerrar contrato laboral del nuevo coordinador comercial.</h1>
+        <p class="lede-deck">Falta firma de Cristina y revisión legal antes del lunes — bloquea el inicio del nuevo coordinador.</p>
+      </header>
+
+      <div class="byline">
+        <span><span class="byline-name">Tomás</span></span>
+        <span class="byline-date alert">03 May · 2026</span>
+      </div>
+
+      <section class="body">
+        <p>El contrato fue redactado con base en la plantilla actualizada para roles comerciales con variable mensual. <strong>Cristina debe firmarlo antes del lunes</strong> para que recursos humanos pueda procesar la afiliación a EPS y la radicación bancaria a tiempo.</p>
+        <p>La revisión legal de Andrea ya quedó cerrada el 29 de abril; el único bloqueo restante es la firma de la representante legal y el pago de la primera quincena en el cronograma de nómina.</p>
+      </section>
+
+      <div class="timeline-head">Actividad</div>
+
+      <div class="timeline">
+        <div class="event">
+          <div class="event-date"><span class="day">03</span>May</div>
+          <div class="event-text"><strong>Tomás</strong> reclasificó la prioridad como <em>alta</em> tras la reunión semanal.</div>
+        </div>
+        <div class="event">
+          <div class="event-date"><span class="day">29</span>Abr</div>
+          <div class="event-text"><strong>Andrea</strong> cerró la revisión legal del contrato. <em>Sin observaciones.</em></div>
+        </div>
+        <div class="event">
+          <div class="event-date"><span class="day">26</span>Abr</div>
+          <div class="event-text"><strong>Tomás</strong> creó la tarea desde la minuta del comité directivo del 25 de abril.</div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <div class="action secondary">Posponer</div>
+        <div class="action primary">Cerrar tarea</div>
+      </div>
+    </article>
+  </div>
+</body>
+</html>

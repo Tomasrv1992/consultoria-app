@@ -36,26 +36,17 @@ export const MOCK_USERS: Record<string, UserProfile> = {
     full_name: "Lativo",
     client_id: "c5",
   },
-  "cliente@davinci.co": {
-    id: "user-davinci",
-    email: "cliente@davinci.co",
+  "operatto@equipodegentes.co": {
+    id: "user-operatto",
+    email: "operatto@equipodegentes.co",
     role: "client",
-    full_name: "Davinci",
-    client_id: "client-davinci",
-  },
-  "cliente@criptotracker.co": {
-    id: "user-criptotracker",
-    email: "cliente@criptotracker.co",
-    role: "client",
-    full_name: "Criptotracker",
-    client_id: "client-criptotracker",
+    full_name: "Operatto",
+    client_id: "client-operatto",
   },
 };
 
 export const MOCK_PASSWORDS: Record<string, string> = {
   "cliente@lativo.co": "lativo2026",
-  "cliente@davinci.co": "davinci2026",
-  "cliente@criptotracker.co": "criptotracker2026",
 };
 
 export const MOCK_CLIENTS: Client[] = [
@@ -115,29 +106,16 @@ export const MOCK_CLIENTS: Client[] = [
     created_at: "2026-04-13",
     proxima_reunion: "2026-04-15",
   },
-  // ── Davinci ──────────────────────────────────────────────────────────────
   {
-    id: "client-davinci",
-    name: "Davinci",
-    industry: "Diagnóstico Médico",
+    id: "client-operatto",
+    name: "Operatto",
+    industry: "Producto propio",
     brand: "estrategia",
     color: "#0D7C5F",
     health: "green",
-    contact_name: "Davinci",
-    contact_email: "cliente@davinci.co",
-    created_at: "2026-05-22",
-  },
-  // ── Criptotracker ────────────────────────────────────────────────────────
-  {
-    id: "client-criptotracker",
-    name: "Criptotracker",
-    industry: "Fintech / Inversiones",
-    brand: "estrategia",
-    color: "#0D7C5F",
-    health: "green",
-    contact_name: "Criptotracker",
-    contact_email: "cliente@criptotracker.co",
-    created_at: "2026-05-22",
+    contact_name: "Tomás",
+    contact_email: "operatto@equipodegentes.co",
+    created_at: "2026-05-11",
   },
 ];
 
@@ -181,6 +159,7 @@ export const MOCK_TASKS: Task[] = [
   { id: "t10", module_id: "mod-cyg-4", client_id: "client-cygnuss", title: "Definir buyer persona", completed: true, completed_at: "2024-05-15", order: 1 },
   { id: "t11", module_id: "mod-cyg-4", client_id: "client-cygnuss", title: "Crear calendario de contenido mensual", completed: false, order: 2 },
   { id: "t12", module_id: "mod-cyg-4", client_id: "client-cygnuss", title: "Configurar campañas Meta Ads", completed: false, order: 3 },
+
   // Dentilandia - Ingresos
   { id: "t13", module_id: "mod-dent-1", client_id: "client-dentilandia", title: "Analizar servicios más rentables", completed: true, completed_at: "2024-06-01", order: 1 },
   { id: "t14", module_id: "mod-dent-1", client_id: "client-dentilandia", title: "Crear paquetes de tratamiento", completed: false, order: 2 },
@@ -195,12 +174,14 @@ export const MOCK_TASKS: Task[] = [
   // Dentilandia - Mercadeo
   { id: "t21", module_id: "mod-dent-4", client_id: "client-dentilandia", title: "Rediseñar perfil de Google Business", completed: true, completed_at: "2024-05-30", order: 1 },
   { id: "t22", module_id: "mod-dent-4", client_id: "client-dentilandia", title: "Crear estrategia de reseñas", completed: false, order: 2 },
+
   // AC Autos
   { id: "t23", module_id: "mod-ac-1", client_id: "client-acautos", title: "Estandarizar proceso de cotización", completed: true, completed_at: "2024-06-01", order: 1 },
   { id: "t24", module_id: "mod-ac-1", client_id: "client-acautos", title: "Crear seguimiento post-venta", completed: true, completed_at: "2024-06-10", order: 2 },
   { id: "t25", module_id: "mod-ac-2", client_id: "client-acautos", title: "Implementar control de gastos", completed: false, order: 1 },
   { id: "t26", module_id: "mod-ac-3", client_id: "client-acautos", title: "Crear checklist de entrega de vehículo", completed: true, completed_at: "2024-06-05", order: 1 },
   { id: "t27", module_id: "mod-ac-4", client_id: "client-acautos", title: "Lanzar campaña de temporada", completed: false, order: 1 },
+
   // Paulina
   { id: "t28", module_id: "mod-pau-1", client_id: "client-paulina", title: "Definir paquetes estrella", completed: false, order: 1 },
   { id: "t29", module_id: "mod-pau-2", client_id: "client-paulina", title: "Reorganizar agenda semanal", completed: false, order: 1 },
@@ -286,6 +267,8 @@ const MOCK_MINUTE_SECTIONS: MinuteSection[] = [
 ];
 
 // Placeholders de minutas. El contenido real debe venir de Supabase.
+// No incluir aquí nombres de terceros (abogados, contadores, empleados del
+// cliente) ni detalles confidenciales de la reunión.
 export const MOCK_MINUTES: Minute[] = [
   {
     id: "min-cyg-2",

@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { getSupabaseAdmin } from "@/lib/supabase/admin";
+import { checkAuth, assertTaskBelongsToClient } from "@/lib/auth-embed";
 import { moduloToCategory } from "@/lib/miro-progress";
 
 export const dynamic = "force-dynamic";
@@ -37,16 +39,15 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const supabase = createServerSupabaseClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) {
+  const auth = await checkAuth(request);
+  if (!auth.ok) {
     return NextResponse.json(
       { ok: false, error: "No autorizado" },
       { status: 401 }
     );
   }
+  const supabase =
+    auth.via === "session" ? createServerSupabaseClient() : getSupabaseAdmin();
 
   const taskId = params.id;
   if (!taskId) {
@@ -54,6 +55,12 @@ export async function PATCH(
       { ok: false, error: "taskId requerido" },
       { status: 400 }
     );
+  }
+
+  if (auth.via === "token") {
+    const expected = request.nextUrl.searchParams.get("clientId");
+    const fail = await assertTaskBelongsToClient(supabase, taskId, expected);
+    if (fail) return fail;
   }
 
   const body = (await request.json().catch(() => null)) as PatchBody | null;
@@ -158,19 +165,18 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const supabase = createServerSupabaseClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) {
+  const auth = await checkAuth(request);
+  if (!auth.ok) {
     return NextResponse.json(
       { ok: false, error: "No autorizado" },
       { status: 401 }
     );
   }
+  const supabase =
+    auth.via === "session" ? createServerSupabaseClient() : getSupabaseAdmin();
 
   const taskId = params.id;
   if (!taskId) {
@@ -178,6 +184,12 @@ export async function DELETE(
       { ok: false, error: "taskId requerido" },
       { status: 400 }
     );
+  }
+
+  if (auth.via === "token") {
+    const expected = request.nextUrl.searchParams.get("clientId");
+    const fail = await assertTaskBelongsToClient(supabase, taskId, expected);
+    if (fail) return fail;
   }
 
   const { error } = await supabase.from("tasks").delete().eq("id", taskId);

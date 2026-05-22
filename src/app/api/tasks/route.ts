@@ -7,8 +7,8 @@ import {
   EMPTY_HISTORICAL,
   HistoricalCounts,
 } from "@/lib/miro-historico";
-import { getSupabaseServerConfig, getEmbedSecret } from "@/lib/supabase-env";
-import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { getSupabaseServerConfig } from "@/lib/supabase-env";
+import { checkAuth } from "@/lib/auth-embed";
 
 export const dynamic = "force-dynamic";
 
@@ -43,22 +43,14 @@ function rowToTask(r: TaskRow): MiroTask {
 }
 
 export async function GET(request: NextRequest) {
+  const auth = await checkAuth(request);
+  if (!auth.ok) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+  }
+
   const clientId = request.nextUrl.searchParams.get("clientId");
   if (!clientId) {
     return NextResponse.json({ error: "clientId requerido" }, { status: 400 });
-  }
-
-  const embedToken = request.nextUrl.searchParams.get("embedToken");
-  const hasValidEmbedToken = embedToken === getEmbedSecret();
-
-  if (!hasValidEmbedToken) {
-    const ssr = createServerSupabaseClient();
-    const {
-      data: { user },
-    } = await ssr.auth.getUser();
-    if (!user) {
-      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-    }
   }
 
   const { url: supabaseUrl, key: supabaseKey } = getSupabaseServerConfig();

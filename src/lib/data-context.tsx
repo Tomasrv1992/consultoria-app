@@ -7,12 +7,11 @@ import {
   ReactNode,
   useCallback,
 } from "react";
-import { Client, WorkModule, Task, Minute } from "@/lib/types";
+import { Client, WorkModule, Task } from "@/lib/types";
 import {
   MOCK_CLIENTS,
   MOCK_MODULES,
   MOCK_TASKS,
-  MOCK_MINUTES,
   MOCK_USERS,
   MOCK_PASSWORDS,
 } from "@/lib/mock-data";
@@ -38,7 +37,6 @@ interface DataContextType {
   getClientModules: (clientId: string) => WorkModule[];
   getClientTasks: (clientId: string) => Task[];
   getModuleTasks: (moduleId: string) => Task[];
-  getClientMinutes: (clientId: string) => Minute[];
   toggleTask: (taskId: string) => void;
   addClient: (input: NewClientInput) => NewClientResult;
 }
@@ -98,11 +96,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const getModuleTasks = useCallback(
     (moduleId: string) => tasks.filter((t) => t.module_id === moduleId),
     [tasks]
-  );
-
-  const getClientMinutes = useCallback(
-    (clientId: string) => MOCK_MINUTES.filter((m) => m.client_id === clientId),
-    []
   );
 
   const addClient = useCallback(
@@ -167,7 +160,6 @@ export function DataProvider({ children }: { children: ReactNode }) {
         getClientModules,
         getClientTasks,
         getModuleTasks,
-        getClientMinutes,
         toggleTask,
         addClient,
       }}

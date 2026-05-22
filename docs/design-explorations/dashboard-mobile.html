@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Dashboard · Tomás Ramírez Villa</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Plus+Jakarta+Sans:wght@300..700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f0eadb;
+      --paper: #f7f2e6;
+      --paper-soft: #faf7ed;
+      --ink: #1a1612;
+      --ink-soft: #3d342d;
+      --muted: #8a7f73;
+      --muted-soft: #b6ab9c;
+      --hairline: #ddd4be;
+      --hairline-soft: #ebe4d2;
+      --vermillion: #c43c1d;
+      --estrategia: #2d4a6f;
+      --sinbata: #5e6b3e;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      background: #100d0a;
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      color: var(--ink);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+    }
+
+    .stage {
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 48px 24px;
+      background: radial-gradient(ellipse at 30% 0%, #2a221c 0%, #15110d 50%, #0a0805 100%);
+    }
+
+    .device {
+      width: 390px;
+      max-width: 100%;
+      background: var(--bg);
+      position: relative;
+      overflow: hidden;
+      border-radius: 36px;
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.04),
+        0 30px 80px -20px rgba(0,0,0,0.6),
+        0 8px 30px -10px rgba(0,0,0,0.4);
+    }
+
+    .device::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.6 0'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.5'/></svg>");
+      opacity: 0.06;
+      pointer-events: none;
+      mix-blend-mode: multiply;
+      z-index: 1;
+    }
+
+    @media (max-width: 480px) {
+      .stage { padding: 0; background: var(--bg); }
+      .device { border-radius: 0; box-shadow: none; min-height: 100vh; }
+    }
+
+    .status {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 26px 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--ink);
+      letter-spacing: 0.02em;
+      position: relative;
+      z-index: 2;
+    }
+
+    .topnav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 22px 24px 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      position: relative;
+      z-index: 2;
+    }
+
+    .topnav a { color: inherit; text-decoration: none; cursor: pointer; }
+    .topnav a:hover { color: var(--ink); }
+
+    .hero {
+      padding: 24px 24px 28px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero-meta {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .hero-greet {
+      font-family: 'Fraunces', serif;
+      font-style: italic;
+      font-weight: 350;
+      font-size: 44px;
+      line-height: 0.95;
+      letter-spacing: -0.025em;
+      color: var(--ink);
+      font-variation-settings: "opsz" 144;
+    }
+
+    .hero-greet em {
+      font-style: normal;
+      font-weight: 600;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 16px;
+      letter-spacing: -0.01em;
+      color: var(--ink-soft);
+      display: block;
+      margin-top: 14px;
+      max-width: 280px;
+      line-height: 1.4;
+    }
+
+    .hero-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-top: 26px;
+      padding-top: 22px;
+      border-top: 1px solid var(--hairline);
+    }
+
+    .hero-stat {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .hero-stat-num {
+      font-family: 'Fraunces', serif;
+      font-style: italic;
+      font-weight: 400;
+      font-size: 32px;
+      letter-spacing: -0.03em;
+      line-height: 1;
+      color: var(--ink);
+    }
+
+    .hero-stat.alert .hero-stat-num { color: var(--vermillion); }
+
+    .hero-stat-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9.5px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .filters-wrap {
+      border-top: 1px solid var(--hairline);
+      background: var(--paper);
+      position: relative;
+      z-index: 2;
+    }
+
+    .filters {
+      display: flex;
+      gap: 18px;
+      padding: 14px 24px 13px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .filters::-webkit-scrollbar { display: none; }
+
+    .filter {
+      color: var(--muted);
+      white-space: nowrap;
+      padding-bottom: 2px;
+      border-bottom: 1px solid transparent;
+      cursor: pointer;
+      transition: color 180ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .filter:hover { color: var(--ink-soft); }
+
+    .filter.active {
+      color: var(--ink);
+      border-bottom-color: var(--ink);
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 22px 24px 12px;
+      border-top: 1px solid var(--hairline);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      position: relative;
+      z-index: 2;
+    }
+
+    .section-head .count { color: var(--ink); font-weight: 600; }
+
+    .list { position: relative; z-index: 2; }
+
+    .client-row {
+      display: grid;
+      grid-template-columns: 36px 1fr auto;
+      gap: 16px;
+      padding: 22px 24px;
+      border-bottom: 1px solid var(--hairline-soft);
+      cursor: pointer;
+      transition: background 200ms cubic-bezier(0.22, 1, 0.36, 1);
+      align-items: start;
+    }
+
+    .client-row:hover { background: var(--paper-soft); }
+
+    .client-num {
+      font-family: 'Fraunces', serif;
+      font-style: italic;
+      font-weight: 350;
+      font-size: 22px;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      color: var(--muted);
+      padding-top: 4px;
+    }
+
+    .client-body {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .client-brand {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9.5px;
+      font-weight: 500;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .client-brand.estrategia { color: var(--estrategia); }
+    .client-brand.sinbata { color: var(--sinbata); }
+
+    .client-name {
+      font-family: 'Fraunces', serif;
+      font-style: italic;
+      font-weight: 400;
+      font-size: 30px;
+      line-height: 1;
+      letter-spacing: -0.03em;
+      color: var(--ink);
+      margin: 2px 0 4px;
+    }
+
+    .client-sector {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 12.5px;
+      font-weight: 400;
+      color: var(--ink-soft);
+      letter-spacing: -0.005em;
+      line-height: 1.35;
+    }
+
+    .client-stats {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 10px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .client-stats strong {
+      color: var(--ink);
+      font-weight: 600;
+      font-size: 11px;
+      letter-spacing: 0;
+    }
+
+    .client-stats .alert strong { color: var(--vermillion); }
+
+    .meta-sep { color: var(--muted-soft); }
+
+    .client-spark {
+      align-self: stretch;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
+      padding-top: 28px;
+    }
+
+    .spark-mark {
+      font-family: 'Fraunces', serif;
+      font-style: italic;
+      font-weight: 400;
+      font-size: 18px;
+      letter-spacing: 0;
+      color: var(--muted);
+      line-height: 1;
+    }
+
+    .client-row.flagged .spark-mark { color: var(--vermillion); font-weight: 500; }
+
+    .spark-date {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted-soft);
+    }
+
+    .footer {
+      padding: 26px 24px 38px;
+      border-top: 1px solid var(--hairline);
+      background: var(--paper);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      z-index: 2;
+    }
+
+    .new-client {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ink);
+      cursor: pointer;
+    }
+
+    .new-client::before {
+      content: '+';
+      font-family: 'Fraunces', serif;
+      font-style: italic;
+      font-size: 28px;
+      font-weight: 300;
+      line-height: 1;
+      color: var(--vermillion);
+      transform: translateY(-2px);
+    }
+
+    .footer-mark {
+      font-family: 'Fraunces', serif;
+      font-style: italic;
+      font-weight: 300;
+      font-size: 13px;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="stage">
+    <article class="device">
+      <div class="status">
+        <span>9:41</span>
+        <span>100</span>
+      </div>
+
+      <nav class="topnav">
+        <a href="#">Hoy · 1 may</a>
+        <a href="#">Menú</a>
+      </nav>
+
+      <header class="hero">
+        <div class="hero-meta">Buenos días</div>
+        <h1 class="hero-greet">Tomás
+          <em>Cinco clientes activos. Cuatro tareas vencidas requieren tu atención esta semana.</em>
+        </h1>
+
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <span class="hero-stat-num">52</span>
+            <span class="hero-stat-label">Activas</span>
+          </div>
+          <div class="hero-stat alert">
+            <span class="hero-stat-num">10</span>
+            <span class="hero-stat-label">Vencidas</span>
+          </div>
+          <div class="hero-stat">
+            <span class="hero-stat-num">137</span>
+            <span class="hero-stat-label">Cerradas</span>
+          </div>
+        </div>
+      </header>
+
+      <div class="filters-wrap">
+        <div class="filters">
+          <div class="filter active">Todos</div>
+          <div class="filter">Estrategia en Acción</div>
+          <div class="filter">Sin Bata</div>
+        </div>
+      </div>
+
+      <div class="section-head">
+        <span><span class="count">05</span> clientes</span>
+        <span>Por urgencia</span>
+      </div>
+
+      <div class="list">
+        <article class="client-row flagged">
+          <div class="client-num">№ 01</div>
+          <div class="client-body">
+            <div class="client-brand estrategia">Estrategia en Acción</div>
+            <div class="client-name">Cygnuss</div>
+            <div class="client-sector">Tecnología B2B · cliente desde 2024</div>
+            <div class="client-stats">
+              <span><strong>12</strong> activas</span>
+              <span class="meta-sep">·</span>
+              <span class="alert"><strong>4</strong> vencidas</span>
+            </div>
+          </div>
+          <div class="client-spark">
+            <span class="spark-mark">!</span>
+            <span class="spark-date">28 abr</span>
+          </div>
+        </article>
+
+        <article class="client-row flagged">
+          <div class="client-num">№ 02</div>
+          <div class="client-body">
+            <div class="client-brand sinbata">Sin Bata</div>
+            <div class="client-name">Lativo</div>
+            <div class="client-sector">Salud · prevención cardiovascular</div>
+            <div class="client-stats">
+              <span><strong>11</strong> activas</span>
+              <span class="meta-sep">·</span>
+              <span class="alert"><strong>3</strong> vencidas</span>
+            </div>
+          </div>
+          <div class="client-spark">
+            <span class="spark-mark">!</span>
+            <span class="spark-date">26 abr</span>
+          </div>
+        </article>
+
+        <article class="client-row flagged">
+          <div class="client-num">№ 03</div>
+          <div class="client-body">
+            <div class="client-brand estrategia">Estrategia en Acción</div>
+            <div class="client-name">AC Autos</div>
+            <div class="client-sector">Automotriz · taller multi-marca</div>
+            <div class="client-stats">
+              <span><strong>15</strong> activas</span>
+              <span class="meta-sep">·</span>
+              <span class="alert"><strong>2</strong> vencidas</span>
+            </div>
+          </div>
+          <div class="client-spark">
+            <span class="spark-mark">!</span>
+            <span class="spark-date">29 abr</span>
+          </div>
+        </article>
+
+        <article class="client-row flagged">
+          <div class="client-num">№ 04</div>
+          <div class="client-body">
+            <div class="client-brand estrategia">Estrategia en Acción</div>
+            <div class="client-name">Paulina</div>
+            <div class="client-sector">Marca personal · coaching ejecutivo</div>
+            <div class="client-stats">
+              <span><strong>6</strong> activas</span>
+              <span class="meta-sep">·</span>
+              <span class="alert"><strong>1</strong> vencida</span>
+            </div>
+          </div>
+          <div class="client-spark">
+            <span class="spark-mark">!</span>
+            <span class="spark-date">25 abr</span>
+          </div>
+        </article>
+
+        <article class="client-row">
+          <div class="client-num">№ 05</div>
+          <div class="client-body">
+            <div class="client-brand estrategia">Estrategia en Acción</div>
+            <div class="client-name">Dentilandia</div>
+            <div class="client-sector">Retail dental · cinco sedes</div>
+            <div class="client-stats">
+              <span><strong>8</strong> activas</span>
+              <span class="meta-sep">·</span>
+              <span>al día</span>
+            </div>
+          </div>
+          <div class="client-spark">
+            <span class="spark-mark">·</span>
+            <span class="spark-date">30 abr</span>
+          </div>
+        </article>
+      </div>
+
+      <footer class="footer">
+        <div class="new-client">Nuevo cliente</div>
+        <span class="footer-mark">— Tomás</span>
+      </footer>
+    </article>
+  </div>
+</body>
+</html>

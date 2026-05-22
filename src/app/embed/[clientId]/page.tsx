@@ -11,8 +11,7 @@ const CLIENT_NAMES: Record<string, string> = {
   "client-acautos": "AC Autos",
   "client-paulina": "Paulina Zarrabe",
   c5: "Lativo",
-  "client-davinci": "Davinci",
-  "client-criptotracker": "Criptotracker",
+  "client-operatto": "Operatto",
 };
 
 export function generateMetadata({
@@ -49,9 +48,6 @@ export default function EmbedPlanPage({
 }) {
   const expected = getEmbedSecret();
   if (searchParams.token !== expected) {
-    notFound();
-  }
-  if (!CLIENT_NAMES[params.clientId]) {
     notFound();
   }
   return (

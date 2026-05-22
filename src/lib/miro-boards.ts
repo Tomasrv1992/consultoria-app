@@ -42,20 +42,8 @@ export const MIRO_BOARDS: Record<string, MiroBoard> = {
     completadaOptionId: "completada",
     historicoDocId: "3458764668106891278",
   },
-  // ── Davinci ──────────────────────────────────────────────────────────────
-  "client-davinci": {
-    boardId: "uXjVGMEACE4=",
-    widgetId: "3458764658689593722",
-    estadoColumnId: "3",               // columna "Status" en la tabla de Davinci
-    completadaOptionId: "optionDone",  // opción "Completadas" en esa columna
-    historicoDocId: undefined,         // crear doc histórico cuando aplique
-  },
-  // ── Criptotracker ────────────────────────────────────────────────────────
-  "client-criptotracker": {
-    boardId: "uXjVHZ6DPzE=",
-    widgetId: "",          // pendiente: crear tabla Plan de Trabajo en Miro
-    estadoColumnId: "",    // se completa cuando exista la tabla
-    completadaOptionId: "completada",
-    historicoDocId: undefined,
+  "client-operatto": {
+    boardId: "uXjVHZAFHOU=",
+    widgetId: "",
   },
 };

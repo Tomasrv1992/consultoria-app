@@ -68,6 +68,28 @@ export interface MinuteSection {
   order: number;
 }
 
+export interface Meeting {
+  id: string;
+  client_id: string;
+  fecha_reunion: string;          // ISO date "YYYY-MM-DD"
+  duracion_min: number | null;
+  asistentes: string[];
+  transcript_raw: string;
+  minuta_md: string;
+
+  tareas_creadas_ids: string[];
+  tareas_completadas_ids: string[];
+  tareas_actualizadas_ids: string[];
+
+  pending_miro_sync: boolean;
+  miro_doc_id: string | null;
+  miro_synced_at: string | null;  // ISO timestamp
+
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface ProgressByModule {
   category: ModuleCategory;
   label: string;
