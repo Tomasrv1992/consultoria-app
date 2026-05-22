@@ -1,4 +1,4 @@
-export interface MiroBoard {
+﻿export interface MiroBoard {
   boardId: string;
   widgetId: string;
   estadoColumnId?: string;
@@ -45,5 +45,19 @@ export const MIRO_BOARDS: Record<string, MiroBoard> = {
   "client-operatto": {
     boardId: "uXjVHZAFHOU=",
     widgetId: "",
+  },
+  "client-davinci": {
+    boardId: "uXjVGMEACE4=",
+    widgetId: "3458764658689593722",
+    estadoColumnId: "3",
+    completadaOptionId: "optionDone",
+    historicoDocId: undefined,
+  },
+  "client-criptotracker": {
+    boardId: "uXjVHZ6DPzE=",
+    widgetId: "",
+    estadoColumnId: "",
+    completadaOptionId: "completada",
+    historicoDocId: undefined,
   },
 };
