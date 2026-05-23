@@ -117,6 +117,28 @@ export const MOCK_CLIENTS: Client[] = [
     contact_email: "operatto@equipodegentes.co",
     created_at: "2026-05-11",
   },
+  {
+    id: "client-davinci",
+    name: "Davinci",
+    industry: "Salud",
+    brand: "sinbata",
+    color: "#1B3A5C",
+    health: "green",
+    contact_name: "Davinci",
+    contact_email: "contacto@davinci.com",
+    created_at: "2026-05-13",
+  },
+  {
+    id: "client-cryptotracker",
+    name: "Cryptotracker",
+    industry: "Producto propio",
+    brand: "estrategia",
+    color: "#0D7C5F",
+    health: "green",
+    contact_name: "Tomás",
+    contact_email: "cryptotracker@equipodegentes.co",
+    created_at: "2026-05-13",
+  },
 ];
 
 export const MOCK_MODULES: WorkModule[] = [
