@@ -313,7 +313,7 @@ export function EmbedPlanClient({
 
   return (
     <div className="bg-bg min-h-screen">
-      <div className="max-w-[640px] mx-auto p-4 animate-[fadeIn_200ms_ease-out]">
+      <div className="w-full max-w-[1100px] mx-auto p-4 animate-[fadeIn_200ms_ease-out]">
 
         {/* HEADER */}
         <header className="mb-4">
