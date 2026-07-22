@@ -45,6 +45,7 @@ const CLIENT_LABEL: Record<string, string> = {
   "client-operatto": "Operatto",
   "client-davinci": "Davinci",
   "client-cryptotracker": "Cryptotracker",
+  "client-pushleads": "Pushleads",
 };
 
 export function EmbedPlanClient({

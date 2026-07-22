@@ -14,6 +14,7 @@ const CLIENT_NAMES: Record<string, string> = {
   "client-operatto": "Operatto",
   "client-davinci": "Davinci",
   "client-cryptotracker": "Cryptotracker",
+  "client-pushleads": "Pushleads",
 };
 
 export default function Image({ params }: { params: { clientId: string } }) {

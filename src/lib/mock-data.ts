@@ -139,6 +139,17 @@ export const MOCK_CLIENTS: Client[] = [
     contact_email: "cryptotracker@equipodegentes.co",
     created_at: "2026-05-13",
   },
+  {
+    id: "client-pushleads",
+    name: "Pushleads",
+    industry: "SaaS",
+    brand: "estrategia",
+    color: "#0D7C5F",
+    health: "green",
+    contact_name: "Diego",
+    contact_email: "diego@pushleads.com",
+    created_at: "2026-07-16",
+  },
 ];
 
 export const MOCK_MODULES: WorkModule[] = [
