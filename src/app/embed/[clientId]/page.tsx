@@ -15,6 +15,7 @@ const CLIENT_NAMES: Record<string, string> = {
   "client-davinci": "Davinci",
   "client-cryptotracker": "Cryptotracker",
   "client-pushleads": "Pushleads",
+  "client-villa-tonis": "Villa Tonis",
 };
 
 export function generateMetadata({

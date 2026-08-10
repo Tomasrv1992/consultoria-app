@@ -46,6 +46,7 @@ const CLIENT_LABEL: Record<string, string> = {
   "client-davinci": "Davinci",
   "client-cryptotracker": "Cryptotracker",
   "client-pushleads": "Pushleads",
+  "client-villa-tonis": "Villa Tonis",
 };
 
 export function EmbedPlanClient({

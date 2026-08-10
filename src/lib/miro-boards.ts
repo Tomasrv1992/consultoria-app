@@ -61,4 +61,8 @@ export const MIRO_BOARDS: Record<string, MiroBoard> = {
     boardId: "uXjVH5c5WH0=",
     widgetId: "",
   },
+  "client-villa-tonis": {
+    boardId: "uXjVHzIMdTw=",
+    widgetId: "",
+  },
 };

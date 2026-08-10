@@ -150,6 +150,17 @@ export const MOCK_CLIENTS: Client[] = [
     contact_email: "diego@pushleads.com",
     created_at: "2026-07-16",
   },
+  {
+    id: "client-villa-tonis",
+    name: "Villa Tonis",
+    industry: "Construcción",
+    brand: "estrategia",
+    color: "#8B5A2B",
+    health: "green",
+    contact_name: "Tomás",
+    contact_email: "tomasramirezvilla@gmail.com",
+    created_at: "2026-08-10",
+  },
 ];
 
 export const MOCK_MODULES: WorkModule[] = [

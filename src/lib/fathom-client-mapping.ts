@@ -18,6 +18,7 @@ export const FATHOM_CLIENT_ALIASES: Record<string, string[]> = {
   "client-davinci": ["Davinci", "davinci", "Da Vinci", "da vinci"],
   "client-cryptotracker": ["Cryptotracker", "cryptotracker", "Crypto Tracker"],
   "client-pushleads": ["Pushleads", "pushleads", "Push Leads", "Puschnitz", "Pushlitz"],
+  "client-villa-tonis": ["Villa Tonis", "villa tonis", "VillaTonis", "Villa Toni's"],
 };
 
 /**
